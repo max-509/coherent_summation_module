@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(parallel_by_samples_test)
+project(parallel_by_receivers_test)
 
 find_package(Threads REQUIRED)
 find_package(OpenMP REQUIRED)

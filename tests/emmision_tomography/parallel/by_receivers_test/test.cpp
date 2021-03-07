@@ -72,7 +72,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
 		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
 			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 100) {
-				measurements_file << "parallel by samples;";
+				measurements_file << "parallel by receivers;";
 				measurements_file << SIMD_EXTENSION << ";";
 				measurements_file << n_threads << ";";
 				measurements_file << data_gen.get_n_sources() << ";";
@@ -126,7 +126,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
 		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
 			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
-				measurements_file << "parallel by samples;";
+				measurements_file << "parallel by receivers;";
 				measurements_file << SIMD_EXTENSION << ";";
 				measurements_file << n_threads << ";";
 				measurements_file << data_gen.get_n_sources() << ";";
@@ -179,7 +179,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
 		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
 			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
-				measurements_file << "parallel by samples;";
+				measurements_file << "parallel by receivers;";
 				measurements_file << SIMD_EXTENSION << ";";
 				measurements_file << n_threads << ";";
 				measurements_file << data_gen.get_n_sources() << ";";

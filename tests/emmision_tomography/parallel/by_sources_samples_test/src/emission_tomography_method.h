@@ -222,7 +222,7 @@ void emissionTomographyMethod(const Array2D<T> &gather,
 
         
         
-        #pragma omp parallel for simd schedule(dynamic) collapse(2) shared(rev_dt)
+        #pragma omp parallel for schedule(dynamic) collapse(2) shared(rev_dt)
         for (std::ptrdiff_t bl_it = 0; bl_it < n_samples; bl_it += samples_block_size) {
             for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
 
@@ -233,6 +233,7 @@ void emissionTomographyMethod(const Array2D<T> &gather,
                     T amplitude = amplitudes(i_s, i_r-bl_ir);
                     std::ptrdiff_t godograph_ind = static_cast<std::ptrdiff_t>((sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
 
+                    #pragma omp simd
                     for (std::ptrdiff_t i_t = bl_it; i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
                         result_data[i_s*n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;
                     }

@@ -167,6 +167,8 @@ float find_min_t_to_source(const Array2D<float> &sources_receivers_times, std::p
 
 }
 
+
+
 template <typename T>
 using AmplitudesComputerType = AmplitudesCalculatorM128<T>;
 
@@ -207,44 +209,69 @@ void emissionTomographyMethod(const Array2D<T> &gather,
 
     double rev_dt = 1.0 / dt;
 
-    for (std::ptrdiff_t bl_ir = 0; bl_ir < n_receivers; bl_ir += receivers_block_size) {
+    T *tmp_result_data = nullptr;
 
-        std::ptrdiff_t next_receivers_block_begin = std::min(bl_ir + receivers_block_size, n_receivers);
+    #pragma omp parallel shared(rev_dt)
+    {
+        //init local array for reduction
+        const auto n_threads = omp_get_num_threads();
+        const auto i_thread = omp_get_thread_num();
 
-        std::ptrdiff_t curr_receivers_block_size = next_receivers_block_begin - bl_ir;
+        #pragma omp single
+        tmp_result_data = new T[n_threads*(n_samples*n_sources)];
 
-        const Array2D<T> receivers_coords_block(const_cast<T*>(&receivers_coords(bl_ir, 0)), curr_receivers_block_size, 3);
+        #pragma omp for schedule(dynamic) 
+        for (std::ptrdiff_t bl_ir = 0; bl_ir < n_receivers; bl_ir += receivers_block_size) {
 
-        T *amplitudes_buf = new T[n_sources*curr_receivers_block_size];
-        Array2D<T> amplitudes{amplitudes_buf, n_sources, curr_receivers_block_size};
-        AmplitudesComputerType<T> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
-        amplitudes_computer.calculate();
+            std::ptrdiff_t next_receivers_block_begin = std::min(bl_ir + receivers_block_size, n_receivers);
 
-        
-        #pragma omp parallel for schedule(dynamic) shared(rev_dt)
-        for (std::ptrdiff_t bl_it = 0; bl_it < n_samples; bl_it += samples_block_size) {
+            std::ptrdiff_t curr_receivers_block_size = next_receivers_block_begin - bl_ir;
+
+            const Array2D<T> receivers_coords_block(const_cast<T*>(&receivers_coords(bl_ir, 0)), curr_receivers_block_size, 3);
+
+            T *amplitudes_buf = new T[n_sources*curr_receivers_block_size];
+            Array2D<T> amplitudes{amplitudes_buf, n_sources, curr_receivers_block_size};
+            AmplitudesComputerType<T> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
+            amplitudes_computer.calculate();
+
             
-            for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
-
-                T min_t_to_source = min_times_to_sources[i_s];
-
+            for (std::ptrdiff_t bl_it = 0; bl_it < n_samples; bl_it += samples_block_size) {
                 
-                for (std::ptrdiff_t i_r = bl_ir; i_r < next_receivers_block_begin; ++i_r) {
+                for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
 
-                    T amplitude = amplitudes(i_s, i_r-bl_ir);
-                    std::ptrdiff_t godograph_ind = static_cast<std::ptrdiff_t>((sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
+                    T min_t_to_source = min_times_to_sources[i_s];
 
-                    #pragma omp simd
-                    for (std::ptrdiff_t i_t = bl_it; i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
-                        result_data[i_s*n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;
-                    }
-                }        
+                    
+                    for (std::ptrdiff_t i_r = bl_ir; i_r < next_receivers_block_begin; ++i_r) {
+
+                        T amplitude = amplitudes(i_s, i_r-bl_ir);
+                        std::ptrdiff_t godograph_ind = static_cast<std::ptrdiff_t>((sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
+
+                        #pragma omp simd
+                        for (std::ptrdiff_t i_t = bl_it; i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
+                            tmp_result_data[i_thread*n_sources*n_samples + i_s*n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;
+                        }
+                    }        
+                }
+
             }
 
+            delete [] amplitudes_buf;
         }
 
-        delete [] amplitudes_buf;
+        #pragma omp for simd schedule(dynamic) collapse(2)
+        for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
+            for (std::ptrdiff_t i_t = 0; i_t < n_samples; ++i_t) {
+                for (std::ptrdiff_t thr = 0; thr < n_threads; ++thr) {
+                    result_data[i_s*n_samples + i_t] += tmp_result_data[i_thread*n_sources*n_samples + i_s*n_samples + i_t];
+                }
+            }
+        }
+
     }
+    
+
+    delete [] tmp_result_data;
 
     delete [] min_times_to_sources;
 }
