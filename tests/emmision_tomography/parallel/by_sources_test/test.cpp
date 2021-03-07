@@ -1,0 +1,243 @@
+#include "emission_tomography_method.h"
+#include "perf_wrapper.h"
+#include "test_data_generator.h"
+
+#ifdef __AVX512F__
+#define SIMD_EXTENSION "AVX512F"
+#elif __AVX2__
+#define SIMD_EXTENSION "AVX2"
+#elif __SSE2__
+#define SIMD_EXTENSION "SSE2"
+#else
+#define SIMD_EXTENSION "NO SIMD EXTENSIONS"
+#endif
+
+#include <functional>
+#include <iostream>
+#include <ctime>
+#include <fstream>
+#include <omp.h>
+
+template <typename T>
+using CohSumType = std::function<void (const Array2D<T> &, 
+                                const Array2D<T> &,
+                                const Array2D<T> &,
+                                const Array2D<T> &,
+                                double,
+                                const T *,
+                                T *)>;
+
+void run_program(CohSumType<double> coh_sum, test_data_generator &data_gen, std::ofstream &measurements_file) {
+	Array2D<double> gather(data_gen.get_gather(), data_gen.get_n_receivers(), data_gen.get_n_samples());
+	Array2D<double> receivers_coords(data_gen.get_receivers_coords(), data_gen.get_n_receivers(), 3);
+	Array2D<double> sources_coords(data_gen.get_sources_coords(), data_gen.get_n_sources(), 3);
+	Array2D<double> sources_receivers_times(data_gen.get_sources_receivers_times(), data_gen.get_n_sources(), data_gen.get_n_receivers());
+	double dt = data_gen.get_dt();
+	double tensor_matrix[6] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6};
+
+	double *result_data = new double[data_gen.get_n_sources()*data_gen.get_n_samples()];
+
+	perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(receivers_coords), std::ref(sources_coords), std::ref(sources_receivers_times), dt, tensor_matrix, result_data), measurements_file);
+
+	delete [] result_data;
+
+}
+
+inline bool is_exist_file(const std::string &filename) {
+	std::ifstream f(filename);
+	return f.good();
+}
+
+void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
+	double x0_r = 100, x1_r = 2000;
+	std::size_t NxR = 20;
+	double y0_r = 100, y1_r = 2000;
+	std::size_t NyR = 20;
+	double x0_s = 0, x1_s = 3000;
+	std::size_t NxS = 50;
+	double y0_s = 0, y1_s = 3000; 
+	std::size_t NyS = 50;
+	double z0_s = 0, z1_s = 3000;
+	std::size_t NzS = 50;
+	std::size_t n_samples = 2000;
+	double velocity = 3000;
+
+	test_data_generator data_gen(x0_r, x1_r, NxR,
+								y0_r, y1_r, NyR,
+								x0_s, x1_s, NxS,
+								y0_s, y1_s, NyS,
+								z0_s, z1_s, NzS,
+								n_samples, velocity);
+
+	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
+		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
+			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 100) {
+				measurements_file << "parallel by sources;";
+				measurements_file << SIMD_EXTENSION << ";";
+				measurements_file << n_threads << ";";
+				measurements_file << data_gen.get_n_sources() << ";";
+				measurements_file << data_gen.get_n_receivers() << ";";
+				measurements_file << data_gen.get_n_samples() << ";";
+				measurements_file << receivers_block_size << ";";
+				measurements_file << samples_block_size << ";";
+
+				omp_set_num_threads(n_threads);
+
+				run_program(std::bind(
+					emissionTomographyMethod<double>,
+					std::placeholders::_1,
+					std::placeholders::_2,
+					std::placeholders::_3,
+					std::placeholders::_4,
+					std::placeholders::_5,
+					std::placeholders::_6,
+					std::placeholders::_7,
+					receivers_block_size,
+					samples_block_size), data_gen, measurements_file
+				);
+				measurements_file << std::endl;
+			}
+		}
+	}
+
+}
+
+void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
+	double x0_r = 100, x1_r = 2000;
+	std::size_t NxR = 20;
+	double y0_r = 100, y1_r = 2000;
+	std::size_t NyR = 20;
+	double x0_s = 0, x1_s = 3000;
+	std::size_t NxS = 10;
+	double y0_s = 0, y1_s = 3000; 
+	std::size_t NyS = 10;
+	double z0_s = 0, z1_s = 3000;
+	std::size_t NzS = 10;
+	std::size_t n_samples = 40000;
+	double velocity = 3000;
+
+	test_data_generator data_gen(x0_r, x1_r, NxR,
+								y0_r, y1_r, NyR,
+								x0_s, x1_s, NxS,
+								y0_s, y1_s, NyS,
+								z0_s, z1_s, NzS,
+								n_samples, velocity);
+
+	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
+		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
+			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
+				measurements_file << "parallel by sources;";
+				measurements_file << SIMD_EXTENSION << ";";
+				measurements_file << n_threads << ";";
+				measurements_file << data_gen.get_n_sources() << ";";
+				measurements_file << data_gen.get_n_receivers() << ";";
+				measurements_file << data_gen.get_n_samples() << ";";
+				measurements_file << receivers_block_size << ";";
+				measurements_file << samples_block_size << ";";
+
+				omp_set_num_threads(n_threads);
+
+				run_program(std::bind(
+					emissionTomographyMethod<double>,
+					std::placeholders::_1,
+					std::placeholders::_2,
+					std::placeholders::_3,
+					std::placeholders::_4,
+					std::placeholders::_5,
+					std::placeholders::_6,
+					std::placeholders::_7,
+					receivers_block_size,
+					samples_block_size), data_gen, measurements_file
+				);
+				measurements_file << std::endl;
+			}
+		}
+	}
+}
+
+void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
+	double x0_r = 100, x1_r = 2000;
+	std::size_t NxR = 20;
+	double y0_r = 100, y1_r = 2000;
+	std::size_t NyR = 20;
+	double x0_s = 0, x1_s = 3000;
+	std::size_t NxS = 35;
+	double y0_s = 0, y1_s = 3000; 
+	std::size_t NyS = 35;
+	double z0_s = 0, z1_s = 3000;
+	std::size_t NzS = 35;
+	std::size_t n_samples = 40000;
+	double velocity = 3000;
+
+	test_data_generator data_gen(x0_r, x1_r, NxR,
+								y0_r, y1_r, NyR,
+								x0_s, x1_s, NxS,
+								y0_s, y1_s, NyS,
+								z0_s, z1_s, NzS,
+								n_samples, velocity);
+
+	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
+		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
+			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
+				measurements_file << "parallel by sources;";
+				measurements_file << SIMD_EXTENSION << ";";
+				measurements_file << n_threads << ";";
+				measurements_file << data_gen.get_n_sources() << ";";
+				measurements_file << data_gen.get_n_receivers() << ";";
+				measurements_file << data_gen.get_n_samples() << ";";
+				measurements_file << receivers_block_size << ";";
+				measurements_file << samples_block_size << ";";
+
+				omp_set_num_threads(n_threads);
+
+				run_program(std::bind(
+					emissionTomographyMethod<double>,
+					std::placeholders::_1,
+					std::placeholders::_2,
+					std::placeholders::_3,
+					std::placeholders::_4,
+					std::placeholders::_5,
+					std::placeholders::_6,
+					std::placeholders::_7,
+					receivers_block_size,
+					samples_block_size), data_gen, measurements_file
+				);
+				measurements_file << std::endl;
+			}
+		}
+	}
+}
+
+int main(int argc, char const *argv[]) {
+
+	std::string filename = "../measurements.csv";
+
+	omp_set_dynamic(0);
+
+	std::ofstream measurements_file;
+	if (!is_exist_file(filename)) {
+		measurements_file.open(filename);
+
+		measurements_file << "summation version;";
+		measurements_file << "SIMD extension;";
+		measurements_file << "number of threads;";
+		measurements_file << "number of sources;";
+		measurements_file << "number of receivers;";
+		measurements_file << "number of samples;";
+		measurements_file << "receivers block size;";
+		measurements_file << "samples block size;";
+		for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
+			measurements_file << Events::events_names[i_e] << ";";
+		}
+		measurements_file << "time, s";
+		measurements_file << std::endl;
+	} else {
+		measurements_file.open(filename, std::ios::app | std::ios::out);		
+	}
+
+	test_n_sou_greater_n_smpls(measurements_file);
+	test_n_smpls_greater_n_sou(measurements_file);
+	test_n_sou_equal_n_smpls(measurements_file);
+
+	return 0;
+}

@@ -1,1 +1,2 @@
-# coherent_summation_module
+# CoherentSummation
+
