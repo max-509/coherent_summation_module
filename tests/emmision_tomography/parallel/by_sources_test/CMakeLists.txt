@@ -4,7 +4,7 @@ project(parallel_by_sources_test)
 find_package(Threads REQUIRED)
 find_package(OpenMP REQUIRED)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -march=native -fno-math-errno -Wno-ignored-attributes ${OpenMP_CXX_FLAGS}  -g -fno-omit-frame-pointer -ftree-vectorize -fopt-info=optimization_report.txt")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -march=native -fno-math-errno -Wno-ignored-attributes ${OpenMP_CXX_FLAGS}  -g -fno-omit-frame-pointer -ftree-vectorize -fopt-info-all=optimization_report.txt -fdump-ipa-all")
 if (AVX512) 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512f")
 elseif(AVX2)
