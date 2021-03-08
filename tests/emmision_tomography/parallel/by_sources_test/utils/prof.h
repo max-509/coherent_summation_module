@@ -103,6 +103,8 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
+#define MAX_EVENTS_IN_GROUP 5
+
 /*
  * ## API
  */
@@ -173,7 +175,7 @@
  * integers.
  */
 #define PROF_COUNTERS                                                          \
-    (prof_event_buf_ + 1)
+    (prof_event_buf_)
 
 /*
  * Stop counting the events and execute the code provided by `block` for each
@@ -182,17 +184,27 @@
  * the counter. `index` is a 64 bit unsigned integer.
  */
 #define PROF_DO(block)                                                         \
-    do {                                                                       \
-        uint64_t i_;                                                           \
+    {                                                                          \
         PROF_STOP();                                                           \
-        for (i_ = 0; i_ < prof_event_cnt_; i_++) {                             \
-            uint64_t index = i_;                                               \
-            uint64_t counter = prof_event_buf_[i_ + 1];                        \
-            (void)index;                                                       \
-            (void)counter;                                                     \
-            block;                                                             \
+        uint64_t shift = 0;                                                    \
+        for (uint64_t i_ = 0; i_ < groups_fds_size_; ++i_) {                   \
+            uint64_t events_in_group;                                          \
+            if (i_ != groups_fds_size_ - 1) {                                  \
+                events_in_group = MAX_EVENTS_IN_GROUP;                         \
+            } else {                                                           \
+                events_in_group = n_events_in_group_;                          \
+            }                                                                  \
+            for (uint64_t j_ = 0; j_ < events_in_group; ++j_) {                \
+                uint64_t index = shift + j_;                                   \
+                uint64_t counter =                                             \
+                        prof_event_buf_[shift + (i_ + 1) + j_]; \
+                (void)index;                                                   \
+                (void)counter;                                                 \
+                block;                                                         \
+            }                                                                  \
+            shift += events_in_group;                                          \
         }                                                                      \
-    } while (0)
+    }
 
 /*
  * Same as `PROF_DO` except that `callback` is the name of a *callable* object
@@ -219,7 +231,7 @@
 /*
  * Same as `PROF_LOG_FILE` except that `file` is `stdout`.
  */
-#define PROF_STDOUT()                                                         \
+#define PROF_STDOUT()                                                          \
     PROF_FILE(stdout)
 
 /*
@@ -253,30 +265,49 @@
     } while (0)
 
 #define PROF_IOCTL_(mode)                                                      \
-    do {                                                                       \
-        PROF_ASSERT_(ioctl(prof_fd_,                                           \
+    {                                                                          \
+        for (uint64_t i_ = 0; i_ < groups_fds_size_; ++i_) {                   \
+            PROF_ASSERT_(ioctl(groups_fds_[i_],                                \
                            PERF_EVENT_IOC_ ## mode,                            \
                            PERF_IOC_FLAG_GROUP) != -1);                        \
-    } while (0)
+        }                                                                      \
+    }
 
 #define PROF_READ_COUNTERS_(buffer)                                            \
-    do {                                                                       \
-        const ssize_t to_read = sizeof(uint64_t) * (prof_event_cnt_ + 1);      \
-        PROF_ASSERT_(read(prof_fd_, buffer, to_read) == to_read);              \
-    } while (0)
+    {                                                                          \
+        int64_t to_read;                                                   \
+        uint64_t shift = 0;                                                 \
+        for (uint64_t i_ = 0; i_ < groups_fds_size_; ++i_) {                   \
+            if (i_ == groups_fds_size_ - 1) {                                  \
+                to_read = sizeof(uint64_t) * (n_events_in_group_+1);           \
+            } else {                                                           \
+                to_read = sizeof(uint64_t) * (MAX_EVENTS_IN_GROUP + 1);        \
+            }                                                                  \
+            PROF_ASSERT_(read(groups_fds_[i_], buffer + shift, to_read)        \
+                                                                 == to_read);  \
+            shift += (to_read / sizeof(uint64_t));                             \
+        }                                                                      \
+    }
 
 /* SETUP -------------------------------------------------------------------- */
 
-static int prof_fd_;
-static uint64_t prof_event_cnt_;
-static uint64_t *prof_event_buf_;
 
-static void prof_init_(uint64_t dummy, ...) {
+int n_events_in_group_;
+uint64_t prof_event_cnt_;
+uint64_t *prof_event_buf_;
+uint64_t groups_fds_size_;
+int *groups_fds_;
+
+void prof_init_(uint64_t dummy, ...) {
     uint32_t type;
     va_list ap;
 
-    prof_fd_ = -1;
+    n_events_in_group_ = 0;
     prof_event_cnt_ = 0;
+    groups_fds_size_ = 0;
+
+    groups_fds_ = NULL;
+
     va_start(ap, dummy);
     while (type = va_arg(ap, uint32_t), type != (uint32_t)-1) {
         struct perf_event_attr pe;
@@ -295,17 +326,48 @@ static void prof_init_(uint64_t dummy, ...) {
         pe.exclude_hv = 1;
         #endif
 
-        fd = syscall(__NR_perf_event_open, &pe, 0, -1, prof_fd_, 0);
-        PROF_ASSERT_(fd != -1);
-        if (prof_fd_ == -1) {
-            prof_fd_ = fd;
+        if (groups_fds_size_ == 0) {
+            fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+            PROF_ASSERT_(fd != -1);
+
+            ++groups_fds_size_;
+            groups_fds_ = (int*)realloc(groups_fds_, groups_fds_size_*sizeof(int));
+            groups_fds_[groups_fds_size_ - 1] = fd;
+            ++n_events_in_group_;
+        } else {
+            if (n_events_in_group_ == MAX_EVENTS_IN_GROUP) {
+                fd = syscall(__NR_perf_event_open, &pe, 0, -1, -1, 0);
+                PROF_ASSERT_(fd != -1);
+
+                int *tmp_groups_fds = (int*)malloc(groups_fds_size_*sizeof(int));
+
+                for (uint64_t i = 0; i < groups_fds_size_; ++i) {
+                    tmp_groups_fds[i] = groups_fds_[i];
+                }                
+
+                ++groups_fds_size_;
+
+                groups_fds_ = (int*)realloc(groups_fds_, groups_fds_size_*sizeof(int));
+
+                for (uint64_t i = 0; i < groups_fds_size_ - 1; ++i) {
+                    groups_fds_[i] = tmp_groups_fds[i];
+                }
+                groups_fds_[groups_fds_size_ - 1] = fd;
+                free(tmp_groups_fds);
+
+                n_events_in_group_ = 1;
+            } else {
+                fd = syscall(__NR_perf_event_open, &pe, 0, -1, groups_fds_[groups_fds_size_-1], 0);
+                PROF_ASSERT_(fd != -1);
+                ++n_events_in_group_;
+            }
         }
 
         prof_event_cnt_++;
     }
     va_end(ap);
 
-    prof_event_buf_ = (uint64_t *)malloc((prof_event_cnt_ + 1) *
+    prof_event_buf_ = (uint64_t *)malloc((prof_event_cnt_ + groups_fds_size_) *
                                          sizeof(uint64_t));
 }
 
@@ -316,7 +378,10 @@ void __attribute__((constructor)) prof_init()
 
 void __attribute__((destructor)) prof_fini()
 {
-    PROF_ASSERT_(close(prof_fd_) != -1);
+    for (uint64_t i = 0; i < groups_fds_size_; ++i) {
+        PROF_ASSERT_(close(groups_fds_[i]) != -1);    
+    }
+    free(groups_fds_);
     free(prof_event_buf_);
 }
 

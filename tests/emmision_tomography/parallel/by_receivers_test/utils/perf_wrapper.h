@@ -9,11 +9,13 @@
     PROF_EVENT_HW(CACHE_MISSES) \
     PROF_EVENT_HW(BRANCH_INSTRUCTIONS) \
     PROF_EVENT_HW(BRANCH_MISSES) \
+    PROF_EVENT_HW(STALLED_CYCLES_FRONTEND) \
+    PROF_EVENT_HW(STALLED_CYCLES_BACKEND) \
     PROF_EVENT_SW(PAGE_FAULTS) \
     PROF_EVENT_CACHE(L1D, READ, MISS) \
     PROF_EVENT_CACHE(L1D, READ, ACCESS) \
     PROF_EVENT_CACHE(L1D, PREFETCH, ACCESS)
-
+    
 #include "prof.h"
 
 #include <string>
@@ -23,7 +25,7 @@
 #include <functional>
 
 namespace Events {
-	constexpr std::size_t COUNT_EVENTS = 10;
+	constexpr std::size_t COUNT_EVENTS = 12;
 	uint64_t events_values[COUNT_EVENTS];
 	std::string events_names[COUNT_EVENTS] = {"CPU CYCLES",
 											"INSTRUCTIONS",
@@ -31,6 +33,8 @@ namespace Events {
 											"CACHE MISSES",
 											"BRANCH INSTRUCTIONS",
 											"BRANCH MISSES",
+											"STALLED CYCLES FRONTEND",
+											"STALLED CYCLES BACKEND",
 											"PAGE FAULTS",
 											"L1D READ MISSES",
 											"L1D READ ACCESSES",

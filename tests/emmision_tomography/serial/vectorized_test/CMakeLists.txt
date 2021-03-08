@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 project(vectorizaed_test)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -march=native -fno-math-errno -Wno-ignored-attributes -fopenmp")
+find_package(OpenMP REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -march=native -fno-math-errno -Wno-ignored-attributes ${OpenMP_CXX_FLAGS} -g -fno-omit-frame-pointer -ftree-vectorize -fopt-info=optimization_report.txt")
 if (AVX512) 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512f")
 elseif(AVX2)

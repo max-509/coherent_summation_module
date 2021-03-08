@@ -112,12 +112,12 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 35;
+	std::size_t NxS = 30;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 35;
+	std::size_t NyS = 30;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 35;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 30;
+	std::size_t n_samples = 20000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
