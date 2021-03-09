@@ -17,7 +17,7 @@ class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<T, AmplitudesCa
 public:
 	AmplitudesCalculatorM512(const Array2D<T> &sources_coords,
 						 	  const Array2D<T> &rec_coords,
-						 	  const T *tensor_matrix,
+						 	  const T *RESTRICT tensor_matrix,
 						 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		rec_coords_(rec_coords),
@@ -30,7 +30,7 @@ public:
 private:
 	const Array2D<T> &sources_coords_;
 	const Array2D<T> &rec_coords_;
-	const T *tensor_matrix_;
+	const T *RESTRICT tensor_matrix_;
 	Array2D<T> &amplitudes_;
     __m512d d_epsilon_v = _mm512_set1_pd(std::numeric_limits<double>::epsilon());
     __m512 f_epsilon_v = _mm512_set1_ps(std::numeric_limits<float>::epsilon());
@@ -66,10 +66,10 @@ void AmplitudesCalculatorM512<float>::realize_calculate() {
 
     __m512i vindex = _mm512_set_epi32(45, 42, 39, 36, 33, 30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0);
     
-    #pragma omp parallel
+    #pragma omp parallel shared(tensor_matrix_v, two_v, one_v, vector_dim, sources_count, n_rec, vindex)
     {
-        __m512 G_P_vect[matrix_size];
-        __m512 coord_vec[3];
+        __m512 RESTRICT G_P_vect[matrix_size];
+        __m512 RESTRICT coord_vec[3];
 
         #pragma omp for schedule(dynamic)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
@@ -129,7 +129,7 @@ void AmplitudesCalculatorM512<double>::realize_calculate() {
 
     __m512i vindex = _mm512_set_epi64(21, 18, 15, 12, 9, 6, 3, 0);
 
-    #pragma omp parallel
+    #pragma omp parallel shared(tensor_matrix_v, two_v, one_v, vector_dim, sources_count, n_rec, vindex)
     {
         __m512d G_P_vect[matrix_size];
         __m512d coord_vec[3];

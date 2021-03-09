@@ -17,7 +17,7 @@ class AmplitudesCalculatorM128 : public AmplitudesCalculatorBase<T, AmplitudesCa
 public:
 	AmplitudesCalculatorM128(const Array2D<T> &sources_coords,
 						 	  const Array2D<T> &rec_coords,
-						 	  const T *tensor_matrix,
+						 	  const T *RESTRICT tensor_matrix,
 						 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		rec_coords_(rec_coords),
@@ -30,7 +30,7 @@ public:
 private:
 	const Array2D<T> &sources_coords_;
 	const Array2D<T> &rec_coords_;
-	const T *tensor_matrix_;
+	const T *RESTRICT tensor_matrix_;
 	Array2D<T> &amplitudes_;
     __m128d abs_mask_d = _mm_castsi128_pd(_mm_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m128 abs_mask_f = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
@@ -66,10 +66,10 @@ void AmplitudesCalculatorM128<float>::realize_calculate() {
                                             _mm_set1_ps(tensor_matrix_[5])
                                         };
 
-    #pragma omp parallel
+    #pragma omp parallel shared(tensor_matrix_v, two_v, one_v, vector_dim, sources_count, n_rec)
     {
-        __m128 G_P_vect[matrix_size];
-        __m128 coord_vec[3];
+        __m128 RESTRICT G_P_vect[matrix_size];
+        __m128 RESTRICT coord_vec[3];
 
         #pragma omp for schedule(dynamic)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
@@ -124,10 +124,10 @@ void AmplitudesCalculatorM128<double>::realize_calculate() {
                                         };
     
 
-    #pragma omp parellel
+    #pragma omp parallel shared(tensor_matrix_v, two_v, one_v, vector_dim, sources_count, n_rec)
     {
-        __m128d G_P_vect[matrix_size];
-        __m128d coord_vec[3];
+        __m128d RESTRICT G_P_vect[matrix_size];
+        __m128d RESTRICT coord_vec[3];
 
         #pragma omp for schedule(dynamic)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {

@@ -9,7 +9,7 @@ class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<T, Amplit
 public:
 	AmplitudesCalculatorNonVectors(const Array2D<T> &sources_coords,
 						 	  	  const Array2D<T> &rec_coords,
-						 	  	  const T *tensor_matrix,
+						 	  	  const T *RESTRICT tensor_matrix,
 						 	  	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		rec_coords_(rec_coords),
@@ -22,7 +22,7 @@ public:
 private:
 	const Array2D<T> &sources_coords_;
 	const Array2D<T> &rec_coords_;
-	const T *tensor_matrix_;
+	const T *RESTRICT tensor_matrix_;
 	Array2D<T> &amplitudes_;	
 
 	void realize_calculate() {

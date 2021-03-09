@@ -69,35 +69,37 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 								z0_s, z1_s, NzS,
 								n_samples, velocity);
 
+	/**/
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 2000;
+	/**/
+
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
-		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 100) {
-				measurements_file << "parallel by receivers;";
-				measurements_file << SIMD_EXTENSION << ";";
-				measurements_file << n_threads << ";";
-				measurements_file << data_gen.get_n_sources() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << samples_block_size << ";";
 
-				omp_set_num_threads(n_threads);
+		measurements_file << "parallel by receivers;";
+		measurements_file << SIMD_EXTENSION << ";";
+		measurements_file << n_threads << ";";
+		measurements_file << data_gen.get_n_sources() << ";";
+		measurements_file << data_gen.get_n_receivers() << ";";
+		measurements_file << data_gen.get_n_samples() << ";";
+		measurements_file << best_receivers_block_size << ";";
+		measurements_file << best_samples_block_size << ";";
 
-				run_program(std::bind(
-					emissionTomographyMethod<double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					std::placeholders::_7,
-					receivers_block_size,
-					samples_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
-		}
+		omp_set_num_threads(n_threads);
+
+		run_program(std::bind(
+			emissionTomographyMethod<double>,
+			std::placeholders::_1,
+			std::placeholders::_2,
+			std::placeholders::_3,
+			std::placeholders::_4,
+			std::placeholders::_5,
+			std::placeholders::_6,
+			std::placeholders::_7,
+			best_receivers_block_size,
+			best_samples_block_size), data_gen, measurements_file
+		);
+		measurements_file << std::endl;
 	}
 
 }
@@ -123,35 +125,37 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 								z0_s, z1_s, NzS,
 								n_samples, velocity);
 
+	/**/
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 2000;
+	/**/
+
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
-		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
-				measurements_file << "parallel by receivers;";
-				measurements_file << SIMD_EXTENSION << ";";
-				measurements_file << n_threads << ";";
-				measurements_file << data_gen.get_n_sources() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << samples_block_size << ";";
 
-				omp_set_num_threads(n_threads);
+		measurements_file << "parallel by receivers;";
+		measurements_file << SIMD_EXTENSION << ";";
+		measurements_file << n_threads << ";";
+		measurements_file << data_gen.get_n_sources() << ";";
+		measurements_file << data_gen.get_n_receivers() << ";";
+		measurements_file << data_gen.get_n_samples() << ";";
+		measurements_file << best_receivers_block_size << ";";
+		measurements_file << best_samples_block_size << ";";
 
-				run_program(std::bind(
-					emissionTomographyMethod<double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					std::placeholders::_7,
-					receivers_block_size,
-					samples_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
-		}
+		omp_set_num_threads(n_threads);
+
+		run_program(std::bind(
+			emissionTomographyMethod<double>,
+			std::placeholders::_1,
+			std::placeholders::_2,
+			std::placeholders::_3,
+			std::placeholders::_4,
+			std::placeholders::_5,
+			std::placeholders::_6,
+			std::placeholders::_7,
+			best_receivers_block_size,
+			best_samples_block_size), data_gen, measurements_file
+		);
+		measurements_file << std::endl;
 	}
 }
 
@@ -176,35 +180,37 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 								z0_s, z1_s, NzS,
 								n_samples, velocity);
 
+	/**/
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 2000;
+	/**/
+
 	for (std::size_t n_threads = 1; n_threads <= 32; ++n_threads) {
-		for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-			for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
-				measurements_file << "parallel by receivers;";
-				measurements_file << SIMD_EXTENSION << ";";
-				measurements_file << n_threads << ";";
-				measurements_file << data_gen.get_n_sources() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << samples_block_size << ";";
 
-				omp_set_num_threads(n_threads);
+		measurements_file << "parallel by receivers;";
+		measurements_file << SIMD_EXTENSION << ";";
+		measurements_file << n_threads << ";";
+		measurements_file << data_gen.get_n_sources() << ";";
+		measurements_file << data_gen.get_n_receivers() << ";";
+		measurements_file << data_gen.get_n_samples() << ";";
+		measurements_file << best_receivers_block_size << ";";
+		measurements_file << best_samples_block_size << ";";
 
-				run_program(std::bind(
-					emissionTomographyMethod<double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					std::placeholders::_7,
-					receivers_block_size,
-					samples_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
-		}
+		omp_set_num_threads(n_threads);
+
+		run_program(std::bind(
+			emissionTomographyMethod<double>,
+			std::placeholders::_1,
+			std::placeholders::_2,
+			std::placeholders::_3,
+			std::placeholders::_4,
+			std::placeholders::_5,
+			std::placeholders::_6,
+			std::placeholders::_7,
+			best_receivers_block_size,
+			best_samples_block_size), data_gen, measurements_file
+		);
+		measurements_file << std::endl;
 	}
 }
 

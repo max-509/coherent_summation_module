@@ -7,6 +7,16 @@
 #include <ctime>
 #include <fstream>
 
+#ifdef __AVX512F__
+#define SIMD_EXTENSION "AVX512F"
+#elif __AVX2__
+#define SIMD_EXTENSION "AVX2"
+#elif __SSE2__
+#define SIMD_EXTENSION "SSE2"
+#else
+#define SIMD_EXTENSION "NO SIMD EXTENSIONS"
+#endif
+
 template <typename T>
 using CohSumType = std::function<void (const Array2D<T> &, 
                                 const Array2D<T> &,
@@ -59,16 +69,16 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 								n_samples, velocity);
 
 	measurements_file << "without vectorization;";
-	measurements_file << "-;";
+	measurements_file << SIMD_EXTENSION << ";";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size_for_without_vectorization = 25;
-	std::ptrdiff_t best_samples_block_size_for_without_vectorization = 100;
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 100;
 	/**/
-	measurements_file << best_receivers_block_size_for_without_vectorization << ";";
-	measurements_file << best_samples_block_size_for_without_vectorization << ";";
+	measurements_file << best_receivers_block_size << ";";
+	measurements_file << best_samples_block_size << ";";
 	run_program(std::bind(
 				emissionTomographyMethodWithoutVectorization<double>,
 				std::placeholders::_1,
@@ -78,8 +88,8 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 				std::placeholders::_5,
 				std::placeholders::_6,
 				std::placeholders::_7,
-				best_receivers_block_size_for_without_vectorization,
-				best_samples_block_size_for_without_vectorization), data_gen, measurements_file);
+				best_receivers_block_size,
+				best_samples_block_size), data_gen, measurements_file);
 	measurements_file << std::endl;
 
 }
@@ -106,15 +116,16 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 								n_samples, velocity);
 
 	measurements_file << "without vectorization;";
+	measurements_file << SIMD_EXTENSION << ";";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size_for_without_vectorization = 25;
-	std::ptrdiff_t best_samples_block_size_for_without_vectorization = 2000;
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 2000;
 	/**/
-	measurements_file << best_receivers_block_size_for_without_vectorization << ";";
-	measurements_file << best_samples_block_size_for_without_vectorization << ";";
+	measurements_file << best_receivers_block_size << ";";
+	measurements_file << best_samples_block_size << ";";
 	run_program(std::bind(
 				emissionTomographyMethodWithoutVectorization<double>,
 				std::placeholders::_1,
@@ -124,8 +135,8 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 				std::placeholders::_5,
 				std::placeholders::_6,
 				std::placeholders::_7,
-				best_receivers_block_size_for_without_vectorization,
-				best_samples_block_size_for_without_vectorization), data_gen, measurements_file);
+				best_receivers_block_size,
+				best_samples_block_size), data_gen, measurements_file);
 	measurements_file << std::endl;
 }
 
@@ -151,15 +162,16 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 								n_samples, velocity);
 
 	measurements_file << "without vectorization;";
+	measurements_file << SIMD_EXTENSION << ";";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size_for_without_vectorization = 25;
-	std::ptrdiff_t best_samples_block_size_for_without_vectorization = 2000;
+	std::ptrdiff_t best_receivers_block_size = 25;
+	std::ptrdiff_t best_samples_block_size = 2000;
 	/**/
-	measurements_file << best_receivers_block_size_for_without_vectorization << ";";
-	measurements_file << best_samples_block_size_for_without_vectorization << ";";
+	measurements_file << best_receivers_block_size << ";";
+	measurements_file << best_samples_block_size << ";";
 	run_program(std::bind(
 				emissionTomographyMethodWithoutVectorization<double>,
 				std::placeholders::_1,
@@ -169,8 +181,8 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 				std::placeholders::_5,
 				std::placeholders::_6,
 				std::placeholders::_7,
-				best_receivers_block_size_for_without_vectorization,
-				best_samples_block_size_for_without_vectorization), data_gen, measurements_file);
+				best_receivers_block_size,
+				best_samples_block_size), data_gen, measurements_file);
 	measurements_file << std::endl;
 }
 

@@ -16,7 +16,7 @@ class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<T, AmplitudesCa
 public:
 	AmplitudesCalculatorM512(const Array2D<T> &sources_coords,
 						 	  const Array2D<T> &rec_coords,
-						 	  const T *tensor_matrix,
+						 	  const T *RESTRICT tensor_matrix,
 						 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		rec_coords_(rec_coords),
@@ -29,7 +29,7 @@ public:
 private:
 	const Array2D<T> &sources_coords_;
 	const Array2D<T> &rec_coords_;
-	const T *tensor_matrix_;
+	const T *RESTRICT tensor_matrix_;
 	Array2D<T> &amplitudes_;
     __m512d d_epsilon_v = _mm512_set1_pd(std::numeric_limits<double>::epsilon());
     __m512 f_epsilon_v = _mm512_set1_ps(std::numeric_limits<float>::epsilon());

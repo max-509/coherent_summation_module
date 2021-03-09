@@ -16,7 +16,7 @@ class AmplitudesCalculatorM256 : public AmplitudesCalculatorBase<T, AmplitudesCa
 public:
 	AmplitudesCalculatorM256(const Array2D<T> &sources_coords,
 						 	  const Array2D<T> &rec_coords,
-						 	  const T *tensor_matrix,
+						 	  const T *RESTRICT tensor_matrix,
 						 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		rec_coords_(rec_coords),
@@ -29,7 +29,7 @@ public:
 private:
 	const Array2D<T> &sources_coords_;
 	const Array2D<T> &rec_coords_;
-	const T *tensor_matrix_;
+	const T *RESTRICT tensor_matrix_;
 	Array2D<T> &amplitudes_;
     __m256d abs_mask_d = _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m256 abs_mask_f = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));

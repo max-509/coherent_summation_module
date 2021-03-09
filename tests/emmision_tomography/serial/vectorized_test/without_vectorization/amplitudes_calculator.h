@@ -1,6 +1,12 @@
 #ifndef _AMPLITUDES_CALCULATOR_H
 #define _AMPLITUDES_CALCULATOR_H
 
+#ifdef _MSC_VER
+#define RESTRICT __restrict
+#else 
+#define RESTRICT __restrict__
+#endif
+
 #include <cstddef>
 #include <cmath>
 #include <limits>
@@ -11,7 +17,7 @@ public:
 
 	AmplitudesCalculator(const Array2D<T> &sources_coords,
 					 	  const Array2D<T> &receivers_coords,
-					 	  const T *tensor_matrix,
+					 	  const T *RESTRICT tensor_matrix,
 					 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		receivers_coords_(receivers_coords),
@@ -24,8 +30,8 @@ public:
 		std::ptrdiff_t n_sources = sources_coords_.get_y_dim();
 		std::ptrdiff_t n_receivers = receivers_coords_.get_y_dim();
 
-        T coord_vect[3];
-        T G_P[matrix_size];
+        T RESTRICT coord_vect[3];
+        T RESTRICT G_P[matrix_size];
         constexpr T two_T = static_cast<T>(2.0);
         
         for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
@@ -63,7 +69,7 @@ private:
 
 	const Array2D<T> &sources_coords_;
     const Array2D<T> &receivers_coords_;
-    const T *tensor_matrix_;
+    const T *RESTRICT tensor_matrix_;
     Array2D<T> &amplitudes_;	
 
 	inline T calc_norm(const T *coord_vect, std::ptrdiff_t len) {
