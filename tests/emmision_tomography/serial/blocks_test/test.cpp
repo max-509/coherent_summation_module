@@ -58,8 +58,8 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << "-;";
-	measurements_file << "-;";
+	measurements_file << 0 << ";";
+	measurements_file << 0 << ";";
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
@@ -117,8 +117,8 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << "-;";
-	measurements_file << "-;";
+	measurements_file << 0 << ";";
+	measurements_file << 0 << ";";
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
@@ -173,8 +173,8 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << "-;";
-	measurements_file << "-;";
+	measurements_file << 0 << ";";
+	measurements_file << 0 << ";";
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
