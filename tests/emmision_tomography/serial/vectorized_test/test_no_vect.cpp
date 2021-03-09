@@ -188,7 +188,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int argc, char const *argv[]) {
 
-	std::string filename = "../measurements.csv";
+	std::string filename = std::string("../measurements") + SIMD_EXTENSION + ".csv";
 
 	std::ofstream measurements_file;
 	if (!is_exist_file(filename)) {
