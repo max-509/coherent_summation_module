@@ -63,14 +63,16 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-		for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 100) {
+	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
+		for (std::size_t samples_block_size = 100; samples_block_size < n_samples; samples_block_size += 100) {
 			measurements_file << "with blocks;";
 			measurements_file << data_gen.get_n_sources() << ";";
 			measurements_file << data_gen.get_n_receivers() << ";";
 			measurements_file << data_gen.get_n_samples() << ";";
 			measurements_file << receivers_block_size << ";";
 			measurements_file << samples_block_size << ";";
+
+			std::cerr << "AAAAAAAAAAAAAAA" << std::endl;
 
 			run_program(std::bind(
 				emissionTomographyMethodWithBlocks<double>,
@@ -120,8 +122,8 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-		for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
+	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
+		for (std::size_t samples_block_size = 2000; samples_block_size < n_samples; samples_block_size += 2000) {
 			measurements_file << "with blocks;";
 			measurements_file << data_gen.get_n_sources() << ";";
 			measurements_file << data_gen.get_n_receivers() << ";";
@@ -152,12 +154,12 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 35;
+	std::size_t NxS = 30;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 35;
+	std::size_t NyS = 30;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 35;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 30;
+	std::size_t n_samples = 27000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
@@ -176,8 +178,8 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 1; receivers_block_size < NxR*NyR; receivers_block_size += 25) {
-		for (std::size_t samples_block_size = 1; samples_block_size < n_samples; samples_block_size += 2000) {
+	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
+		for (std::size_t samples_block_size = 2001; samples_block_size < n_samples; samples_block_size += 2000) {
 			measurements_file << "with blocks;";
 			measurements_file << data_gen.get_n_sources() << ";";
 			measurements_file << data_gen.get_n_receivers() << ";";
