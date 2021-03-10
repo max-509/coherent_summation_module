@@ -74,8 +74,8 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size = 25;
-	std::ptrdiff_t best_samples_block_size = 100;
+	std::ptrdiff_t best_receivers_block_size = 190;
+	std::ptrdiff_t best_samples_block_size = 1600;
 	/**/
 	measurements_file << best_receivers_block_size << ";";
 	measurements_file << best_samples_block_size << ";";
@@ -100,12 +100,12 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 10;
+	std::size_t NxS = 15;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 10;
+	std::size_t NyS = 15;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 10;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 15;
+	std::size_t n_samples = 80000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
@@ -121,8 +121,8 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size = 25;
-	std::ptrdiff_t best_samples_block_size = 2000;
+	std::ptrdiff_t best_receivers_block_size = 20;
+	std::ptrdiff_t best_samples_block_size = 11000;
 	/**/
 	measurements_file << best_receivers_block_size << ";";
 	measurements_file << best_samples_block_size << ";";
@@ -146,12 +146,12 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 35;
+	std::size_t NxS = 30;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 35;
+	std::size_t NyS = 30;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 35;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 30;
+	std::size_t n_samples = 27000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
@@ -167,8 +167,8 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	/**/
-	std::ptrdiff_t best_receivers_block_size = 25;
-	std::ptrdiff_t best_samples_block_size = 2000;
+	std::ptrdiff_t best_receivers_block_size = 50;
+	std::ptrdiff_t best_samples_block_size = 8000;
 	/**/
 	measurements_file << best_receivers_block_size << ";";
 	measurements_file << best_samples_block_size << ";";
