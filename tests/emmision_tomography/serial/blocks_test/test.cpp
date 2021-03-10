@@ -98,12 +98,12 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 10;
+	std::size_t NxS = 15;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 10;
+	std::size_t NyS = 15;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 10;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 15;
+	std::size_t n_samples = 80000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
@@ -226,13 +226,13 @@ int main(int argc, char const *argv[]) {
 	std::ofstream measurements_file1;
 	std::ofstream measurements_file2;
 	std::ofstream measurements_file3;
-	create_measurements_file("../measurements1.csv", measurements_file1);
+	// create_measurements_file("../measurements1.csv", measurements_file1);
 	create_measurements_file("../measurements2.csv", measurements_file2);
-	create_measurements_file("../measurements3.csv", measurements_file3);
+	// create_measurements_file("../measurements3.csv", measurements_file3);
 
-	test_n_sou_greater_n_smpls(measurements_file1);
+	// test_n_sou_greater_n_smpls(measurements_file1);
 	test_n_smpls_greater_n_sou(measurements_file2);
-	test_n_sou_equal_n_smpls(measurements_file3);
+	// test_n_sou_equal_n_smpls(measurements_file3);
 
 	return 0;
 }

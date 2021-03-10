@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cstddef>
+#include <omp.h>
 
 template <typename T>
 void emissionTomographyMethodWithoutVectorization(const Array2D<T> &gather, 
@@ -24,6 +25,7 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T> &gather,
 
     T *min_times_to_sources = new T[n_sources];
 
+    #pragma omp simd
     for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
         min_times_to_sources[i_s] = *std::min_element(&sources_receivers_times(i_s, 0), &sources_receivers_times(i_s, n_receivers));
     }
@@ -54,6 +56,7 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T> &gather,
                     T amplitude = amplitudes(i_s, i_r-bl_ir);
                     std::ptrdiff_t godograph_ind = static_cast<std::ptrdiff_t>((sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
 
+                    #pragma omp simd
                     for (std::ptrdiff_t i_t = bl_it; i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
                         result_data[i_s*n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;
                     }

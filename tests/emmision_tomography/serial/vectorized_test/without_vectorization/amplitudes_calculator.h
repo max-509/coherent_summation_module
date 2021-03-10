@@ -10,6 +10,7 @@
 #include <cstddef>
 #include <cmath>
 #include <limits>
+#include <omp.h>
 
 template <typename T>
 class AmplitudesCalculator {
@@ -34,6 +35,7 @@ public:
         T RESTRICT G_P[matrix_size];
         constexpr T two_T = static_cast<T>(2.0);
         
+        #pragma omp simd
         for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
             for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
@@ -72,7 +74,8 @@ private:
     const T *RESTRICT tensor_matrix_;
     Array2D<T> &amplitudes_;	
 
-	inline T calc_norm(const T *coord_vect, std::ptrdiff_t len) {
+    #pragma omp declare simd
+	inline T calc_norm(const T *RESTRICT coord_vect, std::ptrdiff_t len) {
         T norm = 0.0;
         for (std::ptrdiff_t i_v = 0; i_v < len; ++i_v) {
             norm += coord_vect[i_v]*coord_vect[i_v];

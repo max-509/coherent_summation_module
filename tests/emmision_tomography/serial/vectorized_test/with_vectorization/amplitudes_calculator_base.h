@@ -35,6 +35,7 @@ private:
         T RESTRICT G_P[matrix_size];
 	    constexpr T two_T = static_cast<T>(2.0);
 
+        #pragma omp simd
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
             for (std::ptrdiff_t r_ind = ind_first_rec; r_ind < n_rec; ++r_ind) {
                 for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
