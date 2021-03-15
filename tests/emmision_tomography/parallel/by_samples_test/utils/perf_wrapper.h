@@ -23,6 +23,7 @@
 #include <iostream>
 #include <fstream>
 #include <functional>
+#include <omp.h>
 
 namespace Events {
 	constexpr std::size_t COUNT_EVENTS = 12;
@@ -44,15 +45,17 @@ namespace Events {
 void perf_wrapper(std::function<void (void)> coh_sum, std::ofstream &measurements_file) {
 	std::fill(Events::events_values, Events::events_values + Events::COUNT_EVENTS, 0);
 
-	struct timespec t1, t2;
+	double t1, t2;
 
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t1);
+	t1 = omp_get_wtime(); 
+
 	PROF_START();
 	coh_sum();
 	PROF_DO(Events::events_values[index] += counter);
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t2);
+	
+	t2 = omp_get_wtime();
 
-	double time_in_s = ((1000.0*t2.tv_sec + 1e-6*t2.tv_nsec) - (1000.0*t1.tv_sec + 1e-6*t1.tv_nsec)) / 1000.0;
+	double time_in_s = t2 - t1;
 
 	for (std::size_t i = 0; i < Events::COUNT_EVENTS; ++i) {
 		measurements_file << Events::events_values[i] << ";";
