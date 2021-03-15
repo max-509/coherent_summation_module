@@ -44,17 +44,16 @@ public:
                 }
 
                 T rev_dist = static_cast<T>(1.0) / calc_norm(coord_vect, 3);
-                for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
+                for (std::ptrdiff_t crd = 2; crd >= 0; --crd) {
                     coord_vect[crd] *= rev_dist;    
-                    G_P[crd] = coord_vect[crd]*coord_vect[crd] * rev_dist;
+                    G_P[crd] = coord_vect[2]*coord_vect[crd]*coord_vect[crd] * rev_dist;
                 }
+                
+                T double_norm_coord_z = two_T*coord_vect[2]*rev_dist;
 
-                G_P[0] *= coord_vect[2];
-                G_P[1] *= coord_vect[2];
-                G_P[2] *= coord_vect[2];
-                G_P[3] = two_T*coord_vect[2]*coord_vect[1]*coord_vect[2] * rev_dist;
-                G_P[4] = two_T*coord_vect[2]*coord_vect[0]*coord_vect[2] * rev_dist;
-                G_P[5] = two_T*coord_vect[2]*coord_vect[0]*coord_vect[1] * rev_dist;
+                G_P[3] = double_norm_coord_z*coord_vect[1]*coord_vect[2];
+                G_P[4] = double_norm_coord_z*coord_vect[0]*coord_vect[2];
+                G_P[5] = double_norm_coord_z*coord_vect[0]*coord_vect[1];
 
                 T ampl_tmp = 0.0;
                 for (std::ptrdiff_t i_m = 0; i_m < matrix_size; ++i_m) {

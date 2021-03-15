@@ -4,13 +4,16 @@ if [ ! -d "./build" ]; then
 	mkdir build
 fi
 
-if [ ! -d "./results"]; then
+if [ ! -d "./results" ]; then
 	mkdir results
 fi
+cd build
+rm -r ./*
 
-SIMD_EXTENSIONS=("AVX512", "AVX2", "SSE2", "NO_VECT")
+SIMD_EXTENSIONS=("AVX2" "SSE2" "NO_VECT")
 
-for SIMD in $SIMD_EXTENSIONS; do
+for SIMD in ${SIMD_EXTENSIONS[*]}; do
+	echo $SIMD
 	rm -r ./*
 	cmake ../ -"D${SIMD}=1"
 	make

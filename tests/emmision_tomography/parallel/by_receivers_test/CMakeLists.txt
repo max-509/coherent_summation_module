@@ -8,18 +8,25 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -fno-math-errno -Wn
 if (AVX512) 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx512f -ftree-vectorize")
 elseif(AVX2)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -ftree-vectorize")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2 -mfma -ftree-vectorize")
 elseif(SSE2)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse2 -ftree-vectorize")
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-tree-vectorize")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-sse2 -fno-tree-vectorize")
 endif()
 
-set(TARGET run_test)
-set(SOURCES test.cpp)
+set(TARGET_NO_VECT no_vect_run_test)
+set(SOURCES_NO_VECT test_no_vect.cpp)
+set(TARGET_VECT vect_run_test)
+set(SOURCES_VECT test_vect.cpp)
 
 add_subdirectory(utils)
-include_directories(src)
 
-add_executable(${TARGET} ${SOURCES})
-target_link_libraries(${TARGET} PRIVATE test_data_generator_lib Threads::Threads)
+add_executable(${TARGET_VECT} ${SOURCES_VECT})
+add_executable(${TARGET_NO_VECT} ${SOURCES_NO_VECT})
+
+target_link_libraries(${TARGET_VECT} PRIVATE test_data_generator_lib Threads::Threads)
+target_include_directories(${TARGET_VECT} PRIVATE with_vectorization)
+
+target_link_libraries(${TARGET_NO_VECT} PRIVATE test_data_generator_lib Threads::Threads)
+target_include_directories(${TARGET_NO_VECT} PRIVATE without_vectorization)

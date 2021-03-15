@@ -207,6 +207,8 @@ void emissionTomographyMethodWithVectorization(const Array2D<T> &gather,
 
     double rev_dt = 1.0 / dt;
 
+    AmplitudesComputerType<T> amplitudes_computer(sources_coords, tensor_matrix);
+
     
     for (std::ptrdiff_t bl_ir = 0; bl_ir < n_receivers; bl_ir += receivers_block_size) {
 
@@ -218,16 +220,16 @@ void emissionTomographyMethodWithVectorization(const Array2D<T> &gather,
 
         T *amplitudes_buf = new T[n_sources*curr_receivers_block_size];
         Array2D<T> amplitudes{amplitudes_buf, n_sources, curr_receivers_block_size};
-        AmplitudesComputerType<T> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
-        amplitudes_computer.calculate();
+        amplitudes_computer.calculate(receivers_coords_block, amplitudes);
+
+        // AmplitudesComputerType<T> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
+        // amplitudes_computer.calculate();
 
         for (std::ptrdiff_t bl_it = 0; bl_it < n_samples; bl_it += samples_block_size) {
 
-            
             for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
 
                 T min_t_to_source = min_times_to_sources[i_s];
-
                 
                 for (std::ptrdiff_t i_r = bl_ir; i_r < next_receivers_block_begin; ++i_r) {
 

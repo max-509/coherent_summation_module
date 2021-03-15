@@ -1,4 +1,9 @@
+cmake_minimum_required(VERSION 3.10)
 project(test_data_generator)
+
+find_library(OpenMP REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 
 set(TARGET test_data_generator_lib)
 set(SOURCES test_data_generator.cpp)

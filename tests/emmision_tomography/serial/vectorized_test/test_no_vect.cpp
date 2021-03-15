@@ -14,7 +14,7 @@
 #elif __SSE2__
 #define SIMD_EXTENSION "SSE2"
 #else
-#define SIMD_EXTENSION "NO SIMD EXTENSIONS"
+#define SIMD_EXTENSION "NO_SIMD_EXTENSIONS"
 #endif
 
 template <typename T>
