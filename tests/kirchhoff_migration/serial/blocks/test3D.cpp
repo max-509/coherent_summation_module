@@ -88,7 +88,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
@@ -113,7 +113,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
@@ -186,7 +186,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
@@ -211,7 +211,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
@@ -283,7 +283,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
@@ -308,7 +308,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 					measurements_file << x_block_size << ";";
 
 					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
 						std::placeholders::_1,
 						std::placeholders::_2,
 						std::placeholders::_3,
