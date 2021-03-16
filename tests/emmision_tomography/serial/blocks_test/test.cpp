@@ -72,8 +72,6 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 			measurements_file << receivers_block_size << ";";
 			measurements_file << samples_block_size << ";";
 
-			std::cerr << "AAAAAAAAAAAAAAA" << std::endl;
-
 			run_program(std::bind(
 				emissionTomographyMethodWithBlocks<double>,
 				std::placeholders::_1,
@@ -226,13 +224,14 @@ int main(int argc, char const *argv[]) {
 	std::ofstream measurements_file1;
 	std::ofstream measurements_file2;
 	std::ofstream measurements_file3;
-	// create_measurements_file("../measurements1.csv", measurements_file1);
+	
+	create_measurements_file("../measurements1.csv", measurements_file1);
 	create_measurements_file("../measurements2.csv", measurements_file2);
-	// create_measurements_file("../measurements3.csv", measurements_file3);
+	create_measurements_file("../measurements3.csv", measurements_file3);
 
-	// test_n_sou_greater_n_smpls(measurements_file1);
+	test_n_sou_greater_n_smpls(measurements_file1);
 	test_n_smpls_greater_n_sou(measurements_file2);
-	// test_n_sou_equal_n_smpls(measurements_file3);
+	test_n_sou_equal_n_smpls(measurements_file3);
 
 	return 0;
 }
