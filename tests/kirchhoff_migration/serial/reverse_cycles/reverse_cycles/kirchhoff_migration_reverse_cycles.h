@@ -33,24 +33,38 @@ void kirchhoffMigrationCHG2DReverseCycles(const Array2D<T1> &gather,
     double x0 = grid[1].first, x1 = grid[1].second;
     double dx = (x1 - x0) / (x_dim - 1);
 
-    std::vector<double> s_r_x_v{2, s_x};
+    std::vector<double> times_to_s(z_dim*x_dim);
+
+    for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
+        double p_z = z0 + i_z*dz;
+
+        for (std::ptrdiff_t i_x = 0; i_x < x_dim; ++i_x) {
+            std::ptrdiff_t i_p = i_z*x_dim + i_x;
+
+            double p_x = x0 + i_x*dx;
+
+            times_to_s[i_p] = arrival_times_calculator(s_x, p_z, p_x);
+        }
+    }
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
-        s_r_x_v[1] = receivers_coords[i_r];
+        double r_x = receivers_coords[i_r];
 
         for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
-            std::vector<double> p_z_v{2, z0 + i_z*dz};
+            double p_z = z0 + i_z*dz;
 
             for (std::ptrdiff_t i_x = 0; i_x < x_dim; ++i_x) {
 
-                std::vector<double> p_x_v{2, x0 + i_x*dx};
+                std::ptrdiff_t i_p = i_z*x_dim + i_x;
 
-                auto t_to_s_r = arrival_times_calculator(s_r_x_v, p_z_v, p_x_v);
+                double p_x = x0 + i_x*dx;
 
-                std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_s_r[0] + t_to_s_r[1]) / dt);
+                double t_to_r = arrival_times_calculator(r_x, p_z, p_x);
+
+                std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_r + times_to_s[i_p]) / dt);
                 
                 if (sample_idx < n_samples) {
-                    result_data[i_z*x_dim + i_x] += gather(i_r, sample_idx);
+                    result_data[i_p] += gather(i_r, sample_idx);
                 }
 
             }
@@ -82,27 +96,42 @@ void kirchhoffMigrationCHG3DReverseCycles(const Array2D<T1> &gather,
     double x0 = grid[2].first, x1 = grid[2].second;
     double dx = (x1 - x0) / (x_dim - 1);
 
-    std::vector<double> s_r_x_v{2, s_x}, s_r_y_v{2, s_y};
+    std::vector<double> times_to_s(x_dim*y_dim*z_dim);
+
+    for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
+        double p_z = z0 + i_z*dz;
+
+        for (std::ptrdiff_t i_y = 0; i_y < y_dim; ++i_y) {
+            double p_y = y0 + i_y*dy;
+
+            for (std::ptrdiff_t i_x = 0; i_x < x_dim; ++i_x) {
+                std::ptrdiff_t i_p = (i_z*y_dim + i_y)*x_dim + i_x;
+                double p_x = x0 + i_x*dx;
+
+                times_to_s[i_p] = arrival_times_calculator(s_x, s_y, p_z, p_y, p_x);
+            }
+        }
+    }
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
-        s_r_x_v[1] = receivers_coords(i_r, 0), s_r_y_v[1] = receivers_coords(i_r, 1);
+        double r_x = receivers_coords(i_r, 0), r_y = receivers_coords(i_r, 1);
 
         for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
-            std::vector<double> p_z_v{2, z0 + i_z*dz};
+            double p_z = z0 + i_z*dz;
 
             for (std::ptrdiff_t i_y = 0; i_y < y_dim; ++i_y) {
-                std::vector<double> p_y_v{2, y0 + i_y*dy};
+                double p_y = y0 + i_y*dy;
 
                 for (std::ptrdiff_t i_x = 0; i_x < x_dim; ++i_x) {
+                    std::ptrdiff_t i_p = (i_z*y_dim + i_y)*x_dim + i_x;
+                    double p_x = x0 + i_x*dx;
 
-                    std::vector<double> p_x_v{2, x0 + i_x*dx};
+                    double t_to_r = arrival_times_calculator(r_x, r_y, p_z, p_y, p_x);
 
-                    auto t_to_s_r = arrival_times_calculator(s_r_x_v, s_r_y_v, p_z_v, p_y_v, p_x_v);
-
-                    std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_s_r[0] + t_to_s_r[1]) / dt);
+                    std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_r + times_to_s[i_p]) / dt);
                     
                     if (sample_idx < n_samples) {
-                        result_data[(i_z*y_dim + i_y)*x_dim + i_x] += gather(i_r, sample_idx);
+                        result_data[i_p] += gather(i_r, sample_idx);
                     }
 
                 }
