@@ -22,7 +22,7 @@ test_data_generator3D::test_data_generator3D(double x0_r, double x1_r, std::size
 																		n_samples_(n_samples),
 																		s_x_(s_x), s_y_(s_y),
 																		dt_(dt),
-																		receivers_coords_(new double[n_receivers_]),
+																		receivers_coords_(new double[n_receivers_*2]),
 																	 	velocity_model_(new double[x_dim_*y_dim_*z_dim_]),
 																	 	grid_({std::make_pair(z0, z1), std::make_pair(y0_s, y1_s), std::make_pair(x0_s, x1_s)}),
 																	 	gather_(new double[n_receivers_*n_samples_]) 

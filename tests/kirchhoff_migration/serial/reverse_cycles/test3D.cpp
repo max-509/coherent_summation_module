@@ -37,18 +37,18 @@ void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMed
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 20;
+	std::size_t NxR = 27;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 20;
+	std::size_t NyR = 27;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 50;
+	std::size_t NxS = 315;
 	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 50;
+	std::size_t NyS = 315;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 50;
-	std::size_t n_samples = 8000;
+	std::size_t NzS = 315;
+	std::size_t n_samples = 20000;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.00018;
+	double dt = 0.0001;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 
@@ -80,18 +80,18 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 20;
+	std::size_t NxR = 25;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 20;
+	std::size_t NyR = 25;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 20;
+	std::size_t NxS = 120;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 20;
+	std::size_t NyS = 120;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 20;
-	std::size_t n_samples = 100000;
+	std::size_t NzS = 120;
+	std::size_t n_samples = 2000000;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.000014;
+	double dt = 0.000001;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 
@@ -122,18 +122,18 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 20;
+	std::size_t NxR = 15;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 20;
+	std::size_t NyR = 15;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 35;
+	std::size_t NxS = 185;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 35;
+	std::size_t NyS = 185;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 35;
-	std::size_t n_samples = 43000;
+	std::size_t NzS = 185;
+	std::size_t n_samples = 6250000;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0000374;
+	double dt = 0.00000032;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 

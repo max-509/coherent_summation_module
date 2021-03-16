@@ -37,14 +37,14 @@ void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMed
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 400;
+	std::size_t NxR = 700;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 500;
+	std::size_t NxS = 5500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 250;
-	std::size_t n_samples = 8000;
+	std::size_t NzS = 5500;
+	std::size_t n_samples = 20000;
 	double s_x = 0.0;
-	double dt = 0.00018;
+	double dt = 0.000075;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 
@@ -74,14 +74,14 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 400;
+	std::size_t NxR = 600;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 90;
+	std::size_t NxS = 1200;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 90;
-	std::size_t n_samples = 100000;
+	std::size_t NzS = 1200;
+	std::size_t n_samples = 2000000;
 	double s_x = 0.0;
-	double dt = 0.000014;
+	double dt = 0.00000075;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 
@@ -110,14 +110,14 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 400;
+	std::size_t NxR = 200;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 200;
+	std::size_t NxS = 2500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 200;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 2500;
+	std::size_t n_samples = 6250000;
 	double s_x = 0.0;
-	double dt = 0.0000374;
+	double dt = 0.00000024;
 	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
 	std::vector<double> borders = {500., 500., 500., 500.};
 
