@@ -44,7 +44,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t NyS = 50;
 	double z0_s = 0, z1_s = 3000;
 	std::size_t NzS = 50;
-	std::size_t n_samples = 2000;
+	std::size_t n_samples = 4000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,
@@ -76,12 +76,12 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double y0_r = 100, y1_r = 2000;
 	std::size_t NyR = 20;
 	double x0_s = 0, x1_s = 3000;
-	std::size_t NxS = 10;
+	std::size_t NxS = 20;
 	double y0_s = 0, y1_s = 3000; 
-	std::size_t NyS = 10;
+	std::size_t NyS = 20;
 	double z0_s = 0, z1_s = 3000;
-	std::size_t NzS = 10;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 20;
+	std::size_t n_samples = 60000;
 	double velocity = 3000;
 
 	test_data_generator data_gen(x0_r, x1_r, NxR,

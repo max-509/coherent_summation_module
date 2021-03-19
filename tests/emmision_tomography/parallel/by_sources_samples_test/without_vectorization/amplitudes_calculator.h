@@ -38,7 +38,7 @@ public:
             T RESTRICT coord_vect[3];
             T RESTRICT G_P[matrix_size];
 
-            #pragma omp for simd schedule(dynamic) collapse(2)
+            #pragma omp for simd schedule(static) collapse(2)
             for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
                 for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 

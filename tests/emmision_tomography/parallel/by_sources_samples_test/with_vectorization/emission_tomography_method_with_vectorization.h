@@ -200,7 +200,7 @@ void emissionTomographyMethodWithVectorization(const Array2D<T> &gather,
 
     T *min_times_to_sources = new T[n_sources];
 
-    #pragma omp parallel for simd schedule(dynamic)
+    #pragma omp parallel for simd schedule(static)
     for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
         min_times_to_sources[i_s] = find_min_t_to_source(sources_receivers_times, i_s);
     }

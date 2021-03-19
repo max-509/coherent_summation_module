@@ -69,69 +69,58 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 30; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 30) {
-		for (std::size_t z_block_size = 35; z_block_size < data_gen.get_z_dim(); z_block_size += 35) {
-			for (std::size_t y_block_size = 35; y_block_size < data_gen.get_y_dim(); y_block_size += 35) {
-				for (std::size_t x_block_size = 35; x_block_size < data_gen.get_x_dim(); z_block_size += 35) {
-					measurements_file << "blocks receivers inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 70) {
+		for (std::size_t p_block_size = 5; p_block_size < std::min(data_gen.get_x_dim(), std::min(data_gen.get_z_dim(), data_gen.get_y_dim())); p_block_size += 20) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-					measurements_file << "blocks points inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
-				}
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
-
 }
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
@@ -167,66 +156,56 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 30; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 30) {
-		for (std::size_t z_block_size = 16; z_block_size < data_gen.get_z_dim(); z_block_size += 16) {
-			for (std::size_t y_block_size = 16; y_block_size < data_gen.get_y_dim(); y_block_size += 16) {
-				for (std::size_t x_block_size = 16; x_block_size < data_gen.get_x_dim(); z_block_size += 16) {
-					measurements_file << "blocks receivers inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
+		for (std::size_t p_block_size = 5; p_block_size < std::min(data_gen.get_x_dim(), std::min(data_gen.get_z_dim(), data_gen.get_y_dim())); p_block_size += 20) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-					measurements_file << "blocks points inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
-				}
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
 }
@@ -264,66 +243,56 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 20; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 20) {
-		for (std::size_t z_block_size = 20; z_block_size < data_gen.get_z_dim(); z_block_size += 20) {
-			for (std::size_t y_block_size = 20; y_block_size < data_gen.get_y_dim(); y_block_size += 20) {
-				for (std::size_t x_block_size = 20; x_block_size < data_gen.get_x_dim(); z_block_size += 20) {
-					measurements_file << "blocks receivers inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
+		for (std::size_t p_block_size = 5; p_block_size < std::min(data_gen.get_x_dim(), std::min(data_gen.get_z_dim(), data_gen.get_y_dim())); p_block_size += 20) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-					measurements_file << "blocks points inner loop;";
-					measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-					measurements_file << data_gen.get_n_receivers() << ";";
-					measurements_file << data_gen.get_n_samples() << ";";
-					measurements_file << receivers_block_size << ";";
-					measurements_file << z_block_size << ";";
-					measurements_file << y_block_size << ";";
-					measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-					run_program(std::bind(
-						kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
-						std::placeholders::_1,
-						std::placeholders::_2,
-						std::placeholders::_3,
-						std::placeholders::_4,
-						std::placeholders::_5,
-						std::placeholders::_6,
-						std::placeholders::_7,
-						receivers_block_size,
-						z_block_size,
-						y_block_size,
-						x_block_size), data_gen, measurements_file
-					);
-					measurements_file << std::endl;
-				}
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG3DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				std::placeholders::_7,
+				receivers_block_size,
+				p_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
 }
@@ -336,9 +305,7 @@ void create_measurements_file(const std::string &filename, std::ofstream& measur
 	measurements_file << "number of receivers;";
 	measurements_file << "number of samples;";
 	measurements_file << "receivers block size;";
-	measurements_file << "z block size;";
-	measurements_file << "y block size;";
-	measurements_file << "x block size;";
+	measurements_file << "p block size;";
 	for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
 		measurements_file << Events::events_names[i_e] << ";";
 	}
