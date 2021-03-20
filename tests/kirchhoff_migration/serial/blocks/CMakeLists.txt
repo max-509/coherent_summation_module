@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.10)
 project(blocks_tests)
+cmake_minimum_required(VERSION 3.10)
 
 find_package(OpenMP REQUIRED)
 
@@ -7,8 +7,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -O3 -Wall -std=c++11
 
 set(TARGET_2D run_test2D)
 set(TARGET_3D run_test3D)
-
-add_subdirectory(utils)
 
 link_libraries(test_data_generator_lib)
 include_directories(reverse_cycles)

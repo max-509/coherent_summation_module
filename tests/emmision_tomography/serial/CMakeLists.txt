@@ -1,0 +1,5 @@
+project(emission_tomography_serial_tests)
+
+add_subdirectory(blocks_test)
+add_subdirectory(cycles_test)
+add_subdirectory(vectorized_test)

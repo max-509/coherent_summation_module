@@ -27,7 +27,12 @@ void run_program(CohSumType<double> coh_sum, test_data_generator &data_gen, std:
 
 	double *result_data = new double[data_gen.get_n_sources()*data_gen.get_n_samples()];
 
-	perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(receivers_coords), std::ref(sources_coords), std::ref(sources_receivers_times), dt, tensor_matrix, result_data), measurements_file);
+	auto res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(receivers_coords), std::ref(sources_coords), std::ref(sources_receivers_times), dt, tensor_matrix, result_data));
+
+	for (const auto &e : res.second) {
+	    measurements_file << e << ";";
+	}
+	measurements_file << res.first;
 
 	delete [] result_data;
 

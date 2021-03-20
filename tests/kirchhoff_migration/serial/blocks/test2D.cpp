@@ -1,7 +1,5 @@
-#include "arrival_times_by_horizontally_layered_medium2D.h"
+#include "kirchhoff_migration_native.h"
 #include "kirchhoff_migration_reverse_cycles.h"
-#include "kirchhoff_migration_blocks_receivers_inner_loop.h"
-#include "kirchhoff_migration_blocks_points_inner_loop.h"
 #include "perf_wrapper.h"
 #include "test_data_generator2D.h"
 
@@ -11,26 +9,64 @@
 #include <fstream>
 #include <vector>
 
-template <typename T1, typename T2, typename CalculatorType, typename T>
+template <typename T1, typename T2>
 using CohSumType = std::function<void (const Array2D<T1> &, 
                                 const std::vector<T2> &,
+                                const Array2D<T2> &,
+                                std::ptrdiff_t, std::ptrdiff_t,
                                 double,
-                                double,
-                                ArrivalTimesCalculator2D<CalculatorType, T> &,
                                 T1 *)>;
 
-void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double> coh_sum, test_data_generator2D &data_gen, std::ofstream &measurements_file) {
-	Array2D<double> gather(data_gen.get_gather(), data_gen.get_n_receivers(), data_gen.get_n_samples());
-	std::vector<double> &receivers_coords(data_gen.get_receivers_coords());
-	double s_x = data_gen.get_s_x();
+void run_program(const CohSumType<double, double>& coh_sum,
+                 test_data_generator2D<double> &data_gen,
+                 std::ofstream &measurements_file,
+                 double x0_r, double x1_r, std::size_t NxR,
+                 std::size_t receivers_step,
+                 bool is_trans) {
+
+    auto times_to_source = data_gen.get_times_to_source();
+	std::ptrdiff_t z_dim = data_gen.get_z_dim(), x_dim = data_gen.get_x_dim();
 	double dt = data_gen.get_dt();
 
-	Array2D<double> velocity_model(data_gen.get_velocity_model(), data_gen.get_z_dim(), data_gen.get_x_dim());
-	ArrivalTimesCalculator2D<ArrivalTimesByHorizontallyLayeredMedium2D<double>, double> arrival_times_calculator(velocity_model, data_gen.get_grid());
+	double *result_data = new double[z_dim*x_dim];
 
-	double *result_data = new double[data_gen.get_z_dim()*data_gen.get_x_dim()];
+	double dx_r = (x1_r - x0_r) / (NxR - 1);
 
-	perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(receivers_coords), s_x, dt, std::ref(arrival_times_calculator), result_data), measurements_file);
+	std::vector<double> receivers_coords(receivers_step);
+
+	std::vector<uint64_t> events_counts(Events::COUNT_EVENTS, 0);
+
+	double time_in_sec = 0.0;
+
+	for (std::size_t rec_bl = 0; rec_bl < NxR; rec_bl += receivers_step) {
+	    for (std::size_t i_r = rec_bl; i_r < std::min(NxR, rec_bl + receivers_step); ++i_r) {
+	        receivers_coords[i_r - rec_bl] = x0_r + i_r*dx_r;
+	    }
+
+	    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords, is_trans);
+
+	    Array2D<double> gather(user_datas.second.get(), receivers_step, data_gen.get_n_samples());
+
+	    std::pair<double, std::vector<uint64_t>> res;
+	    if (is_trans) {
+	        Array2D<double> times_to_receivers(user_datas.first.get(), receivers_step, z_dim*x_dim);
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, x_dim, dt, result_data));
+	    } else {
+	        Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*x_dim, receivers_step);
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, x_dim, dt, result_data));
+	    }
+
+	    for (std::size_t i = 0; i < events_counts.size(); ++i) {
+	        events_counts[i] += res.second[i];
+	    }
+
+	    time_in_sec += res.first;
+	}
+
+	for (const auto &e : events_counts) {
+	    measurements_file << e << ";";
+	}
+	measurements_file << time_in_sec;
 
 	delete [] result_data;
 
@@ -38,7 +74,8 @@ void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMed
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 700;
+	std::size_t NxR = 800;
+	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
 	std::size_t NxS = 5500;
 	double z0_s = 0, z1_s = 2000;
@@ -46,77 +83,44 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t n_samples = 20000;
 	double s_x = 0.0;
 	double dt = 0.000075;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.0;
 
-	test_data_generator2D data_gen(x0_r, x1_r, NxR,
-								x0_s, x1_s, NxS,
-								z0_s, z1_s, NzS,
-								s_x, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
+                                            z0_s, z1_s, NzS,
+                                            s_x, dt,
+                                            n_samples,
+                                            velocity);
+
+	measurements_file << "native;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(kirchhoffMigrationCHG2DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
 	measurements_file << std::endl;
-
-	for (std::size_t receivers_block_size = 610; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
-		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
-			measurements_file << "blocks receivers inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-
-			measurements_file << "blocks points inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-		}
-	}
 
 }
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 600;
+	std::size_t NxR = 2000;
+	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
 	std::size_t NxS = 1200;
 	double z0_s = 0, z1_s = 2000;
@@ -124,188 +128,99 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	std::size_t n_samples = 2000000;
 	double s_x = 0.0;
 	double dt = 0.00000075;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.0;
 
-	test_data_generator2D data_gen(x0_r, x1_r, NxR,
-								x0_s, x1_s, NxS,
-								z0_s, z1_s, NzS,
-								s_x, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
+                                            z0_s, z1_s, NzS,
+                                            s_x, dt,
+                                            n_samples,
+                                            velocity);
+
+	measurements_file << "native;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(kirchhoffMigrationCHG2DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
 	measurements_file << std::endl;
-
-	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
-		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
-			measurements_file << "blocks receivers inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-
-			measurements_file << "blocks points inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-		}
-	}
 }
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 200;
+	std::size_t NxR = 1500;
+	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 2500;
+	std::size_t NxS = 3000;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 2500;
+	std::size_t NzS = 3000;
 	std::size_t n_samples = 6250000;
 	double s_x = 0.0;
 	double dt = 0.00000024;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.0;
 
-	test_data_generator2D data_gen(x0_r, x1_r, NxR,
-								x0_s, x1_s, NxS,
-								z0_s, z1_s, NzS,
-								s_x, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
+                                            z0_s, z1_s, NzS,
+                                            s_x, dt,
+                                            n_samples,
+                                            velocity);
+
+	measurements_file << "native;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(kirchhoffMigrationCHG2DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
-	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
+	measurements_file << std::endl;
+}
+
+int main(int, char const **) {
+
+	std::ofstream measurements_file("../measurements2D.csv");
+	measurements_file << "summation version;";
+	measurements_file << "number of points;";
+	measurements_file << "number of receivers;";
+	measurements_file << "number of samples;";
+	for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
+		measurements_file << Events::events_names[i_e] << ";";
+	}
+	measurements_file << "time, s";
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
-		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
-			measurements_file << "blocks receivers inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-
-			measurements_file << "blocks points inner loop;";
-			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-			measurements_file << data_gen.get_n_receivers() << ";";
-			measurements_file << data_gen.get_n_samples() << ";";
-			measurements_file << receivers_block_size << ";";
-			measurements_file << p_block_size << ";";
-
-			run_program(std::bind(
-				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-				std::placeholders::_1,
-				std::placeholders::_2,
-				std::placeholders::_3,
-				std::placeholders::_4,
-				std::placeholders::_5,
-				std::placeholders::_6,
-				receivers_block_size,
-				p_block_size,
-				p_block_size), data_gen, measurements_file
-			);
-			measurements_file << std::endl;
-		}
-	}
-}
-
-inline bool is_exist_file(const std::string &filename) {
-	std::ifstream f(filename);
-	return f.good();
-}
-
-void create_measurements_file(const std::string &filename, std::ofstream& measurements_file) {
-	if (!is_exist_file(filename)) {
-		measurements_file.open(filename);
-
-		measurements_file << "summation version;";
-		measurements_file << "number of points;";
-		measurements_file << "number of receivers;";
-		measurements_file << "number of samples;";
-		measurements_file << "receivers block size;";
-		measurements_file << "p block size;";
-		for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
-			measurements_file << Events::events_names[i_e] << ";";
-		}
-		measurements_file << "time, s";
-		measurements_file << std::endl;
-	} else {
-		measurements_file.open(filename, std::ios::app | std::ios::out);
-	}
-
-}
-
-int main(int argc, char const *argv[]) {
-	std::ofstream measurements_file_sou_greater_samples;
-	std::ofstream measurements_file_samples_greater_sou;
-	std::ofstream measurements_file_sou_equal_samples;
-
-	create_measurements_file("../measurements2D_sources_greater_samples.csv", measurements_file_sou_greater_samples);
-	create_measurements_file("../measurements2D_samples_greater_sources.csv", measurements_file_samples_greater_sou);
-	create_measurements_file("../measurements2D_sources_equals_samples.csv", measurements_file_sou_equal_samples);
-
-	test_n_sou_greater_n_smpls(measurements_file_sou_greater_samples);
-	test_n_smpls_greater_n_sou(measurements_file_samples_greater_sou);
-	test_n_sou_equal_n_smpls(measurements_file_sou_equal_samples);
+	test_n_sou_greater_n_smpls(measurements_file);
+	test_n_smpls_greater_n_sou(measurements_file);
+	test_n_sou_equal_n_smpls(measurements_file);
 
 	return 0;
 }

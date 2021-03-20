@@ -2,10 +2,6 @@
 #define _KIRCHHOFF_MIGRATION_BLOCKS_RECEIVERS_INNER_LOOP_H
 
 #include "array2D.h"
-#include "arrival_times_calculator2D.h"
-
-#include "array3D.h"
-#include "arrival_times_calculator3D.h"
 
 #include <vector>
 #include <cmath>

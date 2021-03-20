@@ -1,5 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
-project(parallel_by_sources_samples_test)
+project(emmision_tomography_parallel_by_sources_samples_test)
 
 find_package(Threads REQUIRED)
 find_package(OpenMP REQUIRED)
@@ -15,12 +14,10 @@ else()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mno-sse2 -fno-tree-vectorize")
 endif()
 
-set(TARGET_NO_VECT no_vect_run_test)
+set(TARGET_NO_VECT "${PROJECT_NAME}_no_vect_run_test")
 set(SOURCES_NO_VECT test_no_vect.cpp)
-set(TARGET_VECT vect_run_test)
+set(TARGET_VECT "${PROJECT_NAME}_vect_run_test")
 set(SOURCES_VECT test_vect.cpp)
-
-add_subdirectory(utils)
 
 add_executable(${TARGET_VECT} ${SOURCES_VECT})
 add_executable(${TARGET_NO_VECT} ${SOURCES_NO_VECT})

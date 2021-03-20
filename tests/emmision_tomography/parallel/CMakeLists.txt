@@ -1,0 +1,6 @@
+project(emmision_tomography_parallel_tests)
+
+add_subdirectory(by_sources_test)
+add_subdirectory(by_sources_samples_test)
+add_subdirectory(by_samples_test)
+add_subdirectory(by_receivers_test)

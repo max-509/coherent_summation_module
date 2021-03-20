@@ -1,4 +1,3 @@
-#include "arrival_times_by_horizontally_layered_medium3D.h"
 #include "kirchhoff_migration_native.h"
 #include "kirchhoff_migration_reverse_cycles.h"
 #include "perf_wrapper.h"
@@ -10,26 +9,73 @@
 #include <fstream>
 #include <vector>
 
-template <typename T1, typename T2, typename CalculatorType, typename T>
-using CohSumType = std::function<void (const Array2D<T1> &, 
+template <typename T1, typename T2>
+using CohSumType = std::function<void (const Array2D<T1> &,
+                                const std::vector<T2> &,
                                 const Array2D<T2> &,
-                                double, double,
+                                std::ptrdiff_t, std::ptrdiff_t, std::ptrdiff_t,
                                 double,
-                                ArrivalTimesCalculator3D<CalculatorType, T> &,
                                 T1 *)>;
 
-void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double> coh_sum, test_data_generator3D &data_gen, std::ofstream &measurements_file) {
-	Array2D<double> gather(data_gen.get_gather(), data_gen.get_n_receivers(), data_gen.get_n_samples());
-	Array2D<double> receivers_coords(data_gen.get_receivers_coords(), data_gen.get_n_receivers(), 2);
-	double s_x = data_gen.get_s_x(), s_y = data_gen.get_s_y();
+void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<double> &data_gen,
+                 std::ofstream &measurements_file,
+                 double x0_r, double x1_r, std::size_t NxR,
+                 double y0_r, double y1_r, std::size_t NyR,
+                 std::size_t receivers_step,
+                 bool is_trans) {
+    auto times_to_source = data_gen.get_times_to_source();
+	std::ptrdiff_t z_dim = data_gen.get_z_dim(), y_dim = data_gen.get_y_dim(), x_dim = data_gen.get_x_dim();
 	double dt = data_gen.get_dt();
 
-	Array3D<double> velocity_model(data_gen.get_velocity_model(), data_gen.get_z_dim(), data_gen.get_y_dim(), data_gen.get_x_dim());
-	ArrivalTimesCalculator3D<ArrivalTimesByHorizontallyLayeredMedium3D<double>, double> arrival_times_calculator(velocity_model, data_gen.get_grid());
+	double *result_data = new double[z_dim*y_dim*x_dim];
 
-	double *result_data = new double[data_gen.get_z_dim()*data_gen.get_y_dim()*data_gen.get_x_dim()];
+	double dx_r = (x1_r - x0_r) / (NxR - 1);
+	double dy_r = (y1_r - y0_r) / (NyR - 1);
 
-	perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(receivers_coords), s_x, s_y, dt, std::ref(arrival_times_calculator), result_data), measurements_file);
+	std::vector<double> receivers_coords(NxR*NyR*2);
+
+	std::vector<uint64_t> events_counts(Events::COUNT_EVENTS, 0);
+
+	double time_in_sec = 0.0;
+
+	for (std::size_t i_r_y = 0; i_r_y < NyR; ++i_r_y) {
+	    double y_r = y0_r + dy_r*i_r_y;
+	    for (std::size_t i_r_x = 0; i_r_x < NxR; ++i_r_x) {
+	        double x_r = x0_r + dx_r*i_r_x;
+	        receivers_coords[(i_r_y*NxR + i_r_x)*2 + 0] = y_r;
+	        receivers_coords[(i_r_y*NxR + i_r_x)*2 + 1] = x_r;
+        }
+	}
+
+	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
+	    std::ptrdiff_t upper_border_receivers_block = std::min(NxR, rec_bl + receivers_step);
+	    std::vector<double> receivers_coords_block(upper_border_receivers_block);
+	    std::copy(receivers_coords.begin() + rec_bl, receivers_coords.begin() + rec_bl + upper_border_receivers_block, receivers_coords_block.begin());
+
+	    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords_block, is_trans);
+
+	    Array2D<double> gather(user_datas.second.get(), receivers_step, data_gen.get_n_samples());
+
+	    std::pair<double, std::vector<uint64_t>> res;
+	    if (is_trans) {
+	        Array2D<double> times_to_receivers(user_datas.first.get(), receivers_step, z_dim*x_dim);
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
+	    } else {
+	        Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*x_dim, receivers_step);
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
+	    }
+
+	    for (std::size_t i = 0; i < events_counts.size(); ++i) {
+	        events_counts[i] += res.second[i];
+	    }
+
+	    time_in_sec += res.first;
+	}
+
+	for (const auto &e : events_counts) {
+	    measurements_file << e << ";";
+	}
+	measurements_file << time_in_sec;
 
 	delete [] result_data;
 
@@ -37,9 +83,10 @@ void run_program(CohSumType<double, double, ArrivalTimesByHorizontallyLayeredMed
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 27;
+	std::size_t NxR = 28;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 27;
+	std::size_t NyR = 28;
+	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
 	std::size_t NxS = 315;
 	double y0_s = 0, y1_s = 4000;
@@ -49,40 +96,49 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t n_samples = 20000;
 	double s_x = 0.0, s_y = 0.0;
 	double dt = 0.0001;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.;
 
-	test_data_generator3D data_gen(x0_r, x1_r, NxR,
-								y0_r, y1_r, NyR,
-								x0_s, x1_s, NxS,
-								y0_s, y1_s, NyS,
-								z0_s, z1_s, NzS,
-								s_x, s_y, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
+								        y0_s, y1_s, NyS,
+								        z0_s, z1_s, NzS,
+								        s_x, s_y, dt,
+								        n_samples,
+								        velocity);
 
 	measurements_file << "native;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DNative<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        false);
 	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+                true);
 	measurements_file << std::endl;
 
 }
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 25;
+	std::size_t NxR = 45;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 25;
+	std::size_t NyR = 45;
+	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
 	std::size_t NxS = 120;
 	double y0_s = 0, y1_s = 4000; 
@@ -92,39 +148,48 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	std::size_t n_samples = 2000000;
 	double s_x = 0.0, s_y = 0.0;
 	double dt = 0.000001;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.;
 
-	test_data_generator3D data_gen(x0_r, x1_r, NxR,
-								y0_r, y1_r, NyR,
-								x0_s, x1_s, NxS,
-								y0_s, y1_s, NyS,
-								z0_s, z1_s, NzS,
-								s_x, s_y, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
+								        y0_s, y1_s, NyS,
+								        z0_s, z1_s, NzS,
+								        s_x, s_y, dt,
+								        n_samples,
+								        velocity);
 
 	measurements_file << "native;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DNative<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        false);
 	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        true);
 	measurements_file << std::endl;
 }
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 15;
+	std::size_t NxR = 40;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 15;
+	std::size_t NyR = 40;
+	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
 	std::size_t NxS = 185;
 	double y0_s = 0, y1_s = 4000; 
@@ -134,31 +199,39 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	std::size_t n_samples = 6250000;
 	double s_x = 0.0, s_y = 0.0;
 	double dt = 0.00000032;
-	std::vector<double> velocities = {2000., 3000., 4000., 5000.};
-	std::vector<double> borders = {500., 500., 500., 500.};
+	double velocity = 3500.;
 
-	test_data_generator3D data_gen(x0_r, x1_r, NxR,
-								y0_r, y1_r, NyR,
-								x0_s, x1_s, NxS,
-								y0_s, y1_s, NyS,
-								z0_s, z1_s, NzS,
-								s_x, s_y, dt,
-								n_samples, 
-								velocities,
-								borders);
+	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
+								        y0_s, y1_s, NyS,
+								        z0_s, z1_s, NzS,
+								        s_x, s_y, dt,
+								        n_samples,
+								        velocity);
 
 	measurements_file << "native;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DNative<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DNative<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        false);
 	measurements_file << std::endl;
 
 	measurements_file << "reverse_cycles;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << data_gen.get_n_receivers() << ";";
+	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium3D<double>, double>, data_gen, measurements_file);
+	run_program(kirchhoffMigrationCHG3DReverseCycles<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        true);
 	measurements_file << std::endl;
 }
 

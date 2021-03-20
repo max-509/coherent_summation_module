@@ -1,7 +1,16 @@
 *.out
 *.so
 *.ipynb_checkpoints/
-*build/
+.idea/*
+*build*
 *.bin
-*tables/
+tables
 *vtune/
+# Default ignored files
+/shelf/
+/workspace.xml
+# Datasource local storage ignored files
+/../../../../:\prog\coherent_summation_module\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/

@@ -1,0 +1,3 @@
+project(kirchhoff_migration_serial_tests)
+
+add_subdirectory(reverse_cycles)
