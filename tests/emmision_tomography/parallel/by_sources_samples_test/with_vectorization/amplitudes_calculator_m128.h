@@ -63,7 +63,7 @@ void AmplitudesCalculatorM128<float>::realize_calculate(const Array2D<float> &re
     {
         __m128 RESTRICT coord_vec[3];
 
-        #pragma omp for schedule(dynamic) collapse(2)
+        #pragma omp for schedule(static) collapse(2)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
             for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {
                 for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
@@ -130,7 +130,7 @@ void AmplitudesCalculatorM128<double>::realize_calculate(const Array2D<double> &
     {
         __m128d RESTRICT coord_vec[3];
 
-        #pragma omp for schedule(dynamic) collapse(2)
+        #pragma omp for schedule(static) collapse(2)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
             for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {
                 for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {

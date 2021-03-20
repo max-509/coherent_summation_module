@@ -25,7 +25,7 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T> &gather,
 
     T *min_times_to_sources = new T[n_sources];
 
-    #pragma omp parallel for simd schedule(dynamic)
+    #pragma omp parallel for simd schedule(static)
     for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
         min_times_to_sources[i_s] = *std::min_element(&sources_receivers_times(i_s, 0), &sources_receivers_times(i_s, n_receivers));
     }
@@ -45,7 +45,7 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T> &gather,
         AmplitudesCalculator<T> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
         amplitudes_computer.calculate();
 
-        #pragma omp parallel for schedule(dynamic) collapse(2) shared(rev_dt)
+        #pragma omp parallel for schedule(guided) collapse(2) shared(rev_dt)
         for (std::ptrdiff_t bl_it = 0; bl_it < n_samples; bl_it += samples_block_size) {
             for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
 

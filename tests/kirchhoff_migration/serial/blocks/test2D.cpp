@@ -63,57 +63,52 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 30; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 30) {
-		for (std::size_t z_block_size = 100; z_block_size < data_gen.get_z_dim(); z_block_size += 100) {
-			for (std::size_t x_block_size = 100; x_block_size < data_gen.get_x_dim(); z_block_size += 100) {
-				measurements_file << "blocks receivers inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 610; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
+		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-				measurements_file << "blocks points inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
 
@@ -146,57 +141,52 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 30; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 30) {
-		for (std::size_t z_block_size = 60; z_block_size < data_gen.get_z_dim(); z_block_size += 60) {
-			for (std::size_t x_block_size = 60; x_block_size < data_gen.get_x_dim(); z_block_size += 60) {
-				measurements_file << "blocks receivers inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
+		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-				measurements_file << "blocks points inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
 }
@@ -228,76 +218,79 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	measurements_file << 0 << ";";
 	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
-	for (std::size_t receivers_block_size = 20; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 20) {
-		for (std::size_t z_block_size = 80; z_block_size < data_gen.get_z_dim(); z_block_size += 80) {
-			for (std::size_t x_block_size = 80; x_block_size < data_gen.get_x_dim(); z_block_size += 80) {
-				measurements_file << "blocks receivers inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+	for (std::size_t receivers_block_size = 10; receivers_block_size < data_gen.get_n_receivers(); receivers_block_size += 40) {
+		for (std::size_t p_block_size = 10; p_block_size < std::min(data_gen.get_z_dim(), data_gen.get_x_dim()); p_block_size += 100) {
+			measurements_file << "blocks receivers inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 
-				measurements_file << "blocks points inner loop;";
-				measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-				measurements_file << data_gen.get_n_receivers() << ";";
-				measurements_file << data_gen.get_n_samples() << ";";
-				measurements_file << receivers_block_size << ";";
-				measurements_file << z_block_size << ";";
-				measurements_file << x_block_size << ";";
+			measurements_file << "blocks points inner loop;";
+			measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+			measurements_file << data_gen.get_n_receivers() << ";";
+			measurements_file << data_gen.get_n_samples() << ";";
+			measurements_file << receivers_block_size << ";";
+			measurements_file << p_block_size << ";";
 
-				run_program(std::bind(
-					kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
-					std::placeholders::_1,
-					std::placeholders::_2,
-					std::placeholders::_3,
-					std::placeholders::_4,
-					std::placeholders::_5,
-					std::placeholders::_6,
-					receivers_block_size,
-					z_block_size,
-					x_block_size), data_gen, measurements_file
-				);
-				measurements_file << std::endl;
-			}
+			run_program(std::bind(
+				kirchhoffMigrationCHG2DBlocksPointsInnerLoop<double, double, ArrivalTimesByHorizontallyLayeredMedium2D<double>, double>,
+				std::placeholders::_1,
+				std::placeholders::_2,
+				std::placeholders::_3,
+				std::placeholders::_4,
+				std::placeholders::_5,
+				std::placeholders::_6,
+				receivers_block_size,
+				p_block_size,
+				p_block_size), data_gen, measurements_file
+			);
+			measurements_file << std::endl;
 		}
 	}
 }
 
-void create_measurements_file(const std::string &filename, std::ofstream& measurements_file) {
-	measurements_file.open(filename);
+inline bool is_exist_file(const std::string &filename) {
+	std::ifstream f(filename);
+	return f.good();
+}
 
-	measurements_file << "summation version;";
-	measurements_file << "number of points;";
-	measurements_file << "number of receivers;";
-	measurements_file << "number of samples;";
-	measurements_file << "receivers block size;";
-	measurements_file << "z block size;";
-	measurements_file << "x block size;";
-	for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
-		measurements_file << Events::events_names[i_e] << ";";
+void create_measurements_file(const std::string &filename, std::ofstream& measurements_file) {
+	if (!is_exist_file(filename)) {
+		measurements_file.open(filename);
+
+		measurements_file << "summation version;";
+		measurements_file << "number of points;";
+		measurements_file << "number of receivers;";
+		measurements_file << "number of samples;";
+		measurements_file << "receivers block size;";
+		measurements_file << "p block size;";
+		for (std::size_t i_e = 0; i_e < Events::COUNT_EVENTS; ++i_e) {
+			measurements_file << Events::events_names[i_e] << ";";
+		}
+		measurements_file << "time, s";
+		measurements_file << std::endl;
+	} else {
+		measurements_file.open(filename, std::ios::app | std::ios::out);
 	}
-	measurements_file << "time, s";
-	measurements_file << std::endl;
 
 }
 
