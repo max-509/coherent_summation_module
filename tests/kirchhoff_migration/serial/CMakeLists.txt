@@ -1,3 +1,5 @@
 project(kirchhoff_migration_serial_tests)
 
+add_subdirectory(blocks)
 add_subdirectory(reverse_cycles)
+add_subdirectory(vectorization)

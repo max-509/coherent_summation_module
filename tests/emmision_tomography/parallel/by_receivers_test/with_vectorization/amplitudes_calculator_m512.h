@@ -4,19 +4,18 @@
 #include "amplitudes_calculator_base.h"
 #include "array2D.h"
 
-#include <x86intrin.h>
+#include <immintrin.h>
 #include <functional>
 #include <cstdlib>
 #include <limits>
 #include <cmath>
 #include <memory>
-#include <omp.h>
 
 template <typename T>
 class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<T, AmplitudesCalculatorM512<T>> {
 public:
 	AmplitudesCalculatorM512(const Array2D<T> &sources_coords,
-						 	  const T *RESTRICT tensor_matrix) : 
+						 	  const T *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
 	{ }
@@ -25,7 +24,7 @@ public:
 
 private:
 	const Array2D<T> &sources_coords_;
-	const T *RESTRICT tensor_matrix_;
+	const T *tensor_matrix_;
     __m512d d_epsilon_v = _mm512_set1_pd(std::numeric_limits<double>::epsilon());
     __m512 f_epsilon_v = _mm512_set1_ps(std::numeric_limits<float>::epsilon());
 
@@ -49,7 +48,7 @@ void AmplitudesCalculatorM512<float>::realize_calculate(const Array2D<float> &re
     std::ptrdiff_t vector_dim = sizeof(__m512)/sizeof(float);
 
     __m512 two_v = _mm512_set1_ps(2.0f);
-    __m512 RESTRICT tensor_matrix_v[matrix_size] = {_mm512_set1_ps(tensor_matrix_[0]),
+    __m512 tensor_matrix_v[matrix_size] = {_mm512_set1_ps(tensor_matrix_[0]),
                                             _mm512_set1_ps(tensor_matrix_[1]),
                                             _mm512_set1_ps(tensor_matrix_[2]),
                                             _mm512_set1_ps(tensor_matrix_[3]),
@@ -58,7 +57,7 @@ void AmplitudesCalculatorM512<float>::realize_calculate(const Array2D<float> &re
                                         };
     __m512i vindex = _mm512_set_epi32(45, 42, 39, 36, 33, 30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0);
 
-    __m512 RESTRICT coord_vec[3];
+    __m512 coord_vec[3];
 
     for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
         for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {
@@ -105,7 +104,7 @@ void AmplitudesCalculatorM512<double>::realize_calculate(const Array2D<double> &
     std::ptrdiff_t vector_dim = sizeof(__m512d)/sizeof(double);
 
     __m512d two_v = _mm512_set1_pd(2.0);
-    __m512d RESTRICT tensor_matrix_v[matrix_size] = {_mm512_set1_pd(tensor_matrix_[0]),
+    __m512d tensor_matrix_v[matrix_size] = {_mm512_set1_pd(tensor_matrix_[0]),
                                             _mm512_set1_pd(tensor_matrix_[1]),
                                             _mm512_set1_pd(tensor_matrix_[2]),
                                             _mm512_set1_pd(tensor_matrix_[3]),
@@ -114,7 +113,7 @@ void AmplitudesCalculatorM512<double>::realize_calculate(const Array2D<double> &
                                         };
     __m512i vindex = _mm512_set_epi64(21, 18, 15, 12, 9, 6, 3, 0);
     
-    __m512d RESTRICT coord_vec[3];
+    __m512d coord_vec[3];
 
     for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
         for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {

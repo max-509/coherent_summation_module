@@ -7,7 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -O3 -Wall -std=c++11
 set(TARGET_2D "${PROJECT_NAME}_run_test2D")
 set(TARGET_3D "${PROJECT_NAME}_run_test3D")
 
-add_executable(${TARGET_2D} ../blocks/test2D.cpp)
+add_executable(${TARGET_2D} test2D.cpp)
 add_executable(${TARGET_3D} test3D.cpp)
 
 target_link_libraries(${TARGET_2D} PRIVATE test_data_generator_lib)

@@ -65,7 +65,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodWithoutBlocks<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
@@ -78,7 +78,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 			measurements_file << samples_block_size << ";";
 
 			run_program(std::bind(
-				emissionTomographyMethodWithBlocks<double>,
+				emissionTomographyMethodWithBlocks<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
@@ -122,7 +122,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodWithoutBlocks<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
@@ -135,7 +135,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 			measurements_file << samples_block_size << ";";
 
 			run_program(std::bind(
-				emissionTomographyMethodWithBlocks<double>,
+				emissionTomographyMethodWithBlocks<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
@@ -178,7 +178,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_samples() << ";";
 	measurements_file << 0 << ";";
 	measurements_file << 0 << ";";
-	run_program(emissionTomographyMethodWithoutBlocks<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodWithoutBlocks<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	for (std::size_t receivers_block_size = 20; receivers_block_size < NxR*NyR; receivers_block_size += 20) {
@@ -191,7 +191,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 			measurements_file << samples_block_size << ";";
 
 			run_program(std::bind(
-				emissionTomographyMethodWithBlocks<double>,
+				emissionTomographyMethodWithBlocks<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,

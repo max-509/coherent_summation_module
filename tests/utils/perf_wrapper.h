@@ -56,7 +56,26 @@ std::pair<double, std::vector<uint64_t>> perf_wrapper(const std::function<void (
 	
 	t2 = omp_get_wtime();
 
-    return std::make_pair(t2 - t1, events_values);
+	double t = t2 - t1;
+	std::vector<int> times(5);
+	for (const auto _ : times) {
+	    std::vector<uint64_t> local_events_values(Events::COUNT_EVENTS, 0);
+
+	    t1 = omp_get_wtime();
+
+        PROF_START();
+        coh_sum();
+        PROF_DO(local_events_values[index] += counter);
+
+        t2 = omp_get_wtime() - t1;
+
+        if (t2 < t) {
+            t = t2;
+            events_values = local_events_values;
+        }
+	}
+
+    return std::make_pair(t, events_values);
 }
 
 #endif //_PERF_WRAPPER_H

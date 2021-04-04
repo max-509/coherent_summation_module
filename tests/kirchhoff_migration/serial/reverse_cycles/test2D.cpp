@@ -45,7 +45,7 @@ void run_program(const CohSumType<double, double>& coh_sum,
 
 	    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords, is_trans);
 
-	    Array2D<double> gather(user_datas.second.get(), receivers_step, data_gen.get_n_samples());
+	    Array2D<double> gather(user_datas.second, receivers_step, data_gen.get_n_samples());
 
 	    std::pair<double, std::vector<uint64_t>> res;
 	    if (is_trans) {
@@ -77,9 +77,9 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t NxR = 800;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 5500;
+	std::size_t NxS = 6000;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 5500;
+	std::size_t NzS = 6000;
 	std::size_t n_samples = 20000;
 	double s_x = 0.0;
 	double dt = 0.000075;
@@ -119,15 +119,15 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 2000;
+	std::size_t NxR = 3700;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 1200;
+	std::size_t NxS = 2200;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 1200;
-	std::size_t n_samples = 2000000;
+	std::size_t NzS = 2200;
+	std::size_t n_samples = 8000000;
 	double s_x = 0.0;
-	double dt = 0.00000075;
+	double dt = 0.0000001875;
 	double velocity = 3500.0;
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
@@ -163,15 +163,15 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 1500;
+	std::size_t NxR = 2500;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 3000;
+	std::size_t NxS = 3400;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 3000;
-	std::size_t n_samples = 6250000;
+	std::size_t NzS = 3400;
+	std::size_t n_samples = 11560000;
 	double s_x = 0.0;
-	double dt = 0.00000024;
+	double dt = 1.29756e-7;
 	double velocity = 3500.0;
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,

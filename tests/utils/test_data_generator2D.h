@@ -5,6 +5,8 @@
 #include <tuple>
 #include <vector>
 #include <memory>
+#include <omp.h>
+#include <algorithm>
 
 template <typename T2>
 class test_data_generator2D {
@@ -42,12 +44,11 @@ public:
 }
 
     template <typename T1>
-    std::pair<std::unique_ptr<T2[]>, std::unique_ptr<T1[]>>
+    std::pair<std::unique_ptr<T2[]>, T1*>
     generate_user_data_by_receivers(const std::vector<double> &receivers_coords,
                                     bool is_transpose_receivers) {
 	    std::size_t n_receivers = receivers_coords.size();
 	    std::unique_ptr<T2[]> times_to_receivers(new T2[z_dim_*x_dim_*n_receivers]);
-	    std::unique_ptr<T1[]> gather(new T1[n_receivers * n_samples_]);
 
 	    double z0 = grid_[0].first, z1 = grid_[0].second;
 	    double x0 = grid_[1].first, x1 = grid_[1].second;
@@ -55,6 +56,7 @@ public:
 	    double dx = (x1 - x0) / (x_dim_ - 1);
 
 	    if (is_transpose_receivers) {
+            #pragma omp parallel for simd
 	        for (std::size_t i_r = 0; i_r < n_receivers; ++i_r) {
 	            double r_x = receivers_coords[i_r];
 	            for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
@@ -70,6 +72,7 @@ public:
 	            }
 	        }
 	    } else {
+	        #pragma omp parallel for simd
 	        for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
                 double p_z = z0 + dz*i_z;
                 for (std::size_t i_x = 0; i_x < x_dim_; ++i_x) {
@@ -86,15 +89,21 @@ public:
             }
 	    }
 
-	    srand(time(nullptr));
+	    if (!gather_ || n_receivers != n_receivers_) {
+            n_receivers_ = n_receivers;
+            gather_ = std::shared_ptr<double>(new double[n_receivers_*n_samples_]);
 
-    	for (std::size_t i_r = 0; i_r < n_receivers; ++i_r) {
-    		for (std::size_t i_n = 0; i_n < n_samples_; ++i_n) {
-    			gather[i_r*n_samples_ + i_n] = (double)rand() / RAND_MAX;
-    		}
-    	}
+            srand(time(nullptr));
 
-        return std::make_pair(std::move(times_to_receivers), std::move(gather));
+            #pragma omp parallel for simd collapse(2)
+            for (std::size_t i_r = 0; i_r < n_receivers_; ++i_r) {
+                for (std::size_t i_n = 0; i_n < n_samples_; ++i_n) {
+                    *(gather_.get() + i_r*n_samples_ + i_n) = (double)rand() / RAND_MAX;
+                }
+            }
+        }
+
+        return std::make_pair(std::move(times_to_receivers), gather_.get());
 	}
 
     std::size_t get_x_dim() const {
@@ -122,10 +131,12 @@ private:
 	std::size_t x_dim_;
 	std::size_t z_dim_;
 	std::size_t n_samples_;
+	std::size_t n_receivers_ = 0;
 	double dt_;
 	T2 velocity_;
 	std::vector<T2> times_to_source_;
 	std::vector<std::pair<double, double>> grid_;
+	std::shared_ptr<double> gather_{};
 
 	T2 euqlidean_dist(double x0, double x1, double y0, double y1, double z0, double z1) {
         return std::sqrt(std::pow(x1-x0, 2) + std::pow(y1-y0, 2) + std::pow(z1-z0, 2));

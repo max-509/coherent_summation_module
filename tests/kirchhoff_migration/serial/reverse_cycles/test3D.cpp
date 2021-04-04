@@ -48,20 +48,23 @@ void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<doubl
 	}
 
 	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
-	    std::ptrdiff_t upper_border_receivers_block = std::min(NxR, rec_bl + receivers_step);
-	    std::vector<double> receivers_coords_block(upper_border_receivers_block);
-	    std::copy(receivers_coords.begin() + rec_bl, receivers_coords.begin() + rec_bl + upper_border_receivers_block, receivers_coords_block.begin());
+	    std::ptrdiff_t upper_border_receivers_block = std::min(NxR*NyR, rec_bl + receivers_step);
+	    std::vector<std::pair<double, double>> receivers_coords_block(upper_border_receivers_block - rec_bl);
+	    for (std::size_t i_r = rec_bl; i_r < upper_border_receivers_block; ++i_r) {
+	        receivers_coords_block[i_r - rec_bl].first = receivers_coords[(i_r)*2];
+	        receivers_coords_block[i_r - rec_bl].second = receivers_coords[(i_r)*2 + 1];
+	    }
 
 	    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords_block, is_trans);
 
-	    Array2D<double> gather(user_datas.second.get(), receivers_step, data_gen.get_n_samples());
+	    Array2D<double> gather(user_datas.second, upper_border_receivers_block - rec_bl, data_gen.get_n_samples());
 
 	    std::pair<double, std::vector<uint64_t>> res;
 	    if (is_trans) {
-	        Array2D<double> times_to_receivers(user_datas.first.get(), receivers_step, z_dim*x_dim);
+	        Array2D<double> times_to_receivers(user_datas.first.get(), upper_border_receivers_block - rec_bl, z_dim*y_dim*x_dim);
 	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
 	    } else {
-	        Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*x_dim, receivers_step);
+	        Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, upper_border_receivers_block - rec_bl);
 	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
 	    }
 
@@ -83,16 +86,16 @@ void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<doubl
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 28;
+	std::size_t NxR = 30;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 28;
+	std::size_t NyR = 30;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 315;
+	std::size_t NxS = 330;
 	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 315;
+	std::size_t NyS = 330;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 315;
+	std::size_t NzS = 330;
 	std::size_t n_samples = 20000;
 	double s_x = 0.0, s_y = 0.0;
 	double dt = 0.0001;
@@ -135,19 +138,19 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 45;
+	std::size_t NxR = 60;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 45;
+	std::size_t NyR = 60;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 120;
+	std::size_t NxS = 170;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 120;
+	std::size_t NyS = 170;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 120;
-	std::size_t n_samples = 2000000;
+	std::size_t NzS = 170;
+	std::size_t n_samples = 8000000;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.000001;
+	double dt = 0.0000001875;
 	double velocity = 3500.;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
@@ -186,19 +189,19 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 40;
+	std::size_t NxR = 50;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 40;
+	std::size_t NyR = 50;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 185;
+	std::size_t NxS = 226;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 185;
+	std::size_t NyS = 226;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 185;
-	std::size_t n_samples = 6250000;
+	std::size_t NzS = 226;
+	std::size_t n_samples = 11560000;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.00000032;
+	double dt = 1.29756e-7;
 	double velocity = 3500.;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,

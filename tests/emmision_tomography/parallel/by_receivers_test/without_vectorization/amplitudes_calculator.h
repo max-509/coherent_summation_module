@@ -1,16 +1,9 @@
 #ifndef _AMPLITUDES_CALCULATOR_H
 #define _AMPLITUDES_CALCULATOR_H
 
-#ifdef _MSC_VER
-#define RESTRICT __restrict
-#else 
-#define RESTRICT __restrict__
-#endif
-
 #include <cstddef>
 #include <cmath>
 #include <limits>
-#include <omp.h>
 
 template <typename T>
 class AmplitudesCalculator {
@@ -18,7 +11,7 @@ public:
 
 	AmplitudesCalculator(const Array2D<T> &sources_coords,
 					 	  const Array2D<T> &receivers_coords,
-					 	  const T *RESTRICT tensor_matrix,
+					 	  const T *tensor_matrix,
 					 	  Array2D<T> &amplitudes) : 
 		sources_coords_(sources_coords),
 		receivers_coords_(receivers_coords),
@@ -33,8 +26,8 @@ public:
 
         constexpr T two_T = static_cast<T>(2.0);
 
-        T RESTRICT coord_vect[3];
-        T RESTRICT G_P[matrix_size];
+        T coord_vect[3];
+        T G_P[matrix_size];
 
         #pragma omp simd
         for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
@@ -72,11 +65,11 @@ private:
 
 	const Array2D<T> &sources_coords_;
     const Array2D<T> &receivers_coords_;
-    const T *RESTRICT tensor_matrix_;
+    const T *tensor_matrix_;
     Array2D<T> &amplitudes_;	
 
     #pragma omp declare simd
-	inline T calc_norm(const T *RESTRICT coord_vect, std::ptrdiff_t len) {
+	inline T calc_norm(const T *coord_vect, std::ptrdiff_t len) {
         T norm = 0.0;
         for (std::ptrdiff_t i_v = 0; i_v < len; ++i_v) {
             norm += coord_vect[i_v]*coord_vect[i_v];

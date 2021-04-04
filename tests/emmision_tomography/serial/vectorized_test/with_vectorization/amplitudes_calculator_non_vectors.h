@@ -8,7 +8,7 @@ template <typename T>
 class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<T, AmplitudesCalculatorNonVectors<T>> {
 public:
 	AmplitudesCalculatorNonVectors(const Array2D<T> &sources_coords,
-						 	  	  const T *RESTRICT tensor_matrix) : 
+						 	  	  const T *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
 	{ }
@@ -17,7 +17,7 @@ public:
 
 private:
 	const Array2D<T> &sources_coords_;
-	const T *RESTRICT tensor_matrix_;
+	const T *tensor_matrix_;
 
 	void realize_calculate(const Array2D<T> &rec_coords_, Array2D<T> &amplitudes_) {
 		this->non_vector_calculate_amplitudes(0, sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);

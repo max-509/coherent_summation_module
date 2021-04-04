@@ -90,7 +90,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << best_samples_block_size << ";";
 
 	run_program(std::bind(
-				emissionTomographyMethodWithVectorization<double>,
+				emissionTomographyMethodWithVectorization<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
@@ -141,7 +141,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << best_samples_block_size << ";";
 
 	run_program(std::bind(
-				emissionTomographyMethodWithVectorization<double>,
+				emissionTomographyMethodWithVectorization<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,
@@ -191,7 +191,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << best_samples_block_size << ";";
 
 	run_program(std::bind(
-				emissionTomographyMethodWithVectorization<double>,
+				emissionTomographyMethodWithVectorization<double, double>,
 				std::placeholders::_1,
 				std::placeholders::_2,
 				std::placeholders::_3,

@@ -20,6 +20,8 @@ void kirchhoffMigrationCHG2DReverseCycles(const Array2D<T1> &gather,
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
 
+    double rev_dt = 1.0 / dt;
+
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
         for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
@@ -29,7 +31,7 @@ void kirchhoffMigrationCHG2DReverseCycles(const Array2D<T1> &gather,
 
                 T2 t_to_s = times_to_source[i_p], t_to_r = times_to_receivers(i_r, i_p);
 
-                std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_s + t_to_r) / dt);
+                auto sample_idx = static_cast<std::ptrdiff_t>((t_to_s + t_to_r) * rev_dt);
 
                 if (sample_idx < n_samples) {
                     result_data[i_p] += gather(i_r, sample_idx);
@@ -50,6 +52,8 @@ void kirchhoffMigrationCHG3DReverseCycles(const Array2D<T1> &gather,
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
 
+    double rev_dt = 1.0 / dt;
+
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
         for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
@@ -60,7 +64,7 @@ void kirchhoffMigrationCHG3DReverseCycles(const Array2D<T1> &gather,
 
                     T2 t_to_s = times_to_source[i_p], t_to_r = times_to_receivers(i_r, i_p);
 
-                    std::ptrdiff_t sample_idx = static_cast<std::ptrdiff_t>((t_to_s + t_to_r) / dt);
+                    auto sample_idx = static_cast<std::ptrdiff_t>((t_to_s + t_to_r) * rev_dt);
 
                     if (sample_idx < n_samples) {
                         result_data[i_p] += gather(i_r, sample_idx);

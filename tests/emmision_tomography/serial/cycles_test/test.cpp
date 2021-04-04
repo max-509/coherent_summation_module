@@ -63,14 +63,14 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodNative<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodNative<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	measurements_file << "reverses;";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodCyclesReverses<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodCyclesReverses<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 }
@@ -100,14 +100,14 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodNative<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodNative<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	measurements_file << "reverses;";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodCyclesReverses<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodCyclesReverses<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 }
 
@@ -136,14 +136,14 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodNative<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodNative<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 
 	measurements_file << "reverses;";
 	measurements_file << data_gen.get_n_sources() << ";";
 	measurements_file << data_gen.get_n_receivers() << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(emissionTomographyMethodCyclesReverses<double>, data_gen, measurements_file);
+	run_program(emissionTomographyMethodCyclesReverses<double, double>, data_gen, measurements_file);
 	measurements_file << std::endl;
 }
 

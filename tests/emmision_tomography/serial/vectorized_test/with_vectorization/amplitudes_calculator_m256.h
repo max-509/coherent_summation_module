@@ -4,7 +4,7 @@
 #include "amplitudes_calculator_base.h"
 #include "array2D.h"
 
-#include <x86intrin.h>
+#include <immintrin.h>
 #include <functional>
 #include <cstdlib>
 #include <cmath>
@@ -15,7 +15,7 @@ template <typename T>
 class AmplitudesCalculatorM256 : public AmplitudesCalculatorBase<T, AmplitudesCalculatorM256<T>> {
 public:
 	AmplitudesCalculatorM256(const Array2D<T> &sources_coords,
-						 	  const T *RESTRICT tensor_matrix) : 
+						 	  const T *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
 	{ }
@@ -24,7 +24,7 @@ public:
 
 private:
 	const Array2D<T> &sources_coords_;
-	const T *RESTRICT tensor_matrix_;
+	const T *tensor_matrix_;
     __m256d abs_mask_d = _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m256 abs_mask_f = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
     __m256d d_epsilon_v = _mm256_set1_pd(std::numeric_limits<double>::epsilon());
@@ -50,8 +50,8 @@ void AmplitudesCalculatorM256<float>::realize_calculate(const Array2D<float> &re
     std::ptrdiff_t vector_dim = sizeof(__m256)/sizeof(float);
 
     static __m256 two_v = _mm256_set1_ps(2.0f);
-    static __m256 RESTRICT coord_vec[3];
-    static __m256 RESTRICT tensor_matrix_v[matrix_size] = {_mm256_broadcast_ss(tensor_matrix_),
+    static __m256 coord_vec[3];
+    static __m256 tensor_matrix_v[matrix_size] = {_mm256_broadcast_ss(tensor_matrix_),
                                                             _mm256_broadcast_ss(tensor_matrix_ + 1),
                                                             _mm256_broadcast_ss(tensor_matrix_ + 2),
                                                             _mm256_broadcast_ss(tensor_matrix_ + 3),
@@ -116,8 +116,8 @@ void AmplitudesCalculatorM256<double>::realize_calculate(const Array2D<double> &
 
     static __m256d two_v = _mm256_set1_pd(2.0);
     static __m256d one_v = _mm256_set1_pd(1.0);
-    static __m256d RESTRICT coord_vec[3];
-    static __m256d RESTRICT tensor_matrix_v[matrix_size] = {_mm256_broadcast_sd(tensor_matrix_),
+    static __m256d coord_vec[3];
+    static __m256d tensor_matrix_v[matrix_size] = {_mm256_broadcast_sd(tensor_matrix_),
                                                             _mm256_broadcast_sd(tensor_matrix_ + 1),
                                                             _mm256_broadcast_sd(tensor_matrix_ + 2),
                                                             _mm256_broadcast_sd(tensor_matrix_ + 3),

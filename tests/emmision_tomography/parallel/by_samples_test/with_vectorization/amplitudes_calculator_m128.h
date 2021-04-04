@@ -4,19 +4,18 @@
 #include "amplitudes_calculator_base.h"
 #include "array2D.h"
 
-#include <x86intrin.h>
+#include <immintrin.h>
 #include <functional>
 #include <limits>
 #include <cstdlib>
 #include <cmath>
 #include <memory>
-#include <omp.h>
 
 template <typename T>
 class AmplitudesCalculatorM128 : public AmplitudesCalculatorBase<T, AmplitudesCalculatorM128<T>> {
 public:
 	AmplitudesCalculatorM128(const Array2D<T> &sources_coords,
-						 	  const T *RESTRICT tensor_matrix) : 
+						 	  const T *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
 	{ }
@@ -25,7 +24,7 @@ public:
 
 private:
 	const Array2D<T> &sources_coords_;
-	const T *RESTRICT tensor_matrix_;
+	const T *tensor_matrix_;
     __m128d abs_mask_d = _mm_castsi128_pd(_mm_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m128 abs_mask_f = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
     __m128d d_epsilon_v = _mm_set1_pd(std::numeric_limits<double>::epsilon());
@@ -51,7 +50,7 @@ void AmplitudesCalculatorM128<float>::realize_calculate(const Array2D<float> &re
     constexpr std::ptrdiff_t vector_dim = sizeof(__m128)/sizeof(float);
 
     static __m128 two_v = _mm_set1_ps(2.0f);
-    static __m128 RESTRICT tensor_matrix_v[matrix_size] = {_mm_set1_ps(tensor_matrix_[0]),
+    static __m128 tensor_matrix_v[matrix_size] = {_mm_set1_ps(tensor_matrix_[0]),
                                             _mm_set1_ps(tensor_matrix_[1]),
                                             _mm_set1_ps(tensor_matrix_[2]),
                                             _mm_set1_ps(tensor_matrix_[3]),
@@ -61,9 +60,9 @@ void AmplitudesCalculatorM128<float>::realize_calculate(const Array2D<float> &re
 
     #pragma omp parallel
     {
-        __m128 RESTRICT coord_vec[3];
+        __m128 coord_vec[3];
 
-        #pragma omp for schedule(dynamic) collapse(2)
+        #pragma omp for schedule(static) collapse(2)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
             for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {
                 for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
@@ -118,7 +117,7 @@ void AmplitudesCalculatorM128<double>::realize_calculate(const Array2D<double> &
 
     static __m128d two_v = _mm_set1_pd(2.0);
     static __m128d one_v = _mm_set1_pd(1.0);
-    static __m128d RESTRICT tensor_matrix_v[matrix_size] = {_mm_set1_pd(tensor_matrix_[0]),
+    static __m128d tensor_matrix_v[matrix_size] = {_mm_set1_pd(tensor_matrix_[0]),
                                             _mm_set1_pd(tensor_matrix_[1]),
                                             _mm_set1_pd(tensor_matrix_[2]),
                                             _mm_set1_pd(tensor_matrix_[3]),
@@ -128,9 +127,9 @@ void AmplitudesCalculatorM128<double>::realize_calculate(const Array2D<double> &
 
     #pragma omp parallel
     {
-        __m128d RESTRICT coord_vec[3];
+        __m128d coord_vec[3];
 
-        #pragma omp for schedule(dynamic) collapse(2)
+        #pragma omp for schedule(static) collapse(2)
         for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
             for (std::ptrdiff_t r_ind = 0; r_ind < n_rec-(n_rec%vector_dim); r_ind+=vector_dim) {
                 for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
