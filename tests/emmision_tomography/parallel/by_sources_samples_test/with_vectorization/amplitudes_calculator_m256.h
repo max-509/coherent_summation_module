@@ -109,7 +109,7 @@ void AmplitudesCalculatorM256<float>::realize_calculate(const Array2D<float> &re
             }
         }
     }
-    
+
     non_vector_calculate_amplitudes(n_rec-(n_rec%vector_dim), sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 }
 
@@ -129,7 +129,7 @@ void AmplitudesCalculatorM256<double>::realize_calculate(const Array2D<double> &
                                                             _mm256_broadcast_sd(tensor_matrix_ + 4),
                                                             _mm256_broadcast_sd(tensor_matrix_ + 5)
                                                         };
-                                    
+
     static __m256i vindex = _mm256_set_epi64x(9, 6, 3, 0);
 
     #pragma omp parallel
@@ -176,10 +176,10 @@ void AmplitudesCalculatorM256<double>::realize_calculate(const Array2D<double> &
                 ampl_vect = _mm256_add_pd(ampl_vect, _mm256_mul_pd(tensor_matrix_v[5], _mm256_mul_pd(double_norm_coord_z, _mm256_mul_pd(coord_vec[0], coord_vec[1]))));
                 #endif
 
-                _mm256_storeu_pd(&amplitudes_(i, r_ind), _mm256_div_pd(ampl_vect, _mm256_add_pd(_mm256_and_pd(ampl_vect, abs_mask_d), d_epsilon_v)));                
+                _mm256_storeu_pd(&amplitudes_(i, r_ind), _mm256_div_pd(ampl_vect, _mm256_add_pd(_mm256_and_pd(ampl_vect, abs_mask_d), d_epsilon_v)));
             }
-        }      
-    }   
+        }
+    }
 
     non_vector_calculate_amplitudes(n_rec-(n_rec%vector_dim), sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 }

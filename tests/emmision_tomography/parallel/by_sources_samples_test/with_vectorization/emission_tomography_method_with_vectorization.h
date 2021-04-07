@@ -197,8 +197,8 @@ void emissionTomographyMethodWithVectorization(const Array2D<T1> &gather,
                                             double dt,
                                             const T1 *tensor_matrix,
                                             T1 *result_data,
-                                            std::ptrdiff_t receivers_block_size,
-                                            std::ptrdiff_t samples_block_size) {
+                                            std::ptrdiff_t receivers_block_size = 20,
+                                            std::ptrdiff_t samples_block_size = 1000) {
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
     std::ptrdiff_t n_sources = sources_receivers_times.get_y_dim();
@@ -214,7 +214,7 @@ void emissionTomographyMethodWithVectorization(const Array2D<T1> &gather,
 
     std::unique_ptr<T1[]> amplitudes_buf(new T1[n_sources*receivers_block_size]);
 
-    AmplitudesComputerType<T1> amplitudes_computer(sources_coords, tensor_matrix);
+    AmplitudesComputerType<T2> amplitudes_computer(sources_coords, tensor_matrix);
     
     for (std::ptrdiff_t bl_ir = 0; bl_ir < n_receivers; bl_ir += receivers_block_size) {
 
@@ -222,8 +222,7 @@ void emissionTomographyMethodWithVectorization(const Array2D<T1> &gather,
 
         std::ptrdiff_t curr_receivers_block_size = next_receivers_block_begin - bl_ir;
 
-        const Array2D<T1> receivers_coords_block(const_cast<T1*>(&receivers_coords(bl_ir, 0)), curr_receivers_block_size, 3);
-
+        Array2D<T1> receivers_coords_block(const_cast<T1*>(&receivers_coords(bl_ir, 0)), curr_receivers_block_size, 3);
 
         Array2D<T1> amplitudes{amplitudes_buf.get(), n_sources, curr_receivers_block_size};
         amplitudes_computer.calculate(receivers_coords_block, amplitudes);

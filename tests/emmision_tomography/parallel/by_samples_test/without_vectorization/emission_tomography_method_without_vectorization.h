@@ -17,8 +17,8 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T1> &gather,
                                                 double dt,
                                                 const T1 *tensor_matrix,
                                                 T1 *result_data,
-                                                std::ptrdiff_t receivers_block_size,
-                                                std::ptrdiff_t samples_block_size) {
+                                                std::ptrdiff_t receivers_block_size = 20,
+                                                std::ptrdiff_t samples_block_size = 1000) {
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
     std::ptrdiff_t n_sources = sources_receivers_times.get_y_dim();

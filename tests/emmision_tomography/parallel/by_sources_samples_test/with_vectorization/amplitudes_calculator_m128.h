@@ -103,8 +103,8 @@ void AmplitudesCalculatorM128<float>::realize_calculate(const Array2D<float> &re
 
                 _mm_storeu_ps(&amplitudes_(i, r_ind), _mm_div_ps(ampl_vect, _mm_add_ps(_mm_and_ps(ampl_vect, abs_mask_f), f_epsilon_v)));
             }
-        }      
-    } 
+        }
+    }
     this->non_vector_calculate_amplitudes(n_rec-(n_rec%vector_dim), sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 }
 
@@ -170,8 +170,8 @@ void AmplitudesCalculatorM128<double>::realize_calculate(const Array2D<double> &
 
                 _mm_storeu_pd(&amplitudes_(i, r_ind), _mm_div_pd(ampl_vect, _mm_add_pd(_mm_and_pd(ampl_vect, abs_mask_d), d_epsilon_v)));
             }
-        }    
-    }     
+        }
+    }
 
     this->non_vector_calculate_amplitudes(n_rec-(n_rec%vector_dim), sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 }

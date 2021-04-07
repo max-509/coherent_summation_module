@@ -149,7 +149,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int argc, char const *argv[]) {
 
-	std::ofstream measurements_file("../measurements.csv");
+	std::ofstream measurements_file("./measurements.csv");
 	measurements_file << "summation version;";
 	measurements_file << "number of sources;";
 	measurements_file << "number of receivers;";

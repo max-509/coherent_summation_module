@@ -1,0 +1,5 @@
+project(kirchhoff_migration_parallel_tests)
+
+add_subdirectory(by_points_without_blocks)
+add_subdirectory(by_points_with_blocks)
+add_subdirectory(by_blocks)

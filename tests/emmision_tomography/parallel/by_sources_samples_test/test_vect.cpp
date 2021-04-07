@@ -19,7 +19,7 @@
 #include <omp.h>
 
 template <typename T>
-using CohSumType = std::function<void (const Array2D<T> &, 
+using CohSumType = std::function<void (const Array2D<T> &,
                                 const Array2D<T> &,
                                 const Array2D<T> &,
                                 const Array2D<T> &,

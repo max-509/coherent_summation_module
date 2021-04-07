@@ -27,7 +27,7 @@ void kirchhoffMigrationCHG2DManualVectorizationGather(const Array2D<T1> &gather,
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
-        process_receiver_data_on_grid(&gather(i_r, 0), times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data);
+        process_receiver_data_on_grid(&gather(i_r, 0), times_to_source, times_to_receivers, 0, n_points, n_samples, rev_dt, i_r, result_data);
 
 //        for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
 //            for (std::ptrdiff_t i_x = 0; i_x < x_dim; ++i_x) {
@@ -63,7 +63,7 @@ void kirchhoffMigrationCHG3DManualVectorizationGather(const Array2D<T1> &gather,
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
-        process_receiver_data_on_grid(&gather(i_r, 0), times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data);
+        process_receiver_data_on_grid(&gather(i_r, 0), times_to_source, times_to_receivers, 0, n_points, n_samples, rev_dt, i_r, result_data);
 
 //        for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
 //            for (std::ptrdiff_t i_y = 0; i_y < y_dim; ++i_y) {

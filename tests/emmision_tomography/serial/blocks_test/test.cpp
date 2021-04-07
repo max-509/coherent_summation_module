@@ -230,9 +230,9 @@ int main(int argc, char const *argv[]) {
 	std::ofstream measurements_file2;
 	std::ofstream measurements_file3;
 	
-	create_measurements_file("../measurements1.csv", measurements_file1);
-	create_measurements_file("../measurements2.csv", measurements_file2);
-	create_measurements_file("../measurements3.csv", measurements_file3);
+	create_measurements_file("./measurements1.csv", measurements_file1);
+	create_measurements_file("./measurements2.csv", measurements_file2);
+	create_measurements_file("./measurements3.csv", measurements_file3);
 
 	test_n_sou_greater_n_smpls(measurements_file1);
 	test_n_smpls_greater_n_sou(measurements_file2);

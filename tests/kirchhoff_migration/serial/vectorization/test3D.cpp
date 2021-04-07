@@ -96,20 +96,21 @@ void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<doubl
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 30;
+	std::size_t NxR = 42;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 30;
+	std::size_t NyR = 42;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 330;
+	std::size_t NxS = 350;
 	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 330;
+	std::size_t NyS = 350;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 330;
+	std::size_t NzS = 350;
 	std::size_t n_samples = 20000;
+	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s) + (y1_s-y0_s)*(y1_s-y0_s));
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0001;
-	double velocity = 3500.;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -148,20 +149,21 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 60;
+	std::size_t NxR = 54;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 60;
+	std::size_t NyR = 54;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 170;
+	std::size_t NxS = 185;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 170;
+	std::size_t NyS = 185;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 170;
-	std::size_t n_samples = 8000000;
+	std::size_t NzS = 185;
+	std::size_t n_samples = 10000000;
+	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s) + (y1_s-y0_s)*(y1_s-y0_s));
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0000001875;
-	double velocity = 3500.;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -199,20 +201,21 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 50;
+	std::size_t NxR = 46;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 50;
+	std::size_t NyR = 46;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 226;
+	std::size_t NxS = 250;
 	double y0_s = 0, y1_s = 4000; 
-	std::size_t NyS = 226;
+	std::size_t NyS = 250;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 226;
-	std::size_t n_samples = 11560000;
+	std::size_t NzS = 250;
+	std::size_t n_samples = 15625000;
+	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s) + (y1_s-y0_s)*(y1_s-y0_s));
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 1.29756e-7;
-	double velocity = 3500.;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -250,7 +253,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int argc, char const *argv[]) {
 
-	std::ofstream measurements_file(std::string("../measurements3D_") + SIMD_EXTENSION + ".csv");
+	std::ofstream measurements_file(std::string("./measurements3D_") + SIMD_EXTENSION + ".csv");
 	measurements_file << "summation version;";
 	measurements_file << "number of points;";
 	measurements_file << "number of receivers;";

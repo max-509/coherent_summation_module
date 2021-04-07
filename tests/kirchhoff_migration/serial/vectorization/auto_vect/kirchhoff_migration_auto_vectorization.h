@@ -27,7 +27,7 @@ void kirchhoffMigrationCHG2DAutoVectorization(const Array2D<T1> &gather,
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
-        #pragma omp simd
+        #pragma omp for simd
         for (std::ptrdiff_t i_p = 0; i_p < n_points; ++i_p) {
             const T2 t_to_s = times_to_source[i_p], t_to_r = times_to_receivers(i_r, i_p);
 
@@ -57,7 +57,7 @@ void kirchhoffMigrationCHG3DAutoVectorization(const Array2D<T1> &gather,
 
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
-        #pragma omp simd
+        #pragma omp for simd
         for (std::ptrdiff_t i_p = 0; i_p < n_points; ++i_p) {
             const T2 t_to_s = times_to_source[i_p], t_to_r = times_to_receivers(i_r, i_p);
 

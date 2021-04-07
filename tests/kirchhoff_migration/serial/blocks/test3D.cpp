@@ -533,15 +533,15 @@ int main(int argc, char const *argv[]) {
 	std::ofstream m_files[9];
 
     std::size_t i_f = 0;
-    for (const std::string &filename : {"../m_file_3D_test1_inner_points.csv",
-                                        "../m_file_3D_test1_inner_receivers.csv",
-                                        "../m_file_3D_test1_strip_mining.csv",
-                                        "../m_file_3D_test2_inner_points.csv",
-                                        "../m_file_3D_test2_inner_receivers.csv",
-                                        "../m_file_3D_test2_strip_mining.csv",
-                                        "../m_file_3D_test3_inner_points.csv",
-                                        "../m_file_3D_test3_inner_receivers.csv",
-                                        "../m_file_3D_test3_strip_mining.csv",}) {
+    for (const std::string &filename : {"./m_file_3D_test1_inner_points.csv",
+                                        "./m_file_3D_test1_inner_receivers.csv",
+                                        "./m_file_3D_test1_strip_mining.csv",
+                                        "./m_file_3D_test2_inner_points.csv",
+                                        "./m_file_3D_test2_inner_receivers.csv",
+                                        "./m_file_3D_test2_strip_mining.csv",
+                                        "./m_file_3D_test3_inner_points.csv",
+                                        "./m_file_3D_test3_inner_receivers.csv",
+                                        "./m_file_3D_test3_strip_mining.csv",}) {
         create_measurements_file(filename, m_files[i_f]);
         ++i_f;
     }

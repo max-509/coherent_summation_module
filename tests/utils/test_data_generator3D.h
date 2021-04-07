@@ -64,7 +64,7 @@ public:
 	    double dx = (x1 - x0) / (x_dim_ - 1);
 
 	    if (is_transpose_receivers) {
-	        #pragma omp parallel for simd
+	        #pragma omp parallel for
 	        for (std::size_t i_r = 0; i_r < n_receivers; ++i_r) {
 	            double r_y = receivers_coords[i_r].first, r_x = receivers_coords[i_r].second;
 	            for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
@@ -83,7 +83,7 @@ public:
 	            }
 	        }
 	    } else {
-            #pragma omp parallel for simd
+            #pragma omp parallel for
 	        for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
 	            double p_z = z0 + dz*i_z;
 	            for (std::size_t i_y = 0; i_y < y_dim_; ++i_y) {
@@ -105,7 +105,7 @@ public:
 
         if (!gather_ || n_receivers != n_receivers_) {
             n_receivers_ = n_receivers;
-            gather_ = std::shared_ptr<double>(new double[n_receivers_*n_samples_]);
+            gather_ = std::shared_ptr<double>(new double[n_receivers_*n_samples_], [](double * ptr) { delete [] ptr; });
 
             srand(time(nullptr));
 

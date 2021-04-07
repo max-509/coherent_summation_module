@@ -84,16 +84,18 @@ void run_program(const CohSumType<double, double>& coh_sum,
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 800;
+	std::size_t NxR = 1800;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 6000;
+	std::size_t NxS = 6500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 6000;
+	std::size_t NzS = 6500;
 	std::size_t n_samples = 20000;
-	double s_x = 0.0;
-	double dt = 0.000075;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
+
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -101,17 +103,17 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
                                             n_samples,
                                             velocity);
 
-	measurements_file << "auto vect;";
-	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << NxR << ";";
-	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG2DAutoVectorization<double, double>,
-	        data_gen,
-	        measurements_file,
-	        x0_r, x1_r, NxR,
-	        receivers_step,
-	        true);
-	measurements_file << std::endl;
+//	measurements_file << "auto vect;";
+//	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+//	measurements_file << NxR << ";";
+//	measurements_file << data_gen.get_n_samples() << ";";
+//	run_program(kirchhoffMigrationCHG2DAutoVectorization<double, double>,
+//	        data_gen,
+//	        measurements_file,
+//	        x0_r, x1_r, NxR,
+//	        receivers_step,
+//	        true);
+//	measurements_file << std::endl;
 
 	measurements_file << "manual vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
@@ -129,16 +131,17 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 
 void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 3700;
+	std::size_t NxR = 3000;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 2200;
+	std::size_t NxS = 2500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 2200;
-	std::size_t n_samples = 8000000;
-	double s_x = 0.0;
-	double dt = 0.0000001875;
+	std::size_t NzS = 2500;
+	std::size_t n_samples = 10000000;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -173,16 +176,17 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 
 void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 2500;
+	std::size_t NxR = 2200;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 3400;
+	std::size_t NxS = 4000;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 3400;
-	std::size_t n_samples = 11560000;
-	double s_x = 0.0;
-	double dt = 1.29756e-7;
+	std::size_t NzS = 4000;
+	std::size_t n_samples = 16000000;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -217,7 +221,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int argc, char const *argv[]) {
 
-	std::ofstream measurements_file(std::string("../measurements2D_") + SIMD_EXTENSION + ".csv");
+	std::ofstream measurements_file(std::string("./measurements2D_") + SIMD_EXTENSION + ".csv");
 	measurements_file << "summation version;";
 	measurements_file << "number of points;";
 	measurements_file << "number of receivers;";

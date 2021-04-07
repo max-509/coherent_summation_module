@@ -240,7 +240,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int argc, char const *argv[]) {
 
-	std::ofstream measurements_file("../measurements3D.csv");
+	std::ofstream measurements_file("./measurements3D.csv");
 	measurements_file << "summation version;";
 	measurements_file << "number of points;";
 	measurements_file << "number of receivers;";

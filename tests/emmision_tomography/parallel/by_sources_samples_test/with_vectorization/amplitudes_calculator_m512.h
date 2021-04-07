@@ -14,6 +14,7 @@
 template <typename T>
 class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<T, AmplitudesCalculatorM512<T>> {
 public:
+
 	AmplitudesCalculatorM512(const Array2D<T> &sources_coords,
 						 	  const T *tensor_matrix) :
 		sources_coords_(sources_coords),
@@ -57,7 +58,7 @@ void AmplitudesCalculatorM512<float>::realize_calculate(const Array2D<float> &re
                                         };
     static __m512i vindex = _mm512_set_epi32(45, 42, 39, 36, 33, 30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0);
 
-    #pragma omp parallel 
+    #pragma omp parallel // default(none) shared(vector_dim, rec_coords_, amplitudes_, sources_count, n_rec)
     {
         __m512 coord_vec[3];
 
@@ -96,7 +97,7 @@ void AmplitudesCalculatorM512<float>::realize_calculate(const Array2D<float> &re
             }
         }
     }
-    
+
     non_vector_calculate_amplitudes(n_rec-(n_rec%vector_dim), sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 }
 
@@ -116,8 +117,8 @@ void AmplitudesCalculatorM512<double>::realize_calculate(const Array2D<double> &
                                             _mm512_set1_pd(tensor_matrix_[5])
                                         };
     static __m512i vindex = _mm512_set_epi64(21, 18, 15, 12, 9, 6, 3, 0);
-    
-    #pragma omp parallel 
+
+    #pragma omp parallel //default(none) shared(vector_dim, rec_coords_, amplitudes_, sources_count, n_rec)
     {
         __m512d coord_vec[3];
 
