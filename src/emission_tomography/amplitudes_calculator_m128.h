@@ -12,9 +12,12 @@
 #include <memory>
 #include <type_traits>
 
-template <typename InputArrayType>
+template <typename InputArrayType,
+        typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
 class AmplitudesCalculatorM128 : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM128<InputArrayType>> {
 public:
+    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
+    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
 	AmplitudesCalculatorM128(InputArrayType &sources_coords,
 						 	  const value_type * tensor_matrix) :
 		sources_coords_(sources_coords),
@@ -34,7 +37,7 @@ private:
 	template <OutputArrayType,
             typename is_f = std::is_same<float, value_type>::value,
             typename is_d = std::is_same<double, value_type>::value,
-            std::enable_if<
+            typename std::enable_if<
                     std::is_same<value_type, typename std::remove_const<typename OutputArrayType::value_type>>,
                     bool>::type = true>
 	void realize_calculate(InputArrayType &rec_coords_, OutputArrayType &amplitudes_);

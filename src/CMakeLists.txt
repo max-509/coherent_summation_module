@@ -1,7 +1,7 @@
 project(CoherentSummationModule LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.15)
 
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
+set(CMAKE_CXX_STANDARD 11 CACHE STRING "C++ version selection")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(COMPILING_CXX_MSVC_FLAGS "-openmp:experimental /Ox /Ob2 /DNDEBUG /Wall")
 set(COMPILING_CXX_CLANG_GNU_FLAGS "-O3 -lm -march=native -DNDEBUG -fno-math-errno -Wall -g -fno-omit-frame-pointer -ftree-vectorize")

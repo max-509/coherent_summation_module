@@ -7,12 +7,15 @@
 #include <type_traits>
 
 template <typename InputArrayType,
-        std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value), bool>::type = true>
+        typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
 class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>> {
 public:
 
+    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
+    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
+
 	AmplitudesCalculatorNonVectors(InputArrayType &sources_coords,
-						 	  	  const value_type* tensor_matrix) :
+						 	  	  const value_type *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
 	{ }

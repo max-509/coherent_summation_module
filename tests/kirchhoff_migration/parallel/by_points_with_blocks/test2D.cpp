@@ -25,7 +25,7 @@ using CohSumType = std::function<void (const Array2D<T1> &,
                                 std::ptrdiff_t, std::ptrdiff_t,
                                 double,
                                 T1 *,
-				std::ptrdiff_t)>;
+                                std::ptrdiff_t)>;
 
 void run_program(const CohSumType<double, double>& coh_sum,
                  test_data_generator2D<double> &data_gen,

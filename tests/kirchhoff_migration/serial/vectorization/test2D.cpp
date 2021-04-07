@@ -103,23 +103,23 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
                                             n_samples,
                                             velocity);
 
-//	measurements_file << "auto vect;";
-//	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//	measurements_file << NxR << ";";
-//	measurements_file << data_gen.get_n_samples() << ";";
-//	run_program(kirchhoffMigrationCHG2DAutoVectorization<double, double>,
-//	        data_gen,
-//	        measurements_file,
-//	        x0_r, x1_r, NxR,
-//	        receivers_step,
-//	        true);
-//	measurements_file << std::endl;
+	measurements_file << "auto vect;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(kirchhoffMigrationCHG2DAutoVectorization<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
+	measurements_file << std::endl;
 
 	measurements_file << "manual vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG2DManualVectorizationGather<double, double>,
+	run_program(kirchhoffMigrationCHG2DManualVectorization<double, double>,
 	        data_gen,
 	        measurements_file,
 	        x0_r, x1_r, NxR,
@@ -165,7 +165,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG2DManualVectorizationGather<double, double>,
+	run_program(kirchhoffMigrationCHG2DManualVectorization<double, double>,
 	        data_gen,
 	        measurements_file,
 	        x0_r, x1_r, NxR,
@@ -210,7 +210,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG2DManualVectorizationGather<double, double>,
+	run_program(kirchhoffMigrationCHG2DManualVectorization<double, double>,
 	        data_gen,
 	        measurements_file,
 	        x0_r, x1_r, NxR,

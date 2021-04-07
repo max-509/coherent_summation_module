@@ -1,5 +1,5 @@
-#ifndef _KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_GATHER_H
-#define _KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_GATHER_H
+#ifndef _KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_H
+#define _KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_H
 
 #include "array2D.h"
 #include "kirchhoff_migration_by_points_v.h"
@@ -12,7 +12,7 @@
 #include <numeric>
 
 template <typename T1, typename T2>
-void kirchhoffMigrationCHG2DManualVectorizationGather(const Array2D<T1> &gather,
+void kirchhoffMigrationCHG2DManualVectorization(const Array2D<T1> &gather,
                                     const std::vector<T2> &times_to_source,
                                     const Array2D<T2> &times_to_receivers,
                                     std::ptrdiff_t z_dim, std::ptrdiff_t x_dim,
@@ -47,7 +47,7 @@ void kirchhoffMigrationCHG2DManualVectorizationGather(const Array2D<T1> &gather,
 }
 
 template <typename T1, typename T2>
-void kirchhoffMigrationCHG3DManualVectorizationGather(const Array2D<T1> &gather,
+void kirchhoffMigrationCHG3DManualVectorization(const Array2D<T1> &gather,
                                 const std::vector<T2> &times_to_source,
                                 const Array2D<T2> &times_to_receivers,
                                 std::ptrdiff_t z_dim, std::ptrdiff_t y_dim, std::ptrdiff_t x_dim,
@@ -85,4 +85,4 @@ void kirchhoffMigrationCHG3DManualVectorizationGather(const Array2D<T1> &gather,
     }
 }
 
-#endif //_KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_GATHER_H
+#endif //_KIRCHHOFF_MIGRATION_MANUAL_VECTORIZATION_H

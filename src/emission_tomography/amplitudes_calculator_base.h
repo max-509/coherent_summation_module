@@ -10,7 +10,7 @@
 
 template <typename InputArrayType,
         typename Realization,
-        std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value), bool>::type = true>
+        typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
 class AmplitudesCalculatorBase {
 public:
 
@@ -18,8 +18,8 @@ public:
     using size_type = typename InputArrayType::size_type;
 
     template<typename OutputArrayType,
-            std::enable_if<
-                    (!std::is_const_v<typename OutputArrayType::value_type>::value && std::is_floating_point<typename OutputArrayType::value_type>::value),
+            typename std::enable_if<
+                    (!std::is_const<typename OutputArrayType::value_type>::value && std::is_floating_point<typename OutputArrayType::value_type>::value),
                     bool>::type = true>
 	void calculate(InputArrayType &rec_coords, OutputArrayType &amplitudes) {
 		static_cast<Realization*>(this)->realize_calculate(rec_coords, amplitudes); 
@@ -29,6 +29,7 @@ public:
 
 private:
 
+    template <typename OutputArrayType>
 	void non_vector_calculate_amplitudes(size_type ind_first_rec, InputArrayType &sources_coords, InputArrayType &rec_coords, const value_type * tensor_matrix, OutputArrayType &amplitudes) {
 	    size_type n_rec = rec_coords.get_y_dim();
 	    size_type sources_count = sources_coords.get_y_dim();

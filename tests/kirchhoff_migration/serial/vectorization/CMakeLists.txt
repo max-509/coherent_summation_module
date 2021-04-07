@@ -17,10 +17,10 @@ foreach(V_EXT ${VECT_INSTRUCTIONS})
     target_link_libraries(${TARGET_3D} PRIVATE test_data_generator_lib)
 
     target_include_directories(${TARGET_2D} PRIVATE auto_vect)
-    target_include_directories(${TARGET_2D} PRIVATE manual_vect_gather)
+    target_include_directories(${TARGET_2D} PRIVATE manual_vect)
 
     target_include_directories(${TARGET_3D} PRIVATE auto_vect)
-    target_include_directories(${TARGET_3D} PRIVATE manual_vect_gather)
+    target_include_directories(${TARGET_3D} PRIVATE manual_vect)
 
     target_compile_options(${TARGET_2D}
             PRIVATE $<IF:$<STREQUAL:${V_EXT},AVX512>,-mavx512f -ftree-vectorize,

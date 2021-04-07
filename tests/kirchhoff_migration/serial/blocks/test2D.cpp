@@ -76,16 +76,17 @@ void run_program(const CohSumType<double, double>& coh_sum,
 
 void test_n_sou_greater_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::ofstream &m_f3) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 800;
+	std::size_t NxR = 1800;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 6000;
+	std::size_t NxS = 6500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 6000;
+	std::size_t NzS = 6500;
 	std::size_t n_samples = 20000;
-	double s_x = 0.0;
-	double dt = 0.000075;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -165,55 +166,56 @@ void test_n_sou_greater_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::o
         m_f3 << std::endl;
     }
 
-//    m_f2 << "reverse_cycles;";
-//    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//    m_f2 << NxR << ";";
-//    m_f2 << data_gen.get_n_samples() << ";";
-//    m_f2 << 0 << ";";
-//	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
-//	        data_gen,
-//                m_f2,
-//	        x0_r, x1_r, NxR,
-//	        receivers_step,
-//	        true);
-//    m_f2 << std::endl;
-//
-//    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
-//        m_f2 << "inner receivers;";
-//        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//        m_f2 << NxR << ";";
-//        m_f2 << data_gen.get_n_samples() << ";";
-//        m_f2 << p_block_size << ";";
-//        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
-//                std::placeholders::_1,
-//                std::placeholders::_2,
-//                std::placeholders::_3,
-//                std::placeholders::_4,
-//                std::placeholders::_5,
-//                std::placeholders::_6,
-//                std::placeholders::_7,
-//                p_block_size),
-//                data_gen,
-//                    m_f2,
-//                x0_r, x1_r, NxR,
-//                receivers_step,
-//                false);
-//        m_f2 << std::endl;
-//    }
+    m_f2 << "reverse_cycles;";
+    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+    m_f2 << NxR << ";";
+    m_f2 << data_gen.get_n_samples() << ";";
+    m_f2 << 0 << ";";
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+                m_f2,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
+    m_f2 << std::endl;
+
+    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
+        m_f2 << "inner receivers;";
+        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+        m_f2 << NxR << ";";
+        m_f2 << data_gen.get_n_samples() << ";";
+        m_f2 << p_block_size << ";";
+        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::placeholders::_3,
+                std::placeholders::_4,
+                std::placeholders::_5,
+                std::placeholders::_6,
+                std::placeholders::_7,
+                p_block_size),
+                data_gen,
+                    m_f2,
+                x0_r, x1_r, NxR,
+                receivers_step,
+                false);
+        m_f2 << std::endl;
+    }
 }
 
 void test_n_smpls_greater_n_sou(std::ofstream &m_f1, std::ofstream &m_f2, std::ofstream &m_f3) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 3700;
+	std::size_t NxR = 3000;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 2200;
+	std::size_t NxS = 2500;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 2200;
-	std::size_t n_samples = 8000000;
-	double s_x = 0.0;
-	double dt = 0.0000001875;
+	std::size_t NzS = 2500;
+	std::size_t n_samples = 10000000;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -293,57 +295,58 @@ void test_n_smpls_greater_n_sou(std::ofstream &m_f1, std::ofstream &m_f2, std::o
         m_f3 << std::endl;
     }
 
-//    m_f2 << "reverse_cycles;";
-//    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//    m_f2 << NxR << ";";
-//    m_f2 << data_gen.get_n_samples() << ";";
-//    m_f2 << 0 << ";";
-//	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
-//	        data_gen,
-//                m_f2,
-//	        x0_r, x1_r, NxR,
-//	        receivers_step,
-//	        true);
-//    m_f2 << std::endl;
-//
-//    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
-//        m_f2 << "inner receivers;";
-//        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//        m_f2 << NxR << ";";
-//        m_f2 << data_gen.get_n_samples() << ";";
-//        m_f2 << p_block_size << ";";
-//        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
-//                std::placeholders::_1,
-//                std::placeholders::_2,
-//                std::placeholders::_3,
-//                std::placeholders::_4,
-//                std::placeholders::_5,
-//                std::placeholders::_6,
-//                std::placeholders::_7,
-//                p_block_size),
-//                data_gen,
-//                    m_f2,
-//                x0_r, x1_r, NxR,
-//                receivers_step,
-//                false);
-//        m_f2 << std::endl;
-//    }
-//
-//
+    m_f2 << "reverse_cycles;";
+    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+    m_f2 << NxR << ";";
+    m_f2 << data_gen.get_n_samples() << ";";
+    m_f2 << 0 << ";";
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+                m_f2,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
+    m_f2 << std::endl;
+
+    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
+        m_f2 << "inner receivers;";
+        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+        m_f2 << NxR << ";";
+        m_f2 << data_gen.get_n_samples() << ";";
+        m_f2 << p_block_size << ";";
+        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::placeholders::_3,
+                std::placeholders::_4,
+                std::placeholders::_5,
+                std::placeholders::_6,
+                std::placeholders::_7,
+                p_block_size),
+                data_gen,
+                    m_f2,
+                x0_r, x1_r, NxR,
+                receivers_step,
+                false);
+        m_f2 << std::endl;
+    }
+
+
 }
 
 void test_n_sou_equal_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::ofstream &m_f3) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 2500;
+	std::size_t NxR = 2200;
 	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 3400;
+	std::size_t NxS = 4000;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 3400;
-	std::size_t n_samples = 11560000;
-	double s_x = 0.0;
-	double dt = 1.29756e-7;
+	std::size_t NzS = 4000;
+	std::size_t n_samples = 16000000;
 	double velocity = 3500.0;
+	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
+	double s_x = 0.0;
+	double dt = max_time / static_cast<double>(n_samples);
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -423,41 +426,41 @@ void test_n_sou_equal_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::ofs
         m_f3 << std::endl;
     }
 
-//    m_f2 << "reverse_cycles;";
-//    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//    m_f2 << NxR << ";";
-//    m_f2 << data_gen.get_n_samples() << ";";
-//    m_f2 << 0 << ";";
-//	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
-//	        data_gen,
-//                m_f2,
-//	        x0_r, x1_r, NxR,
-//	        receivers_step,
-//	        true);
-//    m_f2 << std::endl;
-//
-//    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
-//        m_f2 << "inner receivers;";
-//        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//        m_f2 << NxR << ";";
-//        m_f2 << data_gen.get_n_samples() << ";";
-//        m_f2 << p_block_size << ";";
-//        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
-//                std::placeholders::_1,
-//                std::placeholders::_2,
-//                std::placeholders::_3,
-//                std::placeholders::_4,
-//                std::placeholders::_5,
-//                std::placeholders::_6,
-//                std::placeholders::_7,
-//                p_block_size),
-//                data_gen,
-//                    m_f2,
-//                x0_r, x1_r, NxR,
-//                receivers_step,
-//                false);
-//        m_f2 << std::endl;
-//    }
+    m_f2 << "reverse_cycles;";
+    m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+    m_f2 << NxR << ";";
+    m_f2 << data_gen.get_n_samples() << ";";
+    m_f2 << 0 << ";";
+	run_program(kirchhoffMigrationCHG2DReverseCycles<double, double>,
+	        data_gen,
+                m_f2,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        true);
+    m_f2 << std::endl;
+
+    for (std::size_t p_block_size = 10; p_block_size < std::min(NxS, NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.15) + 15) {
+        m_f2 << "inner receivers;";
+        m_f2 << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+        m_f2 << NxR << ";";
+        m_f2 << data_gen.get_n_samples() << ";";
+        m_f2 << p_block_size << ";";
+        run_program(std::bind(kirchhoffMigrationCHG2DBlocksReceiversInnerLoop<double, double>,
+                std::placeholders::_1,
+                std::placeholders::_2,
+                std::placeholders::_3,
+                std::placeholders::_4,
+                std::placeholders::_5,
+                std::placeholders::_6,
+                std::placeholders::_7,
+                p_block_size),
+                data_gen,
+                    m_f2,
+                x0_r, x1_r, NxR,
+                receivers_step,
+                false);
+        m_f2 << std::endl;
+    }
 }
 
 void create_measurements_file(const std::string &filename, std::ofstream& measurements_file) {
