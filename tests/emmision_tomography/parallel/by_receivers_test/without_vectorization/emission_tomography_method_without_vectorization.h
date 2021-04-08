@@ -53,7 +53,7 @@ void emissionTomographyMethodWithoutVectorization(const Array2D<T1> &gather,
 
             const Array2D<T1> receivers_coords_block(const_cast<T1*>(&receivers_coords(bl_ir, 0)), curr_receivers_block_size, 3);
 
-            auto amplitudes_buf = std::make_unique<T1[]>(n_sources*curr_receivers_block_size);
+            std::unique_ptr<T1[]> amplitudes_buf(new T1[n_sources*curr_receivers_block_size]);
             Array2D<T1> amplitudes{amplitudes_buf.get(), n_sources, curr_receivers_block_size};
             AmplitudesCalculator<T1> amplitudes_computer(sources_coords, receivers_coords_block, tensor_matrix, amplitudes);
             amplitudes_computer.calculate();

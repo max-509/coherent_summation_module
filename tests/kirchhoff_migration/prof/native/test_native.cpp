@@ -31,7 +31,6 @@ void test() {
 
 	auto times_to_source = data_gen.get_times_to_source();
 	std::ptrdiff_t z_dim = data_gen.get_z_dim(), y_dim = data_gen.get_y_dim(), x_dim = data_gen.get_x_dim();
-	double dt = data_gen.get_dt();
 
 	double *result_data = new double[z_dim*y_dim*x_dim];
 
@@ -62,7 +61,6 @@ void test() {
 	    Array2D<double> gather(user_datas.second, upper_border_receivers_block - rec_bl, data_gen.get_n_samples());
 	    Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, upper_border_receivers_block - rec_bl);
 	    kirchhoffMigrationCHG3DNative(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data);
-	    res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
 	}
 	std::cerr << result_data[0] << std::endl;
 
