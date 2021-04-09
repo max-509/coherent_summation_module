@@ -196,10 +196,9 @@ void emissionTomographyMethod(Array2D<T1> &gather,
                               Array2D<T2> &sources_receivers_times,
                               double dt,
                               typename std::remove_const<T1>::type *result_data,
-                              std::ptrdiff_t receivers_block_size,
-                              std::ptrdiff_t samples_block_size) {
+                              std::ptrdiff_t receivers_block_size = 20,
+                              std::ptrdiff_t samples_block_size = 1000) {
     using T2_non_const = typename std::remove_const<T2>::type;
-    using T1_non_const = typename std::remove_const<T1>::type;
 
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
@@ -252,8 +251,8 @@ void emissionTomographyMethod(Array2D<T1> &gather,
                               Array2D<T1> &sources_coords,
                               Array2D<T2> &sources_receivers_times,
                               double dt,
-                              const T1 *tensor_matrix,
-                              T1 *result_data,
+                              T1 *tensor_matrix,
+                              typename std::remove_const<T1>::type *result_data,
                               std::ptrdiff_t receivers_block_size = 20,
                               std::ptrdiff_t samples_block_size = 1000) {
     using T2_non_const = typename std::remove_const<T2>::type;

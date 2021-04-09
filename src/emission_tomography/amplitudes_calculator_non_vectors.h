@@ -11,8 +11,8 @@ template <typename InputArrayType,
 class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>> {
 public:
 
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
+    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
+    using size_type = typename InputArrayType::size_type;
 
 	AmplitudesCalculatorNonVectors(InputArrayType &sources_coords,
 						 	  	  const value_type *tensor_matrix) :

@@ -87,6 +87,8 @@ void kirchhoffMigrationCHG2DBlocksPointsInnerLoopStripMining(const Array2D<T1> &
             const std::ptrdiff_t x_block_upper_border = std::min(x_dim, i_b_x + p_block_size);
             const std::ptrdiff_t x_block_size = x_block_upper_border - i_b_x;
 
+            // First receiver processing
+
             const std::ptrdiff_t i_p_block = i_b_z*x_dim + i_b_x;
 
             const auto sample_idx_first_r0 = static_cast<std::ptrdiff_t>(
@@ -121,7 +123,9 @@ void kirchhoffMigrationCHG2DBlocksPointsInnerLoopStripMining(const Array2D<T1> &
                 }
             }
 
-            for (std::ptrdiff_t i_r = 0; i_r < i_r_last; ++i_r) {
+            // Second-prelast receivers processing
+
+            for (std::ptrdiff_t i_r = 1; i_r < i_r_last; ++i_r) {
 
                 const auto sample_idx_first = static_cast<std::ptrdiff_t>(
                         (times_to_source[i_p_block] + times_to_receivers(i_r+1, i_p_block)) * rev_dt
@@ -155,6 +159,8 @@ void kirchhoffMigrationCHG2DBlocksPointsInnerLoopStripMining(const Array2D<T1> &
                     }
                 }
             }
+
+            // Last receiver processing
 
             const auto sample_idx_first_r_last = static_cast<std::ptrdiff_t>(
                     (times_to_source[i_p_block] + times_to_receivers(i_r_last, i_p_block)) * rev_dt

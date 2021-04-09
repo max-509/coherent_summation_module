@@ -16,7 +16,6 @@ foreach(V_EXT ${VECT_INSTRUCTIONS})
     target_link_libraries(${TARGET_2D} PRIVATE test_data_generator_lib)
     target_link_libraries(${TARGET_3D} PRIVATE test_data_generator_lib)
 
-
     target_include_directories(${TARGET_2D} PRIVATE src)
     target_include_directories(${TARGET_3D} PRIVATE src)
 

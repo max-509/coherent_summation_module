@@ -16,8 +16,9 @@ template <typename InputArrayType,
         typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
 class AmplitudesCalculatorM256 : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM256<InputArrayType>> {
 public:
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
+    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
+    using size_type = typename InputArrayType::size_type;
+
 	AmplitudesCalculatorM256(InputArrayType &sources_coords,
 						 	  const value_type * tensor_matrix) :
 		sources_coords_(sources_coords),
