@@ -21,7 +21,7 @@ public:
             typename std::enable_if<
                     (!std::is_const<typename OutputArrayType::value_type>::value && std::is_floating_point<typename OutputArrayType::value_type>::value),
                     bool>::type = true>
-	void calculate(InputArrayType &rec_coords, OutputArrayType &amplitudes) {
+	void calculate(const InputArrayType &rec_coords, OutputArrayType &amplitudes) {
 		static_cast<Realization*>(this)->realize_calculate(rec_coords, amplitudes); 
 	}
 
@@ -30,7 +30,7 @@ public:
 private:
 
     template <typename OutputArrayType>
-	void non_vector_calculate_amplitudes(size_type ind_first_rec, InputArrayType &sources_coords, InputArrayType &rec_coords, const value_type * tensor_matrix, OutputArrayType &amplitudes) {
+	void non_vector_calculate_amplitudes(size_type ind_first_rec, const InputArrayType &sources_coords, const InputArrayType &rec_coords, const value_type * tensor_matrix, OutputArrayType &amplitudes) {
 	    size_type n_rec = rec_coords.get_y_dim();
 	    size_type sources_count = sources_coords.get_y_dim();
 	    constexpr size_type matrix_size = size_type(6);
@@ -77,7 +77,8 @@ private:
 	}
 
 	inline value_type calc_norm(value_type x, value_type y, value_type z) {
-	    return sqrt(x*x+y*y+z*z)+std::numeric_limits<value_type>::epsilon();
+	    using namespace std;
+	    return sqrt(x*x+y*y+z*z)+numeric_limits<value_type>::epsilon();
 	}
 };
 

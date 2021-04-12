@@ -1,5 +1,6 @@
 #include "CoherentSummation.h"
 
+#include "array2D.h"
 #include "emission_tomography_method.h"
 #include "TimeArrivalWrapperNN.h"
 #include "TimeArrivalTimesTableArray.h"
@@ -213,11 +214,11 @@ CoherentSummation::emission_tomography_method(
     auto p_times_to_receivers = p_time_arrival_->get_times_to_receivers(receivers_coords_vector, true);
     std::cerr << "End calculating times arrivals:" << std::endl;
 
-    auto *tensor_matrix_data = static_cast<const double *>(tensor_matrix_info.ptr);
-    Array2D<const double> gather2D(gather_data, n_receivers, n_samples);
-    Array2D<const double> receivers_coords2D(receivers_coords_vector.data(), n_receivers, 3);
-    Array2D<const double> sources_coords2D(environment_data, n_points, 3);
-    Array2D<const float> times_to_receivers2D(p_times_to_receivers.get(), n_points, n_receivers);
+    auto *tensor_matrix_data = static_cast<double *>(tensor_matrix_info.ptr);
+    Array2D<double> gather2D(gather_data, n_receivers, n_samples);
+    Array2D<double> receivers_coords2D(receivers_coords_vector.data(), n_receivers, 3);
+    Array2D<double> sources_coords2D(environment_data, n_points, 3);
+    Array2D<float> times_to_receivers2D(p_times_to_receivers.get(), n_points, n_receivers);
 
     std::cerr << "Start coherent summation:" << std::endl;
     if (cohSumUtils::is_tensor_matrix_diag(tensor_matrix)) {

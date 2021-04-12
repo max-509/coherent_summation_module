@@ -48,18 +48,17 @@ void test() {
         }
 	}
 
+	std::vector<std::pair<double, double>> receivers_coords_block(receivers_step);
+    for (std::size_t i_r = 0; i_r < receivers_step; ++i_r) {
+        receivers_coords_block[i_r].first = receivers_coords[(i_r) * 2];
+        receivers_coords_block[i_r].second = receivers_coords[(i_r) * 2 + 1];
+    }
+
+    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords_block, true);
+    Array2D<double> gather(user_datas.second, receivers_step, data_gen.get_n_samples());
+    Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, receivers_step);
+
 	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
-	    std::ptrdiff_t upper_border_receivers_block = std::min(NxR*NyR, rec_bl + receivers_step);
-	    std::vector<std::pair<double, double>> receivers_coords_block(upper_border_receivers_block - rec_bl);
-	    for (std::size_t i_r = rec_bl; i_r < upper_border_receivers_block; ++i_r) {
-	        receivers_coords_block[i_r - rec_bl].first = receivers_coords[(i_r)*2];
-	        receivers_coords_block[i_r - rec_bl].second = receivers_coords[(i_r)*2 + 1];
-	    }
-
-	    auto user_datas = data_gen.generate_user_data_by_receivers<double>(receivers_coords_block, true);
-
-	    Array2D<double> gather(user_datas.second, upper_border_receivers_block - rec_bl, data_gen.get_n_samples());
-	    Array2D<double> times_to_receivers(user_datas.first.get(), upper_border_receivers_block - rec_bl, z_dim*y_dim*x_dim);
 	    kirchhoffMigrationCHG3DManualVectorization(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data);
 	}
 	std::cerr << result_data[0] << std::endl;

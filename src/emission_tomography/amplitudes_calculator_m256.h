@@ -19,7 +19,7 @@ public:
     using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
     using size_type = typename InputArrayType::size_type;
 
-	AmplitudesCalculatorM256(InputArrayType &sources_coords,
+	AmplitudesCalculatorM256(const InputArrayType &sources_coords,
 						 	  const value_type * tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
@@ -28,7 +28,7 @@ public:
 	friend AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM256<InputArrayType>>;
 
 private:
-	InputArrayType &sources_coords_;
+	const InputArrayType &sources_coords_;
 	const value_type * tensor_matrix_;
     __m256d abs_mask_d = _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m256 abs_mask_f = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
@@ -41,10 +41,10 @@ private:
             typename std::enable_if<
                     std::is_same<value_type, typename std::remove_const<typename OutputArrayType::value_type>>,
                     bool>::type = true>
-	void realize_calculate(InputArrayType &rec_coords_, OutputArrayType &amplitudes_);
+	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_);
 
     template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, true, false>(InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate<OutputArrayType, true, false>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         size_type n_rec = rec_coords_.get_y_dim();
         size_type sources_count = sources_coords_.get_y_dim();
         constexpr size_type matrix_size = 6;
@@ -141,7 +141,7 @@ private:
     }
 
     template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, false, true>(InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate<OutputArrayType, false, true>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         size_type n_rec = rec_coords_.get_y_dim();
         size_type sources_count = sources_coords_.get_y_dim();
         constexpr size_type matrix_size = 6;
