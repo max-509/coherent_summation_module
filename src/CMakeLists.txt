@@ -36,15 +36,16 @@ set(COH_SUM_TARGET ${PROJECT_NAME})
 set(SOURCES module.cpp CoherentSummation.cpp)
 set(HEADERS CoherentSummation.h)
 
-pybind11_add_module(${COH_SUM_TARGET} ${SOURCES} ${HEADERS})
-
-target_link_libraries(${COH_SUM_TARGET} PRIVATE TimeArrivalLib)
-target_link_libraries(${COH_SUM_TARGET} PRIVATE UtilsLib)
 add_compile_options(${OpenMP_CXX_FLAGS}
 		$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:${COMPILING_CXX_MSVC_FLAGS}>
 		$<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang>:${COMPILING_CXX_CLANG_GNU_FLAGS}>
 		$<$<AND:$<COMPILE_LANG_AND_ID:CXX,Intel>,$<PLATFORM_ID:WIN32>>:${COMPILING_CXX_ICC_WINDOWS_FLAGS}>
 		$<$<AND:$<COMPILE_LANG_AND_ID:CXX,Intel>,$<PLATFORM_ID:UNIX>>:${COMPILING_CXX_ICC_UNIX_FLAGS}>)
+
+pybind11_add_module(${COH_SUM_TARGET} ${SOURCES} ${HEADERS})
+
+target_link_libraries(${COH_SUM_TARGET} PRIVATE TimeArrivalLib)
+target_link_libraries(${COH_SUM_TARGET} PRIVATE UtilsLib)
 
 set_target_properties(${COH_SUM_TARGET}
 	PROPERTIES PREFIX ""
