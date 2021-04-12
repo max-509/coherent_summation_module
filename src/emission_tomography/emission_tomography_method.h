@@ -190,16 +190,15 @@ using AmplitudesComputerType = AmplitudesCalculatorNonVectors<T>;
 #endif //End selection of SIMD instructions
 
 template<typename T1, typename T2>
-void emissionTomographyMethod(Array2D<T1> &gather,
-                              Array2D<T1> &receivers_coords,
-                              Array2D<T1> &sources_coords,
-                              Array2D<T2> &sources_receivers_times,
+void emissionTomographyMethod(const Array2D<T1> &gather,
+                              const Array2D<T1> &receivers_coords,
+                              const Array2D<T1> &sources_coords,
+                              const Array2D<T2> &sources_receivers_times,
                               double dt,
                               typename std::remove_const<T1>::type *result_data,
-                              std::ptrdiff_t receivers_block_size,
-                              std::ptrdiff_t samples_block_size) {
+                              std::ptrdiff_t receivers_block_size = 20,
+                              std::ptrdiff_t samples_block_size = 1000) {
     using T2_non_const = typename std::remove_const<T2>::type;
-    using T1_non_const = typename std::remove_const<T1>::type;
 
     std::ptrdiff_t n_receivers = gather.get_y_dim();
     std::ptrdiff_t n_samples = gather.get_x_dim();
@@ -247,13 +246,13 @@ void emissionTomographyMethod(Array2D<T1> &gather,
 }
 
 template<typename T1, typename T2>
-void emissionTomographyMethod(Array2D<T1> &gather,
-                              Array2D<T1> &receivers_coords,
-                              Array2D<T1> &sources_coords,
-                              Array2D<T2> &sources_receivers_times,
+void emissionTomographyMethod(const Array2D<T1> &gather,
+                              const Array2D<T1> &receivers_coords,
+                              const Array2D<T1> &sources_coords,
+                              const Array2D<T2> &sources_receivers_times,
                               double dt,
-                              const T1 *tensor_matrix,
-                              T1 *result_data,
+                              T1 *tensor_matrix,
+                              typename std::remove_const<T1>::type *result_data,
                               std::ptrdiff_t receivers_block_size = 20,
                               std::ptrdiff_t samples_block_size = 1000) {
     using T2_non_const = typename std::remove_const<T2>::type;
@@ -286,7 +285,7 @@ void emissionTomographyMethod(Array2D<T1> &gather,
 
         std::ptrdiff_t curr_receivers_block_size = next_receivers_block_begin - bl_ir;
 
-        Array2D<T1> receivers_coords_block(&receivers_coords(bl_ir, 0), curr_receivers_block_size, 3);
+        Array2D<T1> receivers_coords_block(receivers_coords.get(bl_ir, 0), curr_receivers_block_size, 3);
 
         Array2D<T1_non_const> amplitudes{amplitudes_buf.get(), n_sources, curr_receivers_block_size};
         amplitudes_computer.calculate(receivers_coords_block, amplitudes);

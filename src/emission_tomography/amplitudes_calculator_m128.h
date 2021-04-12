@@ -16,9 +16,10 @@ template <typename InputArrayType,
         typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
 class AmplitudesCalculatorM128 : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM128<InputArrayType>> {
 public:
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
-	AmplitudesCalculatorM128(InputArrayType &sources_coords,
+    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
+    using size_type = typename InputArrayType::size_type;
+
+	AmplitudesCalculatorM128(const InputArrayType &sources_coords,
 						 	  const value_type * tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
@@ -27,7 +28,7 @@ public:
 	friend AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM128<InputArrayType>>;
 
 private:
-	InputArrayType &sources_coords_;
+	const InputArrayType &sources_coords_;
 	const value_type * tensor_matrix_;
     __m128d abs_mask_d = _mm_castsi128_pd(_mm_set1_epi64x(0x7FFFFFFFFFFFFFFF));
     __m128 abs_mask_f = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
@@ -40,10 +41,10 @@ private:
             typename std::enable_if<
                     std::is_same<value_type, typename std::remove_const<typename OutputArrayType::value_type>>,
                     bool>::type = true>
-	void realize_calculate(InputArrayType &rec_coords_, OutputArrayType &amplitudes_);
+	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_);
 
 	template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, true, false>(InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate<OutputArrayType, true, false>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         std::ptrdiff_t n_rec = rec_coords_.get_y_dim();
         std::ptrdiff_t sources_count = sources_coords_.get_y_dim();
         constexpr std::ptrdiff_t matrix_size = 6;
@@ -125,7 +126,7 @@ private:
     }
 
     template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, false, true>(InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate<OutputArrayType, false, true>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         std::ptrdiff_t n_rec = rec_coords_.get_y_dim();
         std::ptrdiff_t sources_count = sources_coords_.get_y_dim();
         constexpr std::ptrdiff_t matrix_size = 6;

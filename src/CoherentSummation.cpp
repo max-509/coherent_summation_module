@@ -1,5 +1,6 @@
 #include "CoherentSummation.h"
 
+#include "array2D.h"
 #include "emission_tomography_method.h"
 #include "TimeArrivalWrapperNN.h"
 #include "TimeArrivalTimesTableArray.h"
@@ -145,9 +146,6 @@ CoherentSummation::emission_tomography_method(
         double dt,
         const py::array_t<double, py::array::c_style | py::array::forcecast> &tensor_matrix) {
 
-    constexpr std::ptrdiff_t receivers_block_size = 50;
-    constexpr std::ptrdiff_t samples_block_size = 8000;
-
     py::buffer_info gather_info = gather.request(),
             receivers_coords_info = receivers_coords.request(),
             environment_info = environment_.request(),
@@ -184,7 +182,6 @@ CoherentSummation::emission_tomography_method(
     auto *gather_data = static_cast<double *>(gather_info.ptr);
     auto *receivers_coords_data = static_cast<double *>(receivers_coords_info.ptr);
     auto *environment_data = static_cast<double *>(environment_info.ptr);
-    auto *tensor_matrix_data = static_cast<double *>(tensor_matrix_info.ptr);
     auto *result_data = static_cast<double *>(result_info.ptr);
 
     std::vector<double> receivers_coords_vector(n_receivers * 3);
@@ -217,6 +214,7 @@ CoherentSummation::emission_tomography_method(
     auto p_times_to_receivers = p_time_arrival_->get_times_to_receivers(receivers_coords_vector, true);
     std::cerr << "End calculating times arrivals:" << std::endl;
 
+    auto *tensor_matrix_data = static_cast<double *>(tensor_matrix_info.ptr);
     Array2D<double> gather2D(gather_data, n_receivers, n_samples);
     Array2D<double> receivers_coords2D(receivers_coords_vector.data(), n_receivers, 3);
     Array2D<double> sources_coords2D(environment_data, n_points, 3);
@@ -229,9 +227,7 @@ CoherentSummation::emission_tomography_method(
                                  sources_coords2D,
                                  times_to_receivers2D,
                                  dt,
-                                 result_data,
-                                 receivers_block_size,
-                                 samples_block_size);
+                                 result_data);
     } else {
         emissionTomographyMethod(gather2D,
                                  receivers_coords2D,
@@ -239,9 +235,7 @@ CoherentSummation::emission_tomography_method(
                                  times_to_receivers2D,
                                  dt,
                                  tensor_matrix_data,
-                                 result_data,
-                                 receivers_block_size,
-                                 samples_block_size);
+                                 result_data);
     }
 
     std::cerr << "End coherent summation:" << std::endl;

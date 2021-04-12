@@ -119,7 +119,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 								        n_samples,
 								        velocity);
 
-	measurements_file << "by points with blocks;";
+	measurements_file << "by blocks;";
 	measurements_file << omp_get_max_threads() << ";";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR*NyR << ";";
@@ -160,7 +160,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 								        n_samples,
 								        velocity);
 
-	measurements_file << "by points with blocks;";
+	measurements_file << "by blocks;";
 	measurements_file << omp_get_max_threads() << ";";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR*NyR << ";";
@@ -200,7 +200,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 								        n_samples,
 								        velocity);
 
-	measurements_file << "by points with blocks;";
+	measurements_file << "by blocks;";
 	measurements_file << omp_get_max_threads() << ";";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR*NyR << ";";

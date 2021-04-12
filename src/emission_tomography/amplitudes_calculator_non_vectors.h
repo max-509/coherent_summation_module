@@ -11,10 +11,10 @@ template <typename InputArrayType,
 class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>> {
 public:
 
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::value_type;
-    using typename AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>::size_type;
+    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
+    using size_type = typename InputArrayType::size_type;
 
-	AmplitudesCalculatorNonVectors(InputArrayType &sources_coords,
+	AmplitudesCalculatorNonVectors(const InputArrayType &sources_coords,
 						 	  	  const value_type *tensor_matrix) :
 		sources_coords_(sources_coords),
 		tensor_matrix_(tensor_matrix)
@@ -23,11 +23,11 @@ public:
 	friend AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>;
 
 private:
-	InputArrayType &sources_coords_;
+	const InputArrayType &sources_coords_;
 	const value_type *tensor_matrix_;
 
 	template <typename OutputArrayType>
-	void realize_calculate(InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
 		this->non_vector_calculate_amplitudes(0, sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
 	}
 };
