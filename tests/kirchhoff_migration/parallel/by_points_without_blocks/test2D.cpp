@@ -89,11 +89,10 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t NxS = 6500;
 	double z0_s = 0, z1_s = 2000;
 	std::size_t NzS = 6500;
-	std::size_t n_samples = 20000;
+	std::size_t n_samples = 40000;
 	double velocity = 3500.0;
-	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
 	double s_x = 0.0;
-	double dt = max_time / static_cast<double>(n_samples);
+	double dt = 0.0002;
 
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
@@ -127,9 +126,8 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	std::size_t NzS = 2500;
 	std::size_t n_samples = 10000000;
 	double velocity = 3500.0;
-	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
 	double s_x = 0.0;
-	double dt = max_time / static_cast<double>(n_samples);
+	double dt = 0.0002;
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,
@@ -161,9 +159,8 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	std::size_t NzS = 4000;
 	std::size_t n_samples = 16000000;
 	double velocity = 3500.0;
-	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s));
 	double s_x = 0.0;
-	double dt = max_time / static_cast<double>(n_samples);
+	double dt = 0.0002;
 
 	test_data_generator2D<double> data_gen(x0_s, x1_s, NxS,
                                             z0_s, z1_s, NzS,

@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "array2D.h"
-#include "kirchhoff_migration_native.h"
+#include "kirchhoff_migration_blocks_points_inner_loop.h"
 #include "test_data_generator3D.h"
 
 void test() {
@@ -58,7 +58,7 @@ void test() {
     Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, receivers_step);
 
 	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
-	    kirchhoffMigrationCHG3DNative(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data);
+	    kirchhoffMigrationCHG3DBlocksPointsInnerLoop(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data, 32);
 	}
 	std::cerr << result_data[0] << std::endl;
 

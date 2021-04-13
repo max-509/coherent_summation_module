@@ -11,6 +11,12 @@ set(NATIVE_SRC native/test_native.cpp)
 add_executable(${NATIVE_TARGET} ${NATIVE_SRC})
 target_include_directories(${NATIVE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/reverse_cycles/native)
 
+set(BLOCKS_SERIAL_TARGET ${PROJECT_NAME}_blocks_serial)
+set(BLOCKS_SERIAL_SRC blocks_serial/test_blocks_serial.cpp)
+
+add_executable(${BLOCKS_SERIAL_TARGET} ${BLOCKS_SERIAL_SRC})
+target_include_directories(${BLOCKS_SERIAL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/blocks/blocks_points_inner_loop)
+
 set(OPTIMAL_SERIAL_TARGET ${PROJECT_NAME}_optimal_serial)
 set(OPTIMAL_SERIAL_SRC optimal_serial/test_optimal_serial.cpp)
 

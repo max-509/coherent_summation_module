@@ -12,6 +12,12 @@ set(NATIVE_SRC native/test_native.cpp)
 add_executable(${NATIVE_TARGET} ${NATIVE_SRC})
 target_include_directories(${NATIVE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/emmision_tomography/serial/cycles_test/native_src)
 
+set(REVERSE_TARGET ${PROJECT_NAME}_reverse)
+set(REVERSE_SRC reverse_cycles/test_reverse.cpp)
+
+add_executable(${REVERSE_TARGET} ${REVERSE_SRC})
+target_include_directories(${REVERSE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/emmision_tomography/serial/cycles_test/cycles_reverses_src)
+
 set(OPTIMAL_SERIAL_TARGET ${PROJECT_NAME}_optimal_serial)
 set(OPTIMAL_SERIAL_SRC optimal_serial/test_optimal_serial.cpp)
 

@@ -89,21 +89,21 @@ public:
             }
 	    }
 
-	    if (!gather_ || n_receivers != n_receivers_) {
+	    if (gather_.empty() || n_receivers != n_receivers_) {
             n_receivers_ = n_receivers;
-            gather_ = std::shared_ptr<double>(new double[n_receivers_*n_samples_], [](double * ptr) { delete [] ptr; });
+            gather_ = std::vector<double>(n_receivers_*n_samples_);
 
             srand(time(nullptr));
 
             #pragma omp parallel for collapse(2)
             for (std::size_t i_r = 0; i_r < n_receivers_; ++i_r) {
                 for (std::size_t i_n = 0; i_n < n_samples_; ++i_n) {
-                    *(gather_.get() + i_r*n_samples_ + i_n) = (double)rand() / RAND_MAX;
+                    gather_[i_r*n_samples_ + i_n] = (double)rand() / RAND_MAX;
                 }
             }
         }
 
-        return std::make_pair(std::move(times_to_receivers), gather_.get());
+        return std::make_pair(std::move(times_to_receivers), gather_.data());
 	}
 
     std::size_t get_x_dim() const {
@@ -136,7 +136,7 @@ private:
 	T2 velocity_;
 	std::vector<T2> times_to_source_;
 	std::vector<std::pair<double, double>> grid_;
-	std::shared_ptr<double> gather_{};
+	std::vector<double> gather_{};
 
 	T2 euqlidean_dist(double x0, double x1, double y0, double y1, double z0, double z1) {
         return std::sqrt(std::pow(x1-x0, 2) + std::pow(y1-y0, 2) + std::pow(z1-z0, 2));

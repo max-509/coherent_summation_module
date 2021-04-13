@@ -16,11 +16,10 @@ void test() {
 	std::size_t NyS = 250;
 	double z0_s = 0, z1_s = 2000;
 	std::size_t NzS = 250;
-	std::size_t n_samples = 15625000;
+	std::size_t n_samples = 40000;
 	double velocity = 3500.0;
-	double max_time = std::sqrt((z1_s-z0_s)*(z1_s-z0_s) + (x1_s-x0_s)*(x1_s-x0_s) + (y1_s-y0_s)*(y1_s-y0_s));
 	double s_x = 0.0, s_y = 0.0;
-	double dt = max_time / static_cast<double>(n_samples);
+	double dt = 0.0002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
