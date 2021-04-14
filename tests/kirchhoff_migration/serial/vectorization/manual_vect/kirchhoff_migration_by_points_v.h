@@ -80,7 +80,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
         #ifdef __AVX512DQ__
         auto gather_v_l = _mm512_mask_i64gather_ps(zero_v,
                                                      static_cast<__mmask8>(i_samples_mask & 0xFF),
-                                                     _mm512_cvttps_epi64(_mm512_castps256_ps512(v_i_sample)),
+                                                     _mm512_cvttps_epi64(_mm512_castps512_ps256(v_i_sample)),
                                                      curr_trace,
                                                      4);
 
@@ -185,7 +185,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
         #ifdef __AVX512DQ__
         auto gather_v_l = _mm512_mask_i64gather_pd(zero_v,
                                                      static_cast<__mmask8>(i_samples_mask & 0xFF),
-                                                     _mm512_cvttps_epi64(_mm512_castps256_ps512(v_i_sample)),
+                                                     _mm512_cvttps_epi64(_mm512_castps512_ps256(v_i_sample)),
                                                      curr_trace,
                                                      8);
 

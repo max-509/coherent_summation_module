@@ -1,6 +1,6 @@
 project(test_data_generator)
 
-find_library(OpenMP REQUIRED)
+include(FindOpenMP)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -g")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")

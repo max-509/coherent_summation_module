@@ -1,7 +1,7 @@
 project(emmision_tomography_parallel_by_samples_test)
 
 find_package(Threads REQUIRED)
-find_package(OpenMP REQUIRED)
+include(FindOpenMP)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3 -Wall -std=c++11 -fno-math-errno -Wno-ignored-attributes ${OpenMP_CXX_FLAGS} -g -fno-omit-frame-pointer -fopt-info-all=../optimization_report.txt -fdump-ipa-all")
 

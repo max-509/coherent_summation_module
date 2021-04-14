@@ -8,7 +8,7 @@ set(COMPILING_CXX_CLANG_GNU_FLAGS "-O3 -lm -march=native -DNDEBUG -fno-math-errn
 set(COMPILING_CXX_ICC_WINDOWS_FLAGS "/fast /Qfma /Oy- /Ox /Qpar /Wall /Qvec")
 set(COMPILING_CXX_ICC_UNIX_FLAGS "-debug all -fast -fma -fno-math-errno -fno-omit-frame-pointer -g -parallel -Wall -vec")
 
-find_package(OpenMP)
+include(FindOpenMP)
 find_package(Python COMPONENTS Interpreter Development REQUIRED)
 exec_program(${Python_EXECUTABLE}
 	ARGS "-c \"import pybind11; print(pybind11.get_cmake_dir())\""
