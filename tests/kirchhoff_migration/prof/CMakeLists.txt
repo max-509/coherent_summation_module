@@ -11,6 +11,12 @@ set(NATIVE_SRC native/test_native.cpp)
 add_executable(${NATIVE_TARGET} ${NATIVE_SRC})
 target_include_directories(${NATIVE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/reverse_cycles/native)
 
+set(REVERSE_CYCLES_TARGET ${PROJECT_NAME}_reverse_cycles)
+set(REVERSE_CYCLES_SRC reverse_cycle/test_reverse_cycles.cpp)
+
+add_executable(${REVERSE_CYCLES_TARGET} ${REVERSE_CYCLES_SRC})
+target_include_directories(${REVERSE_CYCLES_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/reverse_cycles)
+
 set(BLOCKS_SERIAL_TARGET ${PROJECT_NAME}_blocks_serial)
 set(BLOCKS_SERIAL_SRC blocks_serial/test_blocks_serial.cpp)
 
