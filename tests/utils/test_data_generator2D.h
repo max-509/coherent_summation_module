@@ -30,6 +30,8 @@ public:
 	double hx_s = (x1_s - x0_s) / (NxS - 1);
 	double hz_s = (z0 - z1) / (Nz - 1);
 
+	double rev_velocity = 1.0 / velocity;
+
 	for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
 	    double p_z = z0 + hz_s*i_z;
 	    for (std::size_t i_x = 0; i_x < x_dim_; ++i_x) {
@@ -37,7 +39,7 @@ public:
 
 	        std::size_t i_p = i_z*x_dim_ + i_x;
 
-	        times_to_source_[i_p] = euqlidean_dist(s_x, p_x, 0, 0, 0, p_z);
+	        times_to_source_[i_p] = euqlidean_dist(s_x, p_x, 0, 0, 0, p_z) * rev_velocity;
 	    }
 	}
 
@@ -55,6 +57,8 @@ public:
 	    double dz = (z1 - z0) / (z_dim_ - 1);
 	    double dx = (x1 - x0) / (x_dim_ - 1);
 
+	    double rev_velocity = 1.0 / velocity_;
+
 	    if (is_transpose_receivers) {
             #pragma omp parallel for
 	        for (std::size_t i_r = 0; i_r < n_receivers; ++i_r) {
@@ -67,7 +71,7 @@ public:
 	                    std::size_t i_p = i_z*x_dim_ + i_x;
 
 	                    times_to_receivers[i_r*z_dim_*x_dim_ + i_p] =
-                            euqlidean_dist(r_x, p_x, 0, 0, 0, p_z) / velocity_;
+                            euqlidean_dist(r_x, p_x, 0, 0, 0, p_z) * rev_velocity;
 	                }
 	            }
 	        }
@@ -83,7 +87,7 @@ public:
                         double r_x = receivers_coords[i_r];
 
                         times_to_receivers[i_p * n_receivers + i_r] =
-                            euqlidean_dist(r_x, p_x, 0, 0, 0, p_z) / velocity_;
+                            euqlidean_dist(r_x, p_x, 0, 0, 0, p_z) * rev_velocity;
                     }
                 }
             }
