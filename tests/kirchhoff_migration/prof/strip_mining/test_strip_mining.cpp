@@ -58,7 +58,7 @@ void test() {
     Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, receivers_step);
 
 	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
-	    kirchhoffMigrationCHG3DBlocksPointsInnerLoop(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data, 32);
+	    kirchhoffMigrationCHG3DBlocksPointsInnerLoopStripMining(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data, 32);
 	}
 	std::cerr << result_data[0] << std::endl;
 

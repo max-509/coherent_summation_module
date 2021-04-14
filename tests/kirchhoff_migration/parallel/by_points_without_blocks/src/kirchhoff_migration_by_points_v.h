@@ -61,7 +61,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m512 rev_dt_v = _mm512_set1_ps(static_cast<float>(rev_dt));
     const __m512 n_samples_v = _mm512_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         #ifdef __AVX512DQ__
@@ -170,7 +170,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m512 rev_dt_v = _mm512_set1_ps(static_cast<float>(rev_dt));
     const __m512 n_samples_v = _mm512_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         #ifdef __AVX512DQ__
@@ -277,7 +277,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m512d rev_dt_v = _mm512_set1_pd(rev_dt);
     const __m512d n_samples_v = _mm512_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         #ifdef __AVX512DQ__
@@ -350,7 +350,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m512d rev_dt_v = _mm512_set1_pd(rev_dt);
     const __m512d n_samples_v = _mm512_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         #ifdef __AVX512DQ__
@@ -426,7 +426,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m256 rev_dt_v = _mm256_set1_ps(static_cast<float>(rev_dt));
     const __m256 n_samples_v = _mm256_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m256)) float i_samples[vector_dim];
@@ -486,7 +486,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m256 rev_dt_v = _mm256_set1_ps(static_cast<float>(rev_dt));
     const __m256 n_samples_v = _mm256_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m256)) float i_samples[vector_dim_f];
@@ -545,7 +545,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m256d rev_dt_v = _mm256_set1_pd(rev_dt);
     const __m256d n_samples_v = _mm256_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m256d)) double i_samples[vector_dim];
@@ -592,7 +592,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m256d rev_dt_v = _mm256_set1_pd(rev_dt);
     const __m256d n_samples_v = _mm256_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m256d)) double i_samples[vector_dim_d];
@@ -642,7 +642,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m128 rev_dt_v = _mm_set1_ps(static_cast<float>(rev_dt));
     const __m128 n_samples_v = _mm_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m128)) float i_samples[vector_dim];
@@ -690,7 +690,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m128 rev_dt_v = _mm_set1_ps(static_cast<float>(rev_dt));
     const __m128 n_samples_v = _mm_set1_ps(static_cast<float>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m128)) float i_samples[vector_dim_f];
@@ -738,7 +738,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     const __m128d rev_dt_v = _mm_set1_pd(rev_dt);
     const __m128d n_samples_v = _mm_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
 
         alignas(sizeof(__m128d)) double i_samples[vector_dim];
@@ -779,7 +779,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     const __m128d rev_dt_v = _mm_set1_pd(rev_dt);
     const __m128d n_samples_v = _mm_set1_pd(static_cast<double>(n_samples));
-    #pragma omp parallel shared(rev_dt_v, n_samples_v, n_points_without_remainder)
+    #pragma omp parallel
     {
         alignas(sizeof(__m128d)) double i_samples[vector_dim_d];
 

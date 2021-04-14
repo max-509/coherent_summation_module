@@ -17,6 +17,12 @@ set(BLOCKS_SERIAL_SRC blocks_serial/test_blocks_serial.cpp)
 add_executable(${BLOCKS_SERIAL_TARGET} ${BLOCKS_SERIAL_SRC})
 target_include_directories(${BLOCKS_SERIAL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/blocks/blocks_points_inner_loop)
 
+set(STRIP_MINING_TARGET ${PROJECT_NAME}_strip_mining)
+set(STRIP_MINING_SRC strip_mining/test_strip_mining.cpp)
+
+add_executable(${STRIP_MINING_TARGET} ${STRIP_MINING_SRC})
+target_include_directories(${STRIP_MINING_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/blocks/blocks_points_inner_loop)
+
 set(OPTIMAL_SERIAL_TARGET ${PROJECT_NAME}_optimal_serial)
 set(OPTIMAL_SERIAL_SRC optimal_serial/test_optimal_serial.cpp)
 

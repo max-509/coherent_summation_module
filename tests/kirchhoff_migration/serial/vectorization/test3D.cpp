@@ -109,7 +109,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	std::size_t n_samples = 40000;
 	double velocity = 3500.0;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0002;
+	double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -161,7 +161,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
 	std::size_t n_samples = 10000000;
 	double velocity = 3500.0;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0002;
+	double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -212,7 +212,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 	std::size_t n_samples = 15625000;
 	double velocity = 3500.0;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0002;
+	double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,

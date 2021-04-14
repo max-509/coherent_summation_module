@@ -19,7 +19,7 @@ void test() {
 	std::size_t n_samples = 40000;
 	double velocity = 3500.0;
 	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.0002;
+	double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,

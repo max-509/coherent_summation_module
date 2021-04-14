@@ -16,7 +16,7 @@
     PROF_EVENT_CACHE(L1D, READ, ACCESS) \
     PROF_EVENT_CACHE(L1D, PREFETCH, ACCESS)
     
-#include "prof.h"
+//#include "prof.h"
 
 #include <string>
 #include <tuple>
@@ -50,9 +50,9 @@ std::pair<double, std::vector<uint64_t>> perf_wrapper(const std::function<void (
 
 	t1 = omp_get_wtime(); 
 
-	PROF_START();
+//	PROF_START();
 	coh_sum();
-	PROF_DO(events_values[index] += counter);
+//	PROF_DO(events_values[index] += counter);
 	
 	t2 = omp_get_wtime();
 
@@ -63,9 +63,9 @@ std::pair<double, std::vector<uint64_t>> perf_wrapper(const std::function<void (
 
 	    t1 = omp_get_wtime();
 
-        PROF_START();
+//        PROF_START();
         coh_sum();
-        PROF_DO(local_events_values[index] += counter);
+//        PROF_DO(local_events_values[index] += counter);
 
         t2 = omp_get_wtime() - t1;
 

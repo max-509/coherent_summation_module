@@ -34,7 +34,7 @@ void kirchhoffMigrationCHG2D(const Array2D<T1> &gather,
             for (std::ptrdiff_t i_b_x = 0; i_b_x < x_dim; i_b_x += p_block_size) {
                 const std::ptrdiff_t x_block_upper_border = std::min(x_dim, i_b_x + p_block_size);
 
-                #pragma omp parallel for shared(rev_dt, z_block_upper_border, x_block_upper_border)
+                #pragma omp parallel for
                 for (std::ptrdiff_t i_z = i_b_z; i_z < z_block_upper_border; ++i_z) {
 
                     const std::ptrdiff_t i_z_layer = i_z*x_dim;
@@ -77,7 +77,7 @@ void kirchhoffMigrationCHG3D(const Array2D<T1> &gather,
                     const std::ptrdiff_t x_block_upper_border = std::min(x_dim, i_b_x + p_block_size);
 
 
-                    #pragma omp parallel for collapse(2) shared(rev_dt, z_block_upper_border, y_block_upper_border, x_block_upper_border)
+                    #pragma omp parallel for collapse(2)
                     for (std::ptrdiff_t i_z = i_b_z; i_z < z_block_upper_border; ++i_z) {
                         for (std::ptrdiff_t i_y = i_b_y; i_y < y_block_upper_border; ++i_y) {
 
