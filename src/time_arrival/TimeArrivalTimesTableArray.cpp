@@ -5,39 +5,35 @@ TimeArrivalTimesTableArray::TimeArrivalTimesTableArray(
 }
 
 std::unique_ptr<float[]>
-TimeArrivalTimesTableArray::get_times_to_receivers(std::vector<double> &receivers_coords, bool is_receivers_inner) {
-    std::unique_ptr<float[]> times_to_receivers;
-    auto n_receivers = receivers_coords.size() / 3;
+TimeArrivalTimesTableArray::get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) {
+    std::unique_ptr<float[]> times_to_points;
+    auto n_receivers = t_table_.shape(1);
     auto n_points = t_table_.shape(0);
+
+    if (i_rn > n_receivers || i_r0 < 0) {
+        throw std::runtime_error("Error: Bad receivers indexes");
+    }
+
+    auto times_to_points_size = (i_rn - i_r0);
+
     try {
-        times_to_receivers = std::make_unique<float[]>(n_points * n_receivers);
+        times_to_points = std::make_unique<float[]>(n_points * times_to_points_size);
     } catch (const std::bad_alloc &bad_alloc_ex) {
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }
 
     auto t_table_unchecked = t_table_.unchecked<2>();
 
-    if (is_receivers_inner) {
-        #pragma omp parallel for collapse(2)
-        for (auto i_p = 0; i_p < n_points; ++i_p) {
-            for (auto i_r = current_receiver_idx_; i_r < current_receiver_idx_ + n_receivers; ++i_r) {
-                times_to_receivers[i_p*n_receivers + (i_r - current_receiver_idx_)] = static_cast<float>(t_table_unchecked(i_p, i_r));
-            }
-        }
-    } else {
-        #pragma omp parallel for collapse(2)
-        for (auto i_p = 0; i_p < n_points; ++i_p) {
-            for (auto i_r = current_receiver_idx_; i_r < current_receiver_idx_ + n_receivers; ++i_r) {
-                times_to_receivers[(i_r - current_receiver_idx_)*n_points + i_p] = static_cast<float>(t_table_unchecked(i_p, i_r));
-            }
+    #pragma omp parallel for collapse(2)
+    for (auto i_p = 0; i_p < n_points; ++i_p) {
+        for (auto i_r = i_r0; i_r < i_rn; ++i_r) {
+            times_to_points[i_p * times_to_points_size + (i_r - i_r0)] = static_cast<float>(t_table_unchecked(i_p, i_r));
         }
     }
 
-    current_receiver_idx_ += n_receivers;
+    return std::move(times_to_points);
+}
 
-    if (current_receiver_idx_ >= t_table_.shape(1)) {
-        current_receiver_idx_ = 0;
-    }
-
-    return std::move(times_to_receivers);
+py::ssize_t TimeArrivalTimesTableArray::get_n_points() const {
+    return t_table_.shape(0);
 }

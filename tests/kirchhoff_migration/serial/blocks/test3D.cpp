@@ -88,17 +88,17 @@ void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<doubl
 
 void test_n_sou_greater_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::ofstream &m_f3) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 42;
+	std::size_t NxR = 25;
 	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 42;
+	std::size_t NyR = 25;
 	std::size_t receivers_step = 20;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 350;
+	std::size_t NxS = 360;
 	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 350;
+	std::size_t NyS = 360;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 350;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 360;
+	std::size_t n_samples = 20000;
 	double velocity = 3500.0;
 	double s_x = 0.0, s_y = 0.0;
 	double dt = 0.002;
@@ -164,7 +164,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::o
     m_f3 << std::endl;
 
 	for (std::size_t p_block_size = 5; p_block_size < std::min(std::min(NxS, NyS), NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.1) + 9) {
-        m_f3 << "inner points;";
+        m_f3 << "strip mining;";
         m_f3 << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
         m_f3 << NxR*NyR << ";";
         m_f3 << data_gen.get_n_samples() << ";";
@@ -306,7 +306,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &m_f1, std::ofstream &m_f2, std::o
     m_f3 << std::endl;
 
 	for (std::size_t p_block_size = 5; p_block_size < std::min(std::min(NxS, NyS), NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.1) + 9) {
-        m_f3 << "inner points;";
+        m_f3 << "strip mining;";
         m_f3 << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
         m_f3 << NxR*NyR << ";";
         m_f3 << data_gen.get_n_samples() << ";";
@@ -450,7 +450,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &m_f1, std::ofstream &m_f2, std::ofs
     m_f3 << std::endl;
 
 	for (std::size_t p_block_size = 5; p_block_size < std::min(std::min(NxS, NyS), NzS); p_block_size = static_cast<std::size_t>(p_block_size * 1.1) + 9) {
-        m_f3 << "inner points;";
+        m_f3 << "strip mining;";
         m_f3 << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
         m_f3 << NxR*NyR << ";";
         m_f3 << data_gen.get_n_samples() << ";";

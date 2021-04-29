@@ -8,6 +8,38 @@
 #include <memory>
 #include <vector>
 
+template <std::size_t i>
+struct ForSumIfMask {
+    template <typename T1, typename T2, typename mask_t>
+    inline static void sum_if_mask(const T1 *curr_trace,
+                        const T2 *i_samples,
+                        const mask_t i_samples_mask,
+                        const std::ptrdiff_t i_p,
+                        T1 *result_data) {
+        ForSumIfMask<i-1>::sum_if_mask(curr_trace, i_samples, i_samples_mask, i_p, result_data);
+
+        constexpr auto mask_i = (0x1 << i);
+        if (i_samples_mask & mask_i) {
+            result_data[i_p + i] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[i])];
+        }
+    }
+};
+
+template <>
+struct ForSumIfMask<0> {
+    template <typename T1, typename T2, typename mask_t>
+    inline static void sum_if_mask(const T1 *curr_trace,
+                        const T2 *i_samples,
+                        const mask_t i_samples_mask,
+                        const std::ptrdiff_t i_p,
+                        T1 *result_data) {
+
+        if (i_samples_mask & 0x1) {
+            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
+        }
+    }
+};
+
 template <typename T1, typename T2>
 inline void process_receiver_data_on_grid(const T1 *curr_trace,
                                        const std::vector<T2> &times_to_source,
@@ -424,30 +456,32 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
         int i_sample_mask = _mm256_movemask_ps(_mm256_cmp_ps(n_samples_v, v_i_sample, _CMP_GT_OQ));
         _mm256_storeu_ps(i_samples, v_i_sample);
 
-        if (i_sample_mask & 0x1) {
-            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
-        }
-        if (i_sample_mask & 0x2) {
-            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
-        }
-        if (i_sample_mask & 0x4) {
-            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
-        }
-        if (i_sample_mask & 0x8) {
-            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
-        }
-        if (i_sample_mask & 0x10) {
-            result_data[i_p + 4] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[4])];
-        }
-        if (i_sample_mask & 0x20) {
-            result_data[i_p + 5] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[5])];
-        }
-        if (i_sample_mask & 0x40) {
-            result_data[i_p + 6] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[6])];
-        }
-        if (i_sample_mask & 0x80) {
-            result_data[i_p + 7] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[7])];
-        }
+        ForSumIfMask<vector_dim>::sum_if_mask(curr_trace, i_samples, i_sample_mask, i_p, result_data);
+
+//        if (i_sample_mask & 0x1) {
+//            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
+//        }
+//        if (i_sample_mask & 0x2) {
+//            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
+//        }
+//        if (i_sample_mask & 0x4) {
+//            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
+//        }
+//        if (i_sample_mask & 0x8) {
+//            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
+//        }
+//        if (i_sample_mask & 0x10) {
+//            result_data[i_p + 4] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[4])];
+//        }
+//        if (i_sample_mask & 0x20) {
+//            result_data[i_p + 5] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[5])];
+//        }
+//        if (i_sample_mask & 0x40) {
+//            result_data[i_p + 6] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[6])];
+//        }
+//        if (i_sample_mask & 0x80) {
+//            result_data[i_p + 7] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[7])];
+//        }
     }
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data, i_p);
@@ -481,30 +515,32 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
         int i_sample_mask = _mm256_movemask_ps(_mm256_cmp_ps(n_samples_v, v_i_sample, _CMP_GT_OQ));
         _mm256_storeu_ps(i_samples, v_i_sample);
 
-        if (i_sample_mask & 0x1) {
-            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
-        }
-        if (i_sample_mask & 0x2) {
-            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
-        }
-        if (i_sample_mask & 0x4) {
-            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
-        }
-        if (i_sample_mask & 0x8) {
-            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
-        }
-        if (i_sample_mask & 0x10) {
-            result_data[i_p + 4] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[4])];
-        }
-        if (i_sample_mask & 0x20) {
-            result_data[i_p + 5] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[5])];
-        }
-        if (i_sample_mask & 0x40) {
-            result_data[i_p + 6] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[6])];
-        }
-        if (i_sample_mask & 0x80) {
-            result_data[i_p + 7] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[7])];
-        }
+        ForSumIfMask<vector_dim_f>::sum_if_mask(curr_trace, i_samples, i_sample_mask, i_p, result_data);
+
+//        if (i_sample_mask & 0x1) {
+//            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
+//        }
+//        if (i_sample_mask & 0x2) {
+//            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
+//        }
+//        if (i_sample_mask & 0x4) {
+//            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
+//        }
+//        if (i_sample_mask & 0x8) {
+//            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
+//        }
+//        if (i_sample_mask & 0x10) {
+//            result_data[i_p + 4] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[4])];
+//        }
+//        if (i_sample_mask & 0x20) {
+//            result_data[i_p + 5] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[5])];
+//        }
+//        if (i_sample_mask & 0x40) {
+//            result_data[i_p + 6] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[6])];
+//        }
+//        if (i_sample_mask & 0x80) {
+//            result_data[i_p + 7] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[7])];
+//        }
     }
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data, i_p);
@@ -537,18 +573,20 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
         int i_sample_mask = _mm256_movemask_pd(_mm256_cmp_pd(n_samples_v, v_i_sample, _CMP_GT_OQ));
         _mm256_storeu_pd(i_samples, v_i_sample);
 
-        if (i_sample_mask & 0x1) {
-            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
-        }
-        if (i_sample_mask & 0x2) {
-            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
-        }
-        if (i_sample_mask & 0x4) {
-            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
-        }
-        if (i_sample_mask & 0x8) {
-            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
-        }
+        ForSumIfMask<vector_dim>::sum_if_mask(curr_trace, i_samples, i_sample_mask, i_p, result_data);
+
+//        if (i_sample_mask & 0x1) {
+//            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
+//        }
+//        if (i_sample_mask & 0x2) {
+//            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
+//        }
+//        if (i_sample_mask & 0x4) {
+//            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
+//        }
+//        if (i_sample_mask & 0x8) {
+//            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
+//        }
     }
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data, i_p);
@@ -581,18 +619,20 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
         int i_sample_mask = _mm256_movemask_pd(_mm256_cmp_pd(n_samples_v, v_i_sample, _CMP_GT_OQ));
         _mm256_storeu_pd(i_samples, v_i_sample);
 
-        if (i_sample_mask & 0x1) {
-            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
-        }
-        if (i_sample_mask & 0x2) {
-            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
-        }
-        if (i_sample_mask & 0x4) {
-            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
-        }
-        if (i_sample_mask & 0x8) {
-            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
-        }
+        ForSumIfMask<vector_dim_d>::sum_if_mask(curr_trace, i_samples, i_sample_mask, i_p, result_data);
+
+//        if (i_sample_mask & 0x1) {
+//            result_data[i_p] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[0])];
+//        }
+//        if (i_sample_mask & 0x2) {
+//            result_data[i_p + 1] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[1])];
+//        }
+//        if (i_sample_mask & 0x4) {
+//            result_data[i_p + 2] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[2])];
+//        }
+//        if (i_sample_mask & 0x8) {
+//            result_data[i_p + 3] += curr_trace[static_cast<std::ptrdiff_t>(i_samples[3])];
+//        }
     }
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, n_points, n_samples, rev_dt, i_r, result_data, i_p);

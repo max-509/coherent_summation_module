@@ -1,5 +1,4 @@
 import os
-import sys
 import subprocess
 
 from setuptools import setup, Extension
@@ -23,7 +22,7 @@ class CMakeBuild(build_ext):
     def build_extension(self, ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
 
-        # required for auto-detection of auxiliary "native" libs
+        # required for auto-detection of auxiliary "native_vect" libs
         if not extdir.endswith(os.path.sep):
             extdir += os.path.sep
 
@@ -36,8 +35,7 @@ class CMakeBuild(build_ext):
         cmake_args = [
             "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
-            "-DTensorflow_INCLUDE_DIRS=D:\libtensorflow-cpu-windows-x86_64-2.4.0\include",
-            "-DTensorflow_LIBRARY_DIRS=D:\libtensorflow-cpu-windows-x86_64-2.4.0\lib"
+            "-DTensorflow_LIBRARY_DIRS={}".format(os.environ['Tensorflow_LIBRARY_DIRS'])
         ]
         build_args = []
 

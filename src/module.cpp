@@ -1,16 +1,12 @@
+#include "py_common.h"
+
 #include "CoherentSummation.h"
-#include "time_arrival/TimeArrivalBase.h"
-#include "utils.h"
+#include "CoherentSummationANN.h"
+#include "CoherentSummationTableArray.h"
+#include "CoherentSummationTableFile.h"
 
 #include <string>
 #include <cstddef>
-
-#include "pybind11/pybind11.h"
-#include "pybind11/numpy.h"
-#include <pybind11/stl.h>
-
-namespace py = pybind11;
-using namespace pybind11::literals;
 
 PYBIND11_MODULE(CoherentSummationModule, coh_sum_module) {
     coh_sum_module.doc() = "Module for computing Kirchhoff Migration and Microseismic monitoring procedure"
@@ -23,40 +19,89 @@ PYBIND11_MODULE(CoherentSummationModule, coh_sum_module) {
             .value("MODEL", NN_Type::MODEL)
             .export_values();
 
+
+
     py::class_<CoherentSummation>(coh_sum_module, "CoherentSummation")
-            .def(py::init<py::array_t<double, py::array::c_style | py::array::forcecast>, double, double, std::size_t, double, double, std::size_t, double, double, std::size_t>(),
-                    "Constructor with time arrivals table array and environment {([z0, z1], z_dim,) ([x0, x1], x_dim), [optional for 3D ([y0, y1], y_dim)]}"
-                    "t_table"_a,
-                    "z0"_a, "z1"_a, "z_dim"_a,
-                    "x0"_a, "x1"_a, "x_dim"_a,
-                    "y0"_a=0.0, "y1"_a=0.0, "y_dim"_a=1)
-            .def(py::init<py::array_t<double, py::array::c_style | py::array::forcecast>, py::array_t<double, py::array::c_style | py::array::forcecast>>(),
-                 "Constructor with time arrivals table array and environment as numpy 2D or 3D array with coords (x, z) or (x, y, z)")
-            .def(py::init<const std::string &, double, double, std::size_t, double, double, std::size_t, double, double, std::size_t>(),
-                    "Constructor with time arrivals table filename and environment {([z0, z1], z_dim,) ([x0, x1], x_dim), [optional for 3D ([y0, y1], y_dim)]}"
-                    "times_table_filename"_a,
-                    "z0"_a, "z1"_a, "z_dim"_a,
-                    "x0"_a, "x1"_a, "x_dim"_a,
-                    "y0"_a=0.0, "y1"_a=0.0, "y_dim"_a=1)
-            .def(py::init<const std::string &, py::array_t<double, py::array::c_style | py::array::forcecast>>(),
-                 "Constructor with time arrivals table filename and environment as numpy 2D or 3D array with coords (x, z) or (x, y, z)")
-            .def(py::init<const std::string &, NN_Type,
-                         std::vector<std::pair<std::string, int>> &,
-                         std::vector<std::pair<std::string, int>> &,
-                         double, double, std::size_t,
-                         double, double, std::size_t,
-                         double, double, std::size_t>(),
+            .def(py::init<>())
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_f, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummation::emission_tomography_method),
+                    py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                    "gather"_a, "sources_receivers_times"_a, "dt"_a, "receivers_block_size"_a=20, "samples_block_size"_a=1000)
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, py_array_f, double, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummation::emission_tomography_method),
+                    py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                    "gather"_a, "receivers_coords"_a, "sources_coords"_a,
+                    "sources_receivers_times"_a, "dt"_a, "tensor_matrix"_a,
+                    "receivers_block_size"_a=20, "samples_block_size"_a=1000)
+
+            .def("kirchhoff_migration", &CoherentSummation::kirchhoff_migration_method,
+                    py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move);
+
+
+
+    py::class_<CoherentSummationANN, CoherentSummation>(coh_sum_module, "CoherentSummationANN")
+            .def(py::init([] (const std::string & path_NN, NN_Type nn_type, std::vector<std::pair<std::string, int>> & input_ops,
+                 std::vector<std::pair<std::string, int>> & output_ops,
+                         py::tuple z_grid,
+                         py::tuple x_grid,
+                         py::tuple y_grid = py::make_tuple(0.0, 0.0, 1)) {
+                if (z_grid.size() != 3 || x_grid.size() != 3 || y_grid.size() != 3) {
+                    throw std::invalid_argument("Error: Bad size of grid");
+                }
+
+                splitting_by_coord z_splitting = {z_grid[0].cast<double>(), z_grid[1].cast<double>(), z_grid[2].cast<std::size_t>()};
+                splitting_by_coord x_splitting = {x_grid[0].cast<double>(), x_grid[1].cast<double>(), x_grid[2].cast<std::size_t>()};
+                splitting_by_coord y_splitting = {y_grid[0].cast<double>(), y_grid[1].cast<double>(), y_grid[2].cast<std::size_t>()};
+
+                return std::unique_ptr<CoherentSummationANN>(new CoherentSummationANN(path_NN, nn_type, input_ops, output_ops, z_splitting, x_splitting, y_splitting));
+            }),
                  "Constructor with NN: model in path or frozen filename as .pb format, input operations, output operation, grid of environment {([z0, z1], z_dim,) ([x0, x1], x_dim), [optional for 3D ([y0, y1], y_dim)]}",
+                 py::call_guard<py::gil_scoped_release>(),
                  "path_NN"_a, "nn_type"_a,
                  "input_ops"_a, "output_ops"_a,
-                 "z0"_a, "z1"_a, "z_dim"_a,
-                 "x0"_a, "x1"_a, "x_dim"_a,
-                 "y0"_a=0.0, "y1"_a=0.0, "y_dim"_a=1)
+                 "z_tuple"_a, "x_tuple"_a, "y_tuple"_a=py::make_tuple(0.0, 0.0, 1))
+
             .def(py::init<const std::string &, NN_Type,
-                         std::vector<std::pair<std::string, int>> &,
-                         std::vector<std::pair<std::string, int>> &,
-                         py::array_t<double, py::array::c_style | py::array::forcecast>>(),
-                "Constructor with NN: model in path or frozen filename as .pb format, input operations, output operation and environment as numpy 2D or 3D array with coords (x, z) or (x, y, z)")
-            .def("microseismic_monitoring", &CoherentSummation::emission_tomography_method, py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
-                    "gather"_a, "receivers_coords"_a, "dt"_a, "tensor_matrix"_a=cohSumUtils::create_diagonal_tensor_matrix());
+                 std::vector<std::pair<std::string, int>> &,
+                 std::vector<std::pair<std::string, int>> &,
+                 py_array_d>(),
+                 py::call_guard<py::gil_scoped_release>())
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, double, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationANN::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "receivers_coords"_a, "dt"_a,
+                 "tensor_matrix"_a,"receivers_block_size"_a=20, "samples_block_size"_a=1000)
+
+            .def("emission_tomography", overload_cast_<py_array_d, double, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationANN::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "dt"_a,"receivers_coords"_a,
+                 "receivers_block_size"_a=20, "samples_block_size"_a=1000);
+
+    py::class_<CoherentSummationTableFile, CoherentSummation>(coh_sum_module, "CoherentSummationTableFile")
+            .def(py::init<const std::string&, std::size_t>(), py::call_guard<py::gil_scoped_release>())
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, double, std::ptrdiff_t, std::ptrdiff_t, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableFile::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "receivers_coords"_a, "sources_coords"_a, "dt"_a,
+                 "i_r0"_a, "i_rn"_a,
+                 "tensor_matrix"_a,"receivers_block_size"_a=20, "samples_block_size"_a=1000)
+
+            .def("emission_tomography", overload_cast_<py_array_d, std::ptrdiff_t, std::ptrdiff_t, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableFile::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "i_r0"_a, "i_rn"_a, "dt"_a,
+                 "receivers_block_size"_a=20, "samples_block_size"_a=1000);
+
+    py::class_<CoherentSummationTableArray, CoherentSummation>(coh_sum_module, "CoherentSummationTableArray")
+            .def(py::init<py_array_d>(), py::call_guard<py::gil_scoped_release>())
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, double, std::ptrdiff_t, std::ptrdiff_t, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableArray::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "receivers_coords"_a, "sources_coords"_a, "dt"_a,
+                 "i_r0"_a, "i_rn"_a,
+                 "tensor_matrix"_a,"receivers_block_size"_a=20, "samples_block_size"_a=1000)
+
+            .def("emission_tomography", overload_cast_<py_array_d, std::ptrdiff_t, std::ptrdiff_t, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableArray::emission_tomography_method),
+                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                 "gather"_a, "i_r0"_a, "i_rn"_a, "dt"_a,
+                 "receivers_block_size"_a=20, "samples_block_size"_a=1000);
 }

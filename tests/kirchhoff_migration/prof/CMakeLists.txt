@@ -23,6 +23,12 @@ set(BLOCKS_SERIAL_SRC blocks_serial/test_blocks_serial.cpp)
 add_executable(${BLOCKS_SERIAL_TARGET} ${BLOCKS_SERIAL_SRC})
 target_include_directories(${BLOCKS_SERIAL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/blocks/blocks_points_inner_loop)
 
+set(BLOCKS_INNER_RECEIVERS_TARGET ${PROJECT_NAME}_blocks_inner_receivers)
+set(BLOCKS_INNER_RECEIVERS_SRC blocks_inner_receivers/test_blocks_inner_receivers.cpp)
+
+add_executable(${BLOCKS_INNER_RECEIVERS_TARGET} ${BLOCKS_INNER_RECEIVERS_SRC})
+target_include_directories(${BLOCKS_INNER_RECEIVERS_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/kirchhoff_migration/serial/blocks/blocks_receivers_inner_loop)
+
 set(STRIP_MINING_TARGET ${PROJECT_NAME}_strip_mining)
 set(STRIP_MINING_SRC strip_mining/test_strip_mining.cpp)
 

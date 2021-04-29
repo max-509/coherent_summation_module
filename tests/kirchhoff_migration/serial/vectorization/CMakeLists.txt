@@ -18,9 +18,13 @@ foreach(V_EXT ${VECT_INSTRUCTIONS})
 
     target_include_directories(${TARGET_2D} PRIVATE auto_vect)
     target_include_directories(${TARGET_2D} PRIVATE manual_vect)
+    target_include_directories(${TARGET_2D} PRIVATE native_vect)
+    target_include_directories(${TARGET_2D} PRIVATE native_auto)
 
     target_include_directories(${TARGET_3D} PRIVATE auto_vect)
     target_include_directories(${TARGET_3D} PRIVATE manual_vect)
+    target_include_directories(${TARGET_3D} PRIVATE native_vect)
+    target_include_directories(${TARGET_3D} PRIVATE native_auto)
 
     target_compile_options(${TARGET_2D}
             PRIVATE $<IF:$<STREQUAL:${V_EXT},AVX512>,-mavx512f -ftree-vectorize,

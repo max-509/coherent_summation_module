@@ -47,7 +47,7 @@ void kirchhoffMigrationCHG2DNative(const Array2D<T1> &gather,
 template <typename T1, typename T2>
 void kirchhoffMigrationCHG3DNative(const Array2D<T1> &gather,
                                 const std::vector<T2> &times_to_source,
-                                const Array2D<T2> &receivers_coords,
+                                const Array2D<T2> &times_to_receivers,
                                 std::ptrdiff_t z_dim, std::ptrdiff_t y_dim, std::ptrdiff_t x_dim,
                                 double dt,
                                 T1 *result_data) {
@@ -67,7 +67,7 @@ void kirchhoffMigrationCHG3DNative(const Array2D<T1> &gather,
 
                 for (std::ptrdiff_t i_r = 0; i_r < n_receivers; ++i_r) {
 
-                    T2 t_to_r = receivers_coords(i_p, i_r);
+                    T2 t_to_r = times_to_receivers(i_p, i_r);
 
                     auto sample_idx = static_cast<std::ptrdiff_t>((t_to_r + t_to_s) * rev_dt);
 

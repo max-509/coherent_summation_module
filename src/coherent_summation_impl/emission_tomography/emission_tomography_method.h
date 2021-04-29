@@ -191,8 +191,6 @@ using AmplitudesComputerType = AmplitudesCalculatorNonVectors<T>;
 
 template<typename T1, typename T2>
 void emissionTomographyMethod(const Array2D<T1> &gather,
-                              const Array2D<T1> &receivers_coords,
-                              const Array2D<T1> &sources_coords,
                               const Array2D<T2> &sources_receivers_times,
                               double dt,
                               typename std::remove_const<T1>::type *result_data,
@@ -213,7 +211,7 @@ void emissionTomographyMethod(const Array2D<T1> &gather,
     #endif //_MSC_VER
     for (std::ptrdiff_t i_s = 0; i_s < n_sources; ++i_s) {
         min_times_to_sources[i_s] = find_min_t_to_source(sources_receivers_times, i_s);
-    }
+    }   
 
     double rev_dt = 1.0 / dt;
 

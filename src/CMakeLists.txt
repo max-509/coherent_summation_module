@@ -21,19 +21,20 @@ find_package(pybind11 CONFIG REQUIRED)
 
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 
+include_directories(coherent_summation_impl)
+include_directories(utils)
 include_directories(${Python_INCLUDE_DIRS})
 include_directories(${pybind11_INCLUDE_DIRS})
-include_directories(${Tensorflow_INCLUDE_DIRS})
+message(STATUS "${Tensorflow_LIBRARY_DIRS}")
 link_libraries(${pybind11_LIBRARIES})
-link_directories(${Tensorflow_LIBRARY_DIRS})
+link_directories("${Tensorflow_LIBRARY_DIRS}")
 
 add_subdirectory(time_arrival)
 add_subdirectory(utils)
-include_directories(emission_tomography)
 
 set(COH_SUM_TARGET ${PROJECT_NAME})
-set(SOURCES module.cpp CoherentSummation.cpp)
-set(HEADERS CoherentSummation.h)
+set(SOURCES module.cpp CoherentSummation.cpp CoherentSummationANN.cpp CoherentSummationTableFile.cpp CoherentSummationTableArray.cpp)
+set(HEADERS CoherentSummation.h CoherentSummationANN.h CoherentSummationTableFile.h CoherentSummationTableArray.h)
 
 string(APPEND COMPILE_OPTS "${OpenMP_CXX_FLAGS}"
 		"$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:${COMPILING_CXX_MSVC_FLAGS}>"
@@ -45,13 +46,8 @@ add_compile_options(${COMPILE_OPTS})
 
 pybind11_add_module(${COH_SUM_TARGET} ${SOURCES} ${HEADERS})
 
-#target_compile_options(${COH_SUM_TARGET}
-#		PUBLIC ${OpenMP_CXX_FLAGS}
-#		$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:${COMPILING_CXX_MSVC_FLAGS}>
-#		$<$<COMPILE_LANG_AND_ID:CXX,GNU,Clang>:${COMPILING_CXX_CLANG_GNU_FLAGS}>
-#		$<$<AND:$<COMPILE_LANG_AND_ID:CXX,Intel>,$<PLATFORM_ID:WIN32>>:${COMPILING_CXX_ICC_WINDOWS_FLAGS}>
-#		$<$<AND:$<COMPILE_LANG_AND_ID:CXX,Intel>,$<PLATFORM_ID:UNIX>>:${COMPILING_CXX_ICC_UNIX_FLAGS}>)
-
+target_include_directories(${COH_SUM_TARGET} PRIVATE coherent_summation_impl/emission_tomography)
+target_include_directories(${COH_SUM_TARGET} PRIVATE coherent_summation_impl/kirchhoff_migration)
 target_link_libraries(${COH_SUM_TARGET} PRIVATE TimeArrivalLib)
 target_link_libraries(${COH_SUM_TARGET} PRIVATE UtilsLib)
 

@@ -4,66 +4,54 @@
 
 #include <string>
 #include <cstddef>
+#include <utility>
 #include <vector>
+#include <cmath>
 
 using namespace csv;
 
-TimeArrivalTimesTableFile::TimeArrivalTimesTableFile(const std::string &table_filename, std::size_t n_points) :
-        table_filename_(table_filename),
+TimeArrivalTimesTableFile::TimeArrivalTimesTableFile(std::string table_filename, std::size_t n_points) :
+        table_filename_(std::move(table_filename)),
         n_points_(n_points) {
 }
 
-std::unique_ptr<float[]>
-TimeArrivalTimesTableFile::get_times_to_receivers(std::vector<double> &receivers_coords, bool is_receivers_inner) {
+std::unique_ptr<float[]> TimeArrivalTimesTableFile::get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) {
     CSVFormat format;
     format.delimiter(';').no_header().quote(false);
     CSVReader csv_reader(table_filename_.c_str(), format);
 
-    std::unique_ptr<float[]> times_to_receivers;
-    auto n_receivers = receivers_coords.size() / 3;
+    std::unique_ptr<float[]> times_to_points;
+    auto n_receivers = i_rn - i_r0;
     try {
-        times_to_receivers = std::make_unique<float[]>(n_points_ * n_receivers);
+        times_to_points = std::make_unique<float[]>(n_points_ * n_receivers);
     } catch (const std::bad_alloc &bad_alloc_ex) {
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }
 
-    std::size_t row_size = 0;
+    std::ptrdiff_t row_size{};
 
-    if (is_receivers_inner) {
-        decltype(n_points_) i_p = 0;
-        for (const auto &row : csv_reader) {
-            row_size = row.size();
-            #pragma omp parallel for
-            for (auto i_r = current_receiver_idx_; i_r < current_receiver_idx_ + n_receivers && i_r < row.size() ; ++i_r) {
-                try {
-                    times_to_receivers[i_p*n_receivers + (i_r - current_receiver_idx_)] = row[i_r].get<float>();
-                } catch (const std::runtime_error& r_ex) {
-                    std::cerr << "ERROR VALUE: " << row[i_r].get<std::string>() << std::endl;
-                    std::cerr << "POINT NUMBER: " << i_p << std::endl;
-                    std::cerr << "RECEIVER NUMBER: " << i_r << std::endl;
-                    std::cerr << r_ex.what() << std::endl;
-                }
+    decltype(n_points_) i_p = 0;
+    for (const auto &row : csv_reader) {
+        row_size = row.size();
+        #pragma omp parallel for
+        for (auto i_r = i_r0; i_r < std::min(i_rn, row_size); ++i_r) {
+            try {
+                times_to_points[i_p * n_receivers + (i_r - i_r0)] = row[i_r].get<float>();
+            } catch (const std::runtime_error &r_ex) {
+                std::cerr << "ERROR VALUE: " << row[i_r].get<std::string>() << std::endl;
+                std::cerr << "POINT NUMBER: " << i_p << std::endl;
+                std::cerr << "RECEIVER NUMBER: " << i_r << std::endl;
+                std::cerr << r_ex.what() << std::endl;
             }
-            ++i_p;
         }
-    } else {
-        decltype(n_points_) i_p = 0;
-        for (const auto &row : csv_reader) {
-            #pragma omp parallel for
-            for (auto i_r = current_receiver_idx_; i_r < current_receiver_idx_ + n_receivers && i_r < row.size(); ++i_r) {
-                times_to_receivers[(i_r - current_receiver_idx_) * n_points_ + i_p] = row[i_r].get<float>();
-            }
-            ++i_p;
-        }
+        ++i_p;
     }
 
-    current_receiver_idx_ += n_receivers;
-
-    if (current_receiver_idx_ >= row_size) {
-        current_receiver_idx_ = 0;
-    }
-
-    return std::move(times_to_receivers);
+    return std::move(times_to_points);
 }
 
-TimeArrivalTimesTableFile::~TimeArrivalTimesTableFile() { }
+std::size_t TimeArrivalTimesTableFile::get_n_points() const {
+    return n_points_;
+}
+
+TimeArrivalTimesTableFile::~TimeArrivalTimesTableFile() noexcept = default;

@@ -61,7 +61,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
                                        float *result_data) {
     constexpr std::ptrdiff_t vector_dim = 16;
 
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -170,7 +170,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
 
     constexpr std::ptrdiff_t vector_dim_d = 8;
     constexpr std::ptrdiff_t vector_dim_f = 16;
-    std::ptrdiff_t i_p = (i_p + vector_dim_f - 1) & ~(vector_dim_f - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_f - 1) & ~(vector_dim_f - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -277,7 +277,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
                                        double *result_data) {
 
     constexpr std::ptrdiff_t vector_dim = 8;
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
     const std::ptrdiff_t n_points_without_remainder = n_points - (n_points % vector_dim);
@@ -349,7 +349,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
                                        float *result_data) {
 
     constexpr std::ptrdiff_t vector_dim_d = 8;
-    std::ptrdiff_t i_p = (i_p + vector_dim_d - 1) & ~(vector_dim_d - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_d - 1) & ~(vector_dim_d - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
     const std::ptrdiff_t n_points_without_remainder = n_points - (n_points % vector_dim_d);
@@ -426,7 +426,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     constexpr std::ptrdiff_t vector_dim = 8;
 
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -487,7 +487,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
     constexpr std::ptrdiff_t vector_dim_d = 4;
     constexpr std::ptrdiff_t vector_dim_f = 8;
 
-    std::ptrdiff_t i_p = (i_p + vector_dim_f - 1) & ~(vector_dim_f - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_f - 1) & ~(vector_dim_f - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -546,7 +546,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
                                        double *result_data) {
 
     constexpr std::ptrdiff_t vector_dim = 4;
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -594,7 +594,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
 
     constexpr std::ptrdiff_t vector_dim_d = 4;
 
-    std::ptrdiff_t i_p = (i_p + vector_dim_d - 1) & ~(vector_dim_d - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_d - 1) & ~(vector_dim_d - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -645,7 +645,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
                                        float *result_data) {
 
     constexpr std::ptrdiff_t vector_dim = 4;
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
     const std::ptrdiff_t n_points_without_remainder = n_points - (n_points % vector_dim);
@@ -693,7 +693,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
                                        double *result_data) {
 
     constexpr std::ptrdiff_t vector_dim_f = 4;
-    std::ptrdiff_t i_p = (i_p + vector_dim_f - 1) & ~(vector_dim_f - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_f - 1) & ~(vector_dim_f - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
     const std::ptrdiff_t n_points_without_remainder = n_points - (n_points % vector_dim_f);
@@ -741,7 +741,7 @@ inline void process_receiver_data_on_grid(const double *curr_trace,
                                        double *result_data) {
 
     constexpr std::ptrdiff_t vector_dim = 2;
-    std::ptrdiff_t i_p = (i_p + vector_dim - 1) & ~(vector_dim - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim - 1) & ~(vector_dim - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 
@@ -783,7 +783,7 @@ inline void process_receiver_data_on_grid(const float *curr_trace,
                                        const std::ptrdiff_t i_r,
                                        float *result_data) {
     constexpr std::ptrdiff_t vector_dim_d = 2;
-    std::ptrdiff_t i_p = (i_p + vector_dim_d - 1) & ~(vector_dim_d - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_d - 1) & ~(vector_dim_d - 1);
 
     process_receiver_data_on_grid(curr_trace, times_to_source, times_to_receivers, i_p, n_samples, rev_dt, i_r, result_data, i_p0);
 

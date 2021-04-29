@@ -1,24 +1,29 @@
 #ifndef _TIME_ARRIBAL_TIMES_TABLE_ARRAY_H
 #define _TIME_ARRIBAL_TIMES_TABLE_ARRAY_H
 
+#include "py_common.h"
+
 #include "TimeArrivalBase.h"
-#include "pybind11/pybind11.h"
-#include "pybind11/numpy.h"
 
 #include <memory>
 #include <vector>
 
-namespace py = pybind11;
+#include "array2D.h"
 
-
-class TimeArrivalTimesTableArray : public TimeArrivalBase {
+class TimeArrivalTimesTableArray final : public TimeArrivalBase {
 public:
-    TimeArrivalTimesTableArray(py::array_t<double, py::array::c_style | py::array::forcecast> t_table);
+    TimeArrivalTimesTableArray() = default;
 
-    std::unique_ptr<float[]> get_times_to_receivers(std::vector<double> &receivers_coords, bool is_receivers_inner) final;
+    TimeArrivalTimesTableArray(py_array_d t_table);
+
+    std::unique_ptr<float[]>
+    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn);
+
+    py::ssize_t
+    get_n_points() const;
 
 private:
-    py::array_t<double, py::array::c_style | py::array::forcecast> t_table_;
+    py_array_d t_table_;
     py::ssize_t current_receiver_idx_ = 0;
 };
 

@@ -15,7 +15,7 @@ TimeArrivalNNModel::TimeArrivalNNModel(const std::string &model_path,
         ntags_(ntags),
         model_path_(model_path) {
     sess_opts_ = std::shared_ptr<TF_SessionOptions>(TF_NewSessionOptions(), TF_DeleteSessionOptions);
-    uint8_t config[] = {0x32, 0x2, 0x20, 0x1};
+    uint8_t config[] = {0x32, 0x2, 0x20, 0x1}; //Параметры для возможности увеличения памяти GPU
     TF_SetConfig(sess_opts_.get(), static_cast<void*>(config), 4, status_.get());
     if (TF_GetCode(status_.get()) != TF_OK) {
         throw TimeArrivalNNException(std::string("ERROR: Unable to set options: ") + TF_Message(status_.get()));

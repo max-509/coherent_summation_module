@@ -25,10 +25,11 @@ public:
 						n_samples_(n_samples),
 						dt_(dt),
 						velocity_(velocity),
-						times_to_source_(z_dim_*y_dim_*x_dim_),
-						grid_{std::make_pair(z0, z1),
-                                std::make_pair(y0_s, y1_s),
-                                std::make_pair(x0_s, x1_s)} {
+						times_to_source_(z_dim_*y_dim_*x_dim_) {
+
+	    grid_.emplace_back(z0, z1);
+	    grid_.emplace_back(y0_s, y1_s);
+	    grid_.emplace_back(x0_s, x1_s);
 
         double hx_s = (x1_s - x0_s) / (NxS - 1);
         double hy_s = (y1_s - y0_s) / (NyS - 1);
@@ -87,12 +88,13 @@ public:
 	            }
 	        }
 	    } else {
-            #pragma omp parallel for
+            #pragma omp parallel for collapse(3)
 	        for (std::size_t i_z = 0; i_z < z_dim_; ++i_z) {
-	            double p_z = z0 + dz*i_z;
 	            for (std::size_t i_y = 0; i_y < y_dim_; ++i_y) {
-	                double p_y = y0 + dy*i_y;
 	                for (std::size_t i_x = 0; i_x < x_dim_; ++i_x) {
+
+	                    double p_z = z0 + dz*i_z;
+	                    double p_y = y0 + dy*i_y;
 	                    double p_x = x0 + dx*i_x;
 
 	                    std::size_t i_p = (i_z*y_dim_ + i_y)*x_dim_ + i_x;

@@ -1,24 +1,30 @@
 #ifndef _TIME_ARRIVAL_TIMES_TABLE_FILE_H
 #define _TIME_ARRIVAL_TIMES_TABLE_FILE_H
 
+#include "py_common.h"
+
 #include "TimeArrivalBase.h"
 
 #include <memory>
 #include <string>
 
-class TimeArrivalTimesTableFile : public TimeArrivalBase {
+class TimeArrivalTimesTableFile final : public TimeArrivalBase {
 public:
-    explicit TimeArrivalTimesTableFile(const std::string &table_filename, std::size_t n_points);
+    TimeArrivalTimesTableFile() = default;
+
+    explicit TimeArrivalTimesTableFile(std::string table_filename, std::size_t n_points);
 
     std::unique_ptr<float[]>
-    get_times_to_receivers(std::vector<double> &receivers_coords, bool is_receivers_inner) override;
+    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn);
 
-    ~TimeArrivalTimesTableFile() override;
+    std::size_t
+    get_n_points() const;
+
+    ~TimeArrivalTimesTableFile() noexcept override;
 
 private:
-    const std::string table_filename_;
-    std::size_t n_points_;
-    std::size_t current_receiver_idx_ = 0;
+    const std::string table_filename_{};
+    std::size_t n_points_{};
 };
 
 

@@ -74,13 +74,13 @@ void run_program(const CohSumType<double, double>& coh_sum,
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 1800;
-	std::size_t receivers_step = 20;
+	std::size_t NxR = 500;
+	std::size_t receivers_step = 50;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 6500;
+	std::size_t NxS = 6800;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 6500;
-	std::size_t n_samples = 40000;
+	std::size_t NzS = 6800;
+	std::size_t n_samples = 20000;
 	double velocity = 3500.0;
 	double s_x = 0.0;
 	double dt = 0.002;
@@ -91,7 +91,7 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
                                             n_samples,
                                             velocity);
 
-	measurements_file << "native;";
+	measurements_file << "native_vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
@@ -136,7 +136,7 @@ void test_n_smpls_greater_n_sou(std::ofstream &measurements_file) {
                                             n_samples,
                                             velocity);
 
-	measurements_file << "native;";
+	measurements_file << "native_vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
@@ -180,7 +180,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
                                             n_samples,
                                             velocity);
 
-	measurements_file << "native;";
+	measurements_file << "native_vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
@@ -207,7 +207,7 @@ void test_n_sou_equal_n_smpls(std::ofstream &measurements_file) {
 
 int main(int, char const **) {
 
-	std::ofstream measurements_file("./measurements2D_new.csv");
+	std::ofstream measurements_file("./measurements2D.csv");
 	measurements_file << "summation version;";
 	measurements_file << "number of points;";
 	measurements_file << "number of receivers;";

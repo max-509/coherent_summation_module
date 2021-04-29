@@ -41,27 +41,27 @@ void emissionTomographyMethodCyclesReverses(const Array2D<T1> &gather,
             auto godograph_ind = static_cast<std::ptrdiff_t>((sources_receivers_times(i_s, i_r) - t_min_to_source) * rev_dt);
 
             for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
-                    coord_vect[crd] = receivers_coords(i_r, crd)-sources_coords(i_s, crd);
-                }
+                coord_vect[crd] = receivers_coords(i_r, crd) - sources_coords(i_s, crd);
+            }
 
-                T1 rev_dist = static_cast<T1>(1.0) / calc_norm(coord_vect, 3);
-                for (std::ptrdiff_t crd = 2; crd >= 0; --crd) {
-                    coord_vect[crd] *= rev_dist;
-                    G_P[crd] = coord_vect[2]*coord_vect[crd]*coord_vect[crd] * rev_dist;
-                }
+            T1 rev_dist = static_cast<T1>(1.0) / calc_norm(coord_vect, 3);
+            for (std::ptrdiff_t crd = 2; crd >= 0; --crd) {
+                coord_vect[crd] *= rev_dist;
+                G_P[crd] = coord_vect[2] * coord_vect[crd] * coord_vect[crd] * rev_dist;
+            }
 
-                T1 double_norm_coord_z = two_T*coord_vect[2]*rev_dist;
+            T1 double_norm_coord_z = two_T * coord_vect[2] * rev_dist;
 
-                G_P[3] = double_norm_coord_z*coord_vect[1]*coord_vect[2];
-                G_P[4] = double_norm_coord_z*coord_vect[0]*coord_vect[2];
-                G_P[5] = double_norm_coord_z*coord_vect[0]*coord_vect[1];
+            G_P[3] = double_norm_coord_z * coord_vect[1] * coord_vect[2];
+            G_P[4] = double_norm_coord_z * coord_vect[0] * coord_vect[2];
+            G_P[5] = double_norm_coord_z * coord_vect[0] * coord_vect[1];
 
 
-                T1 amplitude = 0.0;
-                for (std::ptrdiff_t m = 0; m < matrix_size; ++m) {
-                    amplitude += (G_P[m])*tensor_matrix[m];
-                }
-                amplitude /= (std::fabs(amplitude) + std::numeric_limits<T1>::epsilon());
+            T1 amplitude = 0.0;
+            for (std::ptrdiff_t m = 0; m < matrix_size; ++m) {
+                amplitude += (G_P[m]) * tensor_matrix[m];
+            }
+            amplitude /= (std::fabs(amplitude) + std::numeric_limits<T1>::epsilon());
 
             for (std::ptrdiff_t i_t = 0; i_t < (n_samples - godograph_ind); ++i_t) {
                 result_data[i_s*n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;

@@ -6,13 +6,10 @@
 #include <functional>
 #include "csv_row.hpp"
 
-#include <iostream>
-
 namespace csv {
     namespace internals {
         CSV_INLINE RawCSVField& CSVFieldList::operator[](size_t n) const {
             const size_t page_no = n / _single_buffer_capacity;
-//            std::cerr << "PAGE NO " << page_no << std::endl;
             const size_t buffer_idx = (page_no < 1) ? n : n % _single_buffer_capacity;
             return this->buffers[page_no][buffer_idx];
         }
@@ -73,7 +70,7 @@ namespace csv {
             throw std::runtime_error("Index out of bounds.");
 
         const size_t field_index = this->fields_start + index;
-        auto field = this->data->fields[field_index];
+        auto& field = this->data->fields[field_index];
         auto field_str = csv::string_view(this->data->data).substr(this->data_start + field.start);
 
         if (field.has_double_quote) {
