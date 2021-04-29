@@ -112,8 +112,8 @@ TimeArrivalNNFrozen::process(std::vector<float> &x_p, std::vector<float> &z_p, s
 
 TF_Buffer *TimeArrivalNNFrozen::read_pb_file(const std::string &pb_filename) {
     FILE *f;
-    errno_t e = fopen_s(&f, pb_filename.c_str(), "rb");
-    if (f == nullptr || e != 0) {
+    f = fopen(pb_filename.c_str(), "rb");
+    if (f == nullptr) {
         return nullptr;
     }
 

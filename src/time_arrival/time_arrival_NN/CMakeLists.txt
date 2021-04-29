@@ -1,10 +1,12 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 project(TimeArrivalNNLib)
 
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
 set(TARGET ${PROJECT_NAME})
 set(SOURCES "TimeArrivalNNBase.cpp" "TimeArrivalNNFrozen.cpp" "TimeArrivalNNException.cpp" "TimeArrivalNNModel.cpp")
 set(HEADERS "TimeArrivalNNBase.h" "TimeArrivalNNFrozen.h" "TimeArrivalNNException.h" "TimeArrivalNNModel.h")
-add_library(${TARGET} ${HEADERS} ${SOURCES})
+add_library(${TARGET} SHARED ${HEADERS} ${SOURCES})
 
 ########################################### Внешняя загрузка, пока не работает ###########################################
 #include(CheckIncludeFile)

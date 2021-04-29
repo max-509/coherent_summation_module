@@ -19,9 +19,9 @@ limitations under the License.
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "tensorflow/c/c_api_macros.h"
-#include "tensorflow/c/tf_datatype.h"
-#include "tensorflow/c/tf_status.h"
+#include "c_api_macros.h"
+#include "tf_datatype.h"
+#include "tf_status.h"
 
 // Macro to control visibility of exported symbols in the shared library (.so,
 // .dylib, .dll).

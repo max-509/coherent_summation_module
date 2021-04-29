@@ -35,16 +35,19 @@ private:
     __m256d d_epsilon_v = _mm256_set1_pd(std::numeric_limits<double>::epsilon());
     __m256 f_epsilon_v = _mm256_set1_ps(std::numeric_limits<float>::epsilon());
 
-    template <OutputArrayType,
-            typename is_f = std::is_same<float, value_type>::value,
-            typename is_d = std::is_same<double, value_type>::value,
-            typename std::enable_if<
-                    std::is_same<value_type, typename std::remove_const<typename OutputArrayType::value_type>>,
-                    bool>::type = true>
-	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_);
+    template <typename OutputArrayType,
+            bool is_f = std::is_same<float, value_type>::value,
+              bool is_d = std::is_same<double, value_type>::value>
+    void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+        if (is_f) {
+            realize_calculate_f(rec_coords_, amplitudes_);
+        } else if (is_d) {
+            realize_calculate_d(rec_coords_, amplitudes_);
+        }
+    }
 
     template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, true, false>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate_f(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         size_type n_rec = rec_coords_.get_y_dim();
         size_type sources_count = sources_coords_.get_y_dim();
         constexpr size_type matrix_size = 6;
@@ -63,9 +66,9 @@ private:
         __m256 coord_vec[3];
 
 #ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2) private(coord_vect)
+#pragma omp parallel for schedule(static) collapse(2)
 #else
-#pragma omp parallel for simd schedule(static) collapse(2) private(coord_vect)
+#pragma omp parallel for simd schedule(static) collapse(2)
 #endif
         for (size_type i = 0; i < sources_count; ++i) {
             for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
@@ -136,12 +139,12 @@ private:
             }
         }
 
-        non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
+        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
                                         amplitudes_);
     }
 
     template<typename OutputArrayType>
-    void realize_calculate<OutputArrayType, false, true>(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    void realize_calculate_d(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
         size_type n_rec = rec_coords_.get_y_dim();
         size_type sources_count = sources_coords_.get_y_dim();
         constexpr size_type matrix_size = 6;
@@ -162,9 +165,9 @@ private:
         __m256d coord_vec[3];
 
 #ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2) private(coord_vect)
+#pragma omp parallel for schedule(static) collapse(2)
 #else
-#pragma omp parallel for simd schedule(static) collapse(2) private(coord_vect)
+#pragma omp parallel for simd schedule(static) collapse(2)
 #endif
         for (size_type i = 0; i < sources_count; ++i) {
             for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
@@ -233,7 +236,7 @@ private:
             }
         }
 
-        non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
+        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
                                         amplitudes_);
     }
 

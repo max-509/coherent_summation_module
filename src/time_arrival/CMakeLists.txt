@@ -7,7 +7,7 @@ add_subdirectory(time_arrival_table_file)
 set(TARGET ${PROJECT_NAME})
 set(SOURCES TimeArrivalBase.cpp TimeArrivalWrapperNN.cpp TimeArrivalTimesTableArray.cpp TimeArrivalTimesTableFile.cpp)
 set(HEADERS TimeArrivalBase.h TimeArrivalWrapperNN.h TimeArrivalTimesTableArray.h TimeArrivalTimesTableFile.h)
-add_library(${TARGET} ${SOURCES} ${HEADERS})
+add_library(${TARGET} SHARED ${SOURCES} ${HEADERS})
 
 ########################################### Внешняя загрузка, пока не работает ###########################################
 #include(CheckIncludeFile)

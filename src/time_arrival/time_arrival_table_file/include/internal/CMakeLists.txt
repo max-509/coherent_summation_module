@@ -1,4 +1,4 @@
-add_library(csv STATIC "")
+add_library(csv SHARED "")
 
 target_sources(csv
 	PRIVATE

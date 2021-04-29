@@ -23,7 +23,7 @@ std::unique_ptr<float[]> TimeArrivalTimesTableFile::get_times_to_points(std::ptr
     std::unique_ptr<float[]> times_to_points;
     auto n_receivers = i_rn - i_r0;
     try {
-        times_to_points = std::make_unique<float[]>(n_points_ * n_receivers);
+        times_to_points = std::unique_ptr<float[]>(new float[n_points_ * n_receivers]);
     } catch (const std::bad_alloc &bad_alloc_ex) {
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }

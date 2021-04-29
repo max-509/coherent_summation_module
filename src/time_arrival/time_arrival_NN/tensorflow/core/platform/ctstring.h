@@ -19,7 +19,7 @@ limitations under the License.
 #include <stdint.h>
 #include <stdlib.h>
 
-#include "tensorflow/core/platform/ctstring_internal.h"
+#include "ctstring_internal.h"
 
 // Initialize a new tstring.  This must be called before using any function
 // below.

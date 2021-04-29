@@ -11,7 +11,7 @@ TimeArrivalWrapperNN::TimeArrivalWrapperNN(
         py_array_d environment, const std::string &pb_filename,
         std::vector<std::pair<std::string, int>> &input_ops, std::vector<std::pair<std::string, int>> &output_ops) :
         environment_(environment) {
-    p_time_arrival_nn_ = std::make_unique<TimeArrivalNNFrozen>(pb_filename, input_ops, output_ops);
+    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNFrozen>(new TimeArrivalNNFrozen(pb_filename, input_ops, output_ops));
 }
 
 TimeArrivalWrapperNN::TimeArrivalWrapperNN(
@@ -19,7 +19,7 @@ TimeArrivalWrapperNN::TimeArrivalWrapperNN(
         const char *const *tags, int ntags, std::vector<std::pair<std::string, int>> &input_ops,
         std::vector<std::pair<std::string, int>> &output_ops) :
         environment_(environment) {
-    p_time_arrival_nn_ = std::make_unique<TimeArrivalNNModel>(model_path, tags, ntags, input_ops, output_ops);
+    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNModel>(new TimeArrivalNNModel(model_path, tags, ntags, input_ops, output_ops));
 }
 
 std::unique_ptr<float[]>

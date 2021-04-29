@@ -8,7 +8,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <deque>
-#include <limits>
 
 #if defined(_WIN32)
 # ifndef WIN32_LEAN_AND_MEAN
@@ -140,7 +139,7 @@ namespace csv {
         constexpr size_t ITERATION_CHUNK_SIZE = 10000000; // 10MB
 
         template<typename T>
-        inline bool is_equal(T a, T b, T epsilon = std::numeric_limits<T>::epsilon()) {
+        inline bool is_equal(T a, T b, T epsilon = 0.001) {
             /** Returns true if two floating point values are about the same */
             static_assert(std::is_floating_point<T>::value, "T must be a floating point type.");
             return std::abs(a - b) < epsilon;
@@ -168,30 +167,22 @@ namespace csv {
 
         // Assumed to be true by parsing functions: allows for testing
         // if an item is DELIMITER or NEWLINE with a >= statement
-        static_assert(ParseFlags::DELIMITER < ParseFlags::NEWLINE, "Delimeter must be less than newline");
+        static_assert(ParseFlags::DELIMITER < ParseFlags::NEWLINE);
 
         /** Optimizations for reducing branching in parsing loop
          *
          *  Idea: The meaning of all non-quote characters changes depending
          *  on whether or not the parser is in a quote-escaped mode (0 or 1)
          */
-        static_assert(quote_escape_flag(ParseFlags::NOT_SPECIAL, false) == ParseFlags::NOT_SPECIAL,
-                "Escaping flag without quoting not equal really flag (NOT_SPECIAL)");
-        static_assert(quote_escape_flag(ParseFlags::QUOTE, false) == ParseFlags::QUOTE,
-                "Escaping flag without quoting not equal really flag (QUOTE)");
-        static_assert(quote_escape_flag(ParseFlags::DELIMITER, false) == ParseFlags::DELIMITER,
-                "Escaping flag without quoting not equal really flag (DELIMITER)");
-        static_assert(quote_escape_flag(ParseFlags::NEWLINE, false) == ParseFlags::NEWLINE,
-                "Escaping flag without quoting not equal really flag (NEWLINE)");
+        static_assert(quote_escape_flag(ParseFlags::NOT_SPECIAL, false) == ParseFlags::NOT_SPECIAL);
+        static_assert(quote_escape_flag(ParseFlags::QUOTE, false) == ParseFlags::QUOTE);
+        static_assert(quote_escape_flag(ParseFlags::DELIMITER, false) == ParseFlags::DELIMITER);
+        static_assert(quote_escape_flag(ParseFlags::NEWLINE, false) == ParseFlags::NEWLINE);
 
-        static_assert(quote_escape_flag(ParseFlags::NOT_SPECIAL, true) == ParseFlags::NOT_SPECIAL,
-                "Escaping flag with quoting not equal really flag (NOT_SPECIAL)");
-        static_assert(quote_escape_flag(ParseFlags::QUOTE, true) == ParseFlags::QUOTE_ESCAPE_QUOTE,
-                "Escaping flag with quoting not equal really flag (QUOTE)");
-        static_assert(quote_escape_flag(ParseFlags::DELIMITER, true) == ParseFlags::NOT_SPECIAL,
-                "Escaping flag with quoting not equal really flag (DELIMITER)");
-        static_assert(quote_escape_flag(ParseFlags::NEWLINE, true) == ParseFlags::NOT_SPECIAL,
-                "Escaping flag with quoting not equal really flag (NEWLINE)");
+        static_assert(quote_escape_flag(ParseFlags::NOT_SPECIAL, true) == ParseFlags::NOT_SPECIAL);
+        static_assert(quote_escape_flag(ParseFlags::QUOTE, true) == ParseFlags::QUOTE_ESCAPE_QUOTE);
+        static_assert(quote_escape_flag(ParseFlags::DELIMITER, true) == ParseFlags::NOT_SPECIAL);
+        static_assert(quote_escape_flag(ParseFlags::NEWLINE, true) == ParseFlags::NOT_SPECIAL);
 
         /** An array which maps ASCII chars to a parsing flag */
         using ParseFlagMap = std::array<ParseFlags, 256>;

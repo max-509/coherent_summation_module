@@ -17,10 +17,7 @@ public:
     using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
     using size_type = typename InputArrayType::size_type;
 
-    template<typename OutputArrayType,
-            typename std::enable_if<
-                    (!std::is_const<typename OutputArrayType::value_type>::value && std::is_floating_point<typename OutputArrayType::value_type>::value),
-                    bool>::type = true>
+    template<typename OutputArrayType>
 	void calculate(const InputArrayType &rec_coords, OutputArrayType &amplitudes) {
 		static_cast<Realization*>(this)->realize_calculate(rec_coords, amplitudes); 
 	}

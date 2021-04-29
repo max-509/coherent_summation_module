@@ -8,7 +8,7 @@ class TimeArrivalNNException final : public std::exception {
 public:
 	explicit TimeArrivalNNException(std::string msg);
 
-	char const* what() const override;
+	char const* what() const noexcept override;
 
 	virtual ~TimeArrivalNNException() = default;
 private:

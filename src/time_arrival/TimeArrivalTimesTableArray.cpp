@@ -17,7 +17,7 @@ TimeArrivalTimesTableArray::get_times_to_points(std::ptrdiff_t i_r0, std::ptrdif
     auto times_to_points_size = (i_rn - i_r0);
 
     try {
-        times_to_points = std::make_unique<float[]>(n_points * times_to_points_size);
+        times_to_points = std::unique_ptr<float[]>(new float[n_points * times_to_points_size]);
     } catch (const std::bad_alloc &bad_alloc_ex) {
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }
