@@ -46,6 +46,7 @@ add_library(${TARGET} SHARED ${SOURCES} ${HEADERS})
 
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/time_arrival_NN)
 target_include_directories(${TARGET} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/time_arrival_table_file/include)
+target_link_directories(${TARGET} PRIVATE time_arrival_NN)
 target_link_libraries(${TARGET} PRIVATE TimeArrivalNNLib)
 target_link_libraries(${TARGET} PRIVATE csv)
 

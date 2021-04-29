@@ -1,6 +1,11 @@
 project(CoherentSummationModule LANGUAGES CXX)
 cmake_minimum_required(VERSION 3.15)
 
+if(MSVC)
+    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set(BUILD_SHARED_LIBS TRUE)
+endif()
+
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(COMPILING_CXX_MSVC_FLAGS "-openmp:experimental" "/Ox" "/Ob2" "/DNDEBUG" "/Wall")
@@ -26,8 +31,10 @@ include_directories(utils)
 include_directories(${Python_INCLUDE_DIRS})
 include_directories(${pybind11_INCLUDE_DIRS})
 message(STATUS "${Tensorflow_LIBRARY_DIRS}")
-link_libraries(${pybind11_LIBRARIES})
 link_directories("${Tensorflow_LIBRARY_DIRS}")
+link_libraries(tensorflow)
+link_libraries(${pybind11_LIBRARIES})
+link_directories(${Python_LIBRARY_DIRS})
 
 add_subdirectory(time_arrival)
 add_subdirectory(utils)

@@ -47,10 +47,10 @@ void CoherentSummationANN::generate_environment_grid(splitting_by_coord x_splitt
 
     auto raw_unchecked_mutable_environment = environment_.mutable_unchecked<4>();
 
-#pragma omp parallel for collapse(3)
-    for (std::size_t i_z = 0; i_z < z_dim; ++i_z) {
-        for (std::size_t i_y = 0; i_y < y_dim; ++i_y) {
-            for (std::size_t i_x = 0; i_x < x_dim; ++i_x) {
+    #pragma omp parallel for collapse(3)
+    for (std::ptrdiff_t i_z = 0; i_z < z_dim; ++i_z) {
+        for (std::ptrdiff_t  i_y = 0; i_y < y_dim; ++i_y) {
+            for (std::ptrdiff_t  i_x = 0; i_x < x_dim; ++i_x) {
                 double z = z0 + static_cast<double>(i_z) * dz;
                 double y = y0 + static_cast<double>(i_y) * dy;
                 double x = x0 + static_cast<double>(i_x) * dx;
