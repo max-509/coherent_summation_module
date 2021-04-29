@@ -50,3 +50,6 @@ target_link_libraries(${TARGET} PRIVATE TimeArrivalNNLib)
 target_link_libraries(${TARGET} PRIVATE csv)
 
 target_include_directories(${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_target_properties(${TARGET} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})

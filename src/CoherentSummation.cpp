@@ -10,116 +10,12 @@
 #include <tuple>
 #include <omp.h>
 
-//py_array_d
-//CoherentSummation::emission_tomography_method(
-//        const py_array_d &gather,
-//        const py_array_d &receivers_coords,
-//        double dt,
-//        const py_array_d &tensor_matrix) {
-//
-//    py::buffer_info gather_info = gather.request(),
-//            receivers_coords_info = receivers_coords.request(),
-//            environment_info = environment_.request(),
-//            tensor_matrix_info = tensor_matrix.request();
-//
-//    if (gather_info.ndim != 2) {
-//        throw std::runtime_error("Error: Seismogram shape must be equal 2");
-//    }
-//    std::ptrdiff_t n_receivers = gather_info.shape[0], n_samples = gather_info.shape[1];
-//    if (n_receivers != receivers_coords_info.shape[0]) {
-//        throw std::runtime_error("Error: Number of receivers in seismogram and coords don't equal");
-//    }
-//    if (tensor_matrix_info.ndim != 1 || tensor_matrix_info.shape[0] != 6) {
-//        throw std::runtime_error("Error: Bad shape of tensor moments matrix; "
-//                                 "shape must be equal 6 and must be had form: M11, M22, M33, M23, M13, M12");
-//    }
-//
-//    auto n_points = environment_info.size / 3;
-//
-//    py::array_t<double> result;
-//    if (environment_.shape(1) == 1) {
-//        result = py::array_t<double>({static_cast<py::ssize_t>(environment_.shape(0)),
-//                                      static_cast<py::ssize_t>(environment_.shape(2)),
-//                                      static_cast<py::ssize_t>(n_samples)});
-//    } else {
-//        result = py::array_t<double>({static_cast<py::ssize_t>(environment_.shape(0)),
-//                                      static_cast<py::ssize_t>(environment_.shape(1)),
-//                                      static_cast<py::ssize_t>(environment_.shape(2)),
-//                                      static_cast<py::ssize_t>(n_samples)});
-//    }
-//
-//    py::buffer_info result_info = result.request();
-//
-//    auto *gather_data = static_cast<double *>(gather_info.ptr);
-//    auto *receivers_coords_data = static_cast<double *>(receivers_coords_info.ptr);
-//    auto *environment_data = static_cast<double *>(environment_info.ptr);
-//    auto *result_data = static_cast<double *>(result_info.ptr);
-//
-//    std::vector<double> receivers_coords_vector(n_receivers * 3);
-//
-//    if (receivers_coords_info.ndim == 1 || receivers_coords_info.shape[1] == 1) {
-//        #pragma omp parallel for
-//        for (auto i_r = 0; i_r < n_receivers; ++i_r) {
-//            receivers_coords_vector[i_r * 3 + 0] = receivers_coords_data[i_r];
-//            receivers_coords_vector[i_r * 3 + 1] = 0.0;
-//            receivers_coords_vector[i_r * 3 + 2] = 0.0;
-//        }
-//    } else if (receivers_coords_info.shape[1] == 2) {
-//        #pragma omp parallel for
-//        for (auto i_r = 0; i_r < n_receivers; ++i_r) {
-//            receivers_coords_vector[i_r * 3 + 0] = receivers_coords_data[i_r * 2 + 0];
-//            receivers_coords_vector[i_r * 3 + 1] = receivers_coords_data[i_r * 2 + 1];
-//            receivers_coords_vector[i_r * 3 + 2] = 0.0;
-//        }
-//    } else if (receivers_coords_info.shape[1] == 3) {
-//        #pragma omp parallel for
-//        for (auto i_r = 0; i_r < n_receivers; ++i_r) {
-//            receivers_coords_vector[i_r * 3 + 0] = receivers_coords_data[i_r * 3 + 0];
-//            receivers_coords_vector[i_r * 3 + 1] = receivers_coords_data[i_r * 3 + 1];
-//            receivers_coords_vector[i_r * 3 + 2] = receivers_coords_data[i_r * 3 + 2];
-//        }
-//    }
-//
-//
-//    std::cerr << "Start calculating times arrivals:" << std::endl;
-//    auto p_times_to_receivers = p_time_arrival_->get_times_to_receivers(receivers_coords_vector, true);
-//    std::cerr << "End calculating times arrivals:" << std::endl;
-//
-//    auto *tensor_matrix_data = static_cast<double *>(tensor_matrix_info.ptr);
-//    Array2D<double> gather2D(gather_data, n_receivers, n_samples);
-//    Array2D<double> receivers_coords2D(receivers_coords_vector.data(), n_receivers, 3);
-//    Array2D<double> sources_coords2D(environment_data, n_points, 3);
-//    Array2D<float> times_to_receivers2D(p_times_to_receivers.get(), n_points, n_receivers);
-//
-//    std::cout << "Start coherent summation:" << std::endl;
-//    if (cohSumUtils::is_tensor_matrix_diag(tensor_matrix)) {
-//        emissionTomographyMethod(gather2D,
-//                                 times_to_receivers2D,
-//                                 dt,
-//                                 result_data);
-//    } else {
-//        emissionTomographyMethod(gather2D,
-//                                 receivers_coords2D,
-//                                 sources_coords2D,
-//                                 times_to_receivers2D,
-//                                 dt,
-//                                 tensor_matrix_data,
-//                                 result_data);
-//    }
-//
-//    std::cout << "End coherent summation:" << std::endl;
-//
-//    return result;
-//}
-
 py_array_d
 CoherentSummation::emission_tomography_method(py_array_d gather,
                                               py_array_f sources_receivers_times,
                                               double dt,
                                               std::ptrdiff_t receivers_block_size,
                                               std::ptrdiff_t samples_block_size) {
-
-    std::cerr << "AAAAAAAAAAAAAAA" << std::endl;
 
     auto gather_info = gather.request();
     auto sources_receivers_times_info = sources_receivers_times.request();

@@ -6,6 +6,19 @@ if(MSVC)
     set(BUILD_SHARED_LIBS TRUE)
 endif()
 
+
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
+set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
+#message(STATUS ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+#if (IS_DIRECTORY CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+#	message(FATAL_ERROR ${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+#	message(STATUS ${CMAKE_BINARY_DIR})
+#	message(STATUS ${CMAKE_BINARY_DIR})
+#else()
+#	set(LIBRARY_OUTPUT_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+#	set(EXECUTABLE_OUTPUT_PATH "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+#	link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/Release)
+#endif()
 set(CMAKE_CXX_STANDARD 17 CACHE STRING "C++ version selection")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(COMPILING_CXX_MSVC_FLAGS "-openmp:experimental" "/Ox" "/Ob2" "/DNDEBUG" "/Wall")
@@ -63,3 +76,28 @@ set_target_properties(${COH_SUM_TARGET}
 	PROPERTIES PREFIX ""
 	OUTPUT_NAME "${PROJECT_NAME}"
 	LINKER_LANGUAGE CXX)
+
+#if (WIN32)
+#    install(CODE [[
+#  file(GET_RUNTIME_DEPENDENCIES
+#    LIBRARIES $<TARGET_FILE:CoherentSummationModule>
+#    EXECUTABLES $<TARGET_FILE:CoherentSummationModule>
+#    RESOLVED_DEPENDENCIES_VAR _r_deps
+#    UNRESOLVED_DEPENDENCIES_VAR _u_deps
+#    DIRECTORIES ${MY_DEPENDENCY_PATHS}
+#  )
+#  foreach(_file ${_r_deps})
+#    file(INSTALL
+#      DESTINATION "${CMAKE_INSTALL_PREFIX}/lib"
+#      TYPE SHARED_LIBRARY
+#      FOLLOW_SYMLINK_CHAIN
+#      FILES "${_file}"
+#    )
+#  endforeach()
+#  list(LENGTH _u_deps _u_length)
+#  if("${_u_length}" GREATER 0)
+#    message(WARNING "Unresolved dependencies detected!")
+#  endif()
+#]])
+#endif()
+

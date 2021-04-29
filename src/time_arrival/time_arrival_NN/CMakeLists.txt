@@ -48,3 +48,6 @@ add_library(${TARGET} SHARED ${HEADERS} ${SOURCES})
 target_link_libraries(${TARGET} PRIVATE tensorflow)
 
 target_include_directories(${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+
+set_target_properties(${TARGET} PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})

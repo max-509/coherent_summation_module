@@ -19,12 +19,6 @@ public:
 
     virtual ~CoherentSummation() noexcept;
 
-//    py_array_d
-//    emission_tomography_method(const py_array_d& gather,
-//                               const py_array_d& receivers_coords,
-//                               double dt,
-//                               const py_array_d& tensor_matrix);
-
     py_array_d
     emission_tomography_method(py_array_d gather,
                                py_array_f sources_receivers_times,
