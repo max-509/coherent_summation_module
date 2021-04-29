@@ -35,6 +35,7 @@ link_directories("${Tensorflow_LIBRARY_DIRS}")
 link_libraries(tensorflow)
 link_libraries(${pybind11_LIBRARIES})
 link_directories(${Python_LIBRARY_DIRS})
+link_libraries(OpenMP::OpenMP_CXX)
 
 add_subdirectory(time_arrival)
 add_subdirectory(utils)
