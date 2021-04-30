@@ -1,3 +1,5 @@
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
 add_library(csv STATIC "")
 
 target_sources(csv

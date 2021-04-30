@@ -1,6 +1,8 @@
 ﻿cmake_minimum_required(VERSION 3.15)
 project(TimeArrivalNNLib)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
 set(TARGET ${PROJECT_NAME})
 set(SOURCES "TimeArrivalNNBase.cpp" "TimeArrivalNNFrozen.cpp" "TimeArrivalNNException.cpp" "TimeArrivalNNModel.cpp")
 set(HEADERS "TimeArrivalNNBase.h" "TimeArrivalNNFrozen.h" "TimeArrivalNNException.h" "TimeArrivalNNModel.h")
@@ -17,7 +19,7 @@ if (WIN32)
     set_target_properties(${LIBRARY_TARGET} PROPERTIES
             IMPORTED_LOCATION "${Tensorflow_LIBRARY_DIRS}/tensorflow.dll"
             IMPORTED_IMPLIB "${Tensorflow_LIBRARY_DIRS}/tensorflow.lib")
-elseif(LINUX)
+elseif(UNIX)
     set_target_properties(${LIBRARY_TARGET} PROPERTIES
             IMPORTED_LOCATION "${Tensorflow_LIBRARY_DIRS}/libtensorflow.so")
 endif()

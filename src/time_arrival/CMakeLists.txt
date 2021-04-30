@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(TimeArrivalLib)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
 add_subdirectory(time_arrival_NN)
 add_subdirectory(time_arrival_table_file)
 
