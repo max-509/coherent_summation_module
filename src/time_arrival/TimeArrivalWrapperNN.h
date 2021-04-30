@@ -8,8 +8,6 @@
 #include <memory>
 #include <string>
 
-#include "TimeArrivalBase.h"
-
 class TimeArrivalNNBase;
 
 template <class T>
@@ -22,7 +20,7 @@ struct TimeArrivalNNBaseDeleter {
     void operator()(TimeArrivalNNBase *p);
 };
 
-class TimeArrivalWrapperNN final : public TimeArrivalBase {
+class TimeArrivalWrapperNN {
 public:
     TimeArrivalWrapperNN() = default;
 
@@ -42,7 +40,7 @@ public:
 
     TimeArrivalWrapperNN(TimeArrivalWrapperNN &&) noexcept = default;
 
-    ~TimeArrivalWrapperNN() noexcept override;
+    ~TimeArrivalWrapperNN() noexcept;
 
     std::unique_ptr<float[]>
     get_times_to_points(const Array2D<double> &receivers_coords) noexcept(false);

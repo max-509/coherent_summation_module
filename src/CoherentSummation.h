@@ -10,7 +10,6 @@
 
 #include "utils.h"
 #include "py_common.h"
-#include "TimeArrivalBase.h"
 
 class CoherentSummation {
 public:

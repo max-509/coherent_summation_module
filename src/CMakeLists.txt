@@ -37,8 +37,14 @@ add_subdirectory(time_arrival)
 add_subdirectory(utils)
 
 set(COH_SUM_TARGET ${PROJECT_NAME})
-set(SOURCES module.cpp CoherentSummation.cpp CoherentSummationANN.cpp CoherentSummationTableFile.cpp CoherentSummationTableArray.cpp)
-set(HEADERS CoherentSummation.h CoherentSummationANN.h CoherentSummationTableFile.h CoherentSummationTableArray.h)
+set(SOURCES module.cpp
+		CoherentSummation.cpp
+		CoherentSummationANN.cpp
+        CoherentSummationTable.cpp)
+set(HEADERS
+		CoherentSummation.h
+		CoherentSummationANN.h
+        CoherentSummationTable.h)
 
 list(APPEND COMPILE_OPTS "${OpenMP_CXX_FLAGS}")
 

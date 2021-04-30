@@ -4,7 +4,6 @@
 #include "array1D.h"
 #include "emission_tomography_method.h"
 #include "kirchhoff_migration.h"
-#include "TimeArrivalBase.h"
 
 #include <iostream>
 #include <tuple>
