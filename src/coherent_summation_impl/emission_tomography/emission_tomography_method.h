@@ -231,8 +231,10 @@ void emissionTomographyMethod(const Array2D<T1> &gather,
                             (sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
 
                     #pragma omp simd
-                    for (std::ptrdiff_t i_t = bl_it;
-                         i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
+                    #pragma simd
+                    #pragma vector always
+                    #pragma ivdep
+                    for (std::ptrdiff_t i_t = bl_it; i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
                         result_data[i_s * n_samples + i_t] += gather(i_r, godograph_ind + i_t);
                     }
                 }
@@ -301,6 +303,9 @@ void emissionTomographyMethod(const Array2D<T1> &gather,
                             (sources_receivers_times(i_s, i_r) - min_t_to_source) * rev_dt);
 
                     #pragma omp simd
+                    #pragma simd
+                    #pragma vector always
+                    #pragma ivdep
                     for (std::ptrdiff_t i_t = bl_it;
                          i_t < std::min(bl_it + samples_block_size, n_samples - godograph_ind); ++i_t) {
                         result_data[i_s * n_samples + i_t] += gather(i_r, godograph_ind + i_t)*amplitude;

@@ -1,4 +1,6 @@
-add_library(csv SHARED "")
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
+add_library(csv STATIC "")
 
 target_sources(csv
 	PRIVATE
@@ -26,5 +28,4 @@ target_sources(csv
 set_target_properties(csv PROPERTIES LINKER_LANGUAGE CXX)
 target_link_libraries(csv PRIVATE Threads::Threads)
 
-set_target_properties(csv PROPERTIES
-        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+target_include_directories(csv INTERFACE ${CMAKE_CURRENT_SOURCE_DIR})

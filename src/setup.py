@@ -33,7 +33,7 @@ class CMakeBuild(build_ext):
         cmake_generator = os.environ.get("CMAKE_GENERATOR", "")
 
         cmake_args = [
-            # "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
+            "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY={}".format(extdir),
             "-DCMAKE_BUILD_TYPE={}".format(cfg),
             "-DTensorflow_LIBRARY_DIRS={}".format(os.environ['Tensorflow_LIBRARY_DIRS'])
         ]
@@ -67,9 +67,9 @@ class CMakeBuild(build_ext):
 
             # Multi-config generators have a different way to specify configs
             if not single_config:
-                # cmake_args += [
-                #     "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
-                # ]
+                cmake_args += [
+                    "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
+                ]
                 build_args += ["--config", cfg]
 
         # Set CMAKE_BUILD_PARALLEL_LEVEL to control the parallel build level

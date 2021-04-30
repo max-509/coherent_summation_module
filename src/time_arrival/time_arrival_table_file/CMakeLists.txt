@@ -21,7 +21,9 @@ set(CSV_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(CSV_SOURCE_DIR ${CSV_INCLUDE_DIR}/internal)
 set(CSV_TEST_DIR ${CMAKE_CURRENT_LIST_DIR}/tests)
 
-include_directories(${CSV_INCLUDE_DIR})
-
 ## Main Library
 add_subdirectory(${CSV_SOURCE_DIR})
+
+add_library(csv_header INTERFACE)
+
+target_include_directories(csv_header INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)

@@ -1,5 +1,5 @@
-#ifndef _TIME_ARRIBAL_TIMES_TABLE_ARRAY_H
-#define _TIME_ARRIBAL_TIMES_TABLE_ARRAY_H
+#ifndef _TIME_ARRIVAL_TIMES_TABLE_ARRAY_H
+#define _TIME_ARRIVAL_TIMES_TABLE_ARRAY_H
 
 #include "py_common.h"
 
@@ -7,8 +7,6 @@
 
 #include <memory>
 #include <vector>
-
-#include "array2D.h"
 
 class TimeArrivalTimesTableArray final : public TimeArrivalBase {
 public:
@@ -28,4 +26,4 @@ private:
 };
 
 
-#endif //_TIME_ARRIBAL_TIMES_TABLE_ARRAY_H
+#endif //_TIME_ARRIVAL_TIMES_TABLE_ARRAY_H

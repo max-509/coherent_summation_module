@@ -1,5 +1,7 @@
 #include "CoherentSummationANN.h"
 
+#include "array2D.h"
+
 #include <type_traits>
 
 CoherentSummationANN::CoherentSummationANN(const std::string &path_NN, NN_Type nn_type,
