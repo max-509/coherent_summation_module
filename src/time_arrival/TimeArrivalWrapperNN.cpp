@@ -1,5 +1,7 @@
 #include "TimeArrivalWrapperNN.h"
 
+#include "array2D.h"
+#include "array1D.h"
 #include "TimeArrivalNNBase.h"
 #include "TimeArrivalNNFrozen.h"
 #include "TimeArrivalNNModel.h"
@@ -11,7 +13,7 @@ TimeArrivalWrapperNN::TimeArrivalWrapperNN(
         py_array_d environment, const std::string &pb_filename,
         std::vector<std::pair<std::string, int>> &input_ops, std::vector<std::pair<std::string, int>> &output_ops) :
         environment_(environment) {
-    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNFrozen>(new TimeArrivalNNFrozen(pb_filename, input_ops, output_ops));
+    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNBase, TimeArrivalNNBaseDeleter>(new TimeArrivalNNFrozen(pb_filename, input_ops, output_ops), TimeArrivalNNBaseDeleter{});
 }
 
 TimeArrivalWrapperNN::TimeArrivalWrapperNN(
@@ -19,7 +21,7 @@ TimeArrivalWrapperNN::TimeArrivalWrapperNN(
         const char *const *tags, int ntags, std::vector<std::pair<std::string, int>> &input_ops,
         std::vector<std::pair<std::string, int>> &output_ops) :
         environment_(environment) {
-    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNModel>(new TimeArrivalNNModel(model_path, tags, ntags, input_ops, output_ops));
+    p_time_arrival_nn_ = std::unique_ptr<TimeArrivalNNBase, TimeArrivalNNBaseDeleter>(new TimeArrivalNNModel(model_path, tags, ntags, input_ops, output_ops), TimeArrivalNNBaseDeleter{});
 }
 
 std::unique_ptr<float[]>
@@ -208,3 +210,6 @@ TimeArrivalWrapperNN::get_times_to_points(const Array2D<double> &receivers_coord
 TimeArrivalWrapperNN::~TimeArrivalWrapperNN() noexcept = default;
 
 
+void TimeArrivalNNBaseDeleter::operator()(TimeArrivalNNBase *p) {
+    delete p;
+}

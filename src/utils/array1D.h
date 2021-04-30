@@ -54,8 +54,8 @@ public:
 	size_type get_size() const { return _size; }
 
 private:
-	pointer_type _p_array;
-	size_type _size;
+	pointer_type _p_array = nullptr;
+	size_type _size = 0;
 };
 
 #endif //_ARRAY1D_H

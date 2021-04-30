@@ -8,10 +8,19 @@
 #include <memory>
 #include <string>
 
-#include "array2D.h"
-#include "array1D.h"
 #include "TimeArrivalBase.h"
-#include "time_arrival_NN/TimeArrivalNNBase.h"
+
+class TimeArrivalNNBase;
+
+template <class T>
+class Array1D;
+
+template <class T>
+class Array2D;
+
+struct TimeArrivalNNBaseDeleter {
+    void operator()(TimeArrivalNNBase *p);
+};
 
 class TimeArrivalWrapperNN final : public TimeArrivalBase {
 public:
@@ -42,8 +51,9 @@ public:
     get_times_to_point(const Array1D<double> &coord) noexcept(false);
 
 private:
-    py_array_d environment_;
-    std::unique_ptr<TimeArrivalNNBase> p_time_arrival_nn_;
+
+    py_array_d environment_{};
+    std::unique_ptr<TimeArrivalNNBase, TimeArrivalNNBaseDeleter> p_time_arrival_nn_{};
 
 private:
 
