@@ -106,7 +106,7 @@ inline void process_receivers_on_points(const Array2D<T1> &gather,
                                         const double rev_dt,
                                         T1 *result_data) {
 
-    const auto n_samples = gather.get_y_dim();
+    const auto n_samples = gather.get_x_dim();
     const auto n_receivers = gather.get_y_dim();
 
 #ifdef ENABLED_SIMD_EXTENSIONS

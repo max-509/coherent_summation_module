@@ -35,26 +35,22 @@ private:
     __m128d d_epsilon_v = _mm_set1_pd(std::numeric_limits<double>::epsilon());
     __m128 f_epsilon_v = _mm_set1_ps(std::numeric_limits<float>::epsilon());
 
-	template <typename OutputArrayType,
-            bool is_f = std::is_same<float, value_type>::value,
-            bool is_d = std::is_same<double, value_type>::value>
+	template <typename OutputArrayType>
   void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
-      if (is_f) {
-          realize_calculate_f(rec_coords_, amplitudes_);
-      } else if (is_d) {
-          realize_calculate_d(rec_coords_, amplitudes_);
-      }
+      realize_calculate_impl(rec_coords_, amplitudes_);
   }
 
-	template<typename OutputArrayType>
-  void realize_calculate_f(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+	template<template<class> class OutputArrayType>
+  void realize_calculate_impl(const InputArrayType &rec_coords_, OutputArrayType<float> &amplitudes_) {
+      static_assert(std::is_same<float, value_type>::value,
+                "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
         std::ptrdiff_t n_rec = rec_coords_.get_y_dim();
         std::ptrdiff_t sources_count = sources_coords_.get_y_dim();
         constexpr std::ptrdiff_t matrix_size = 6;
         constexpr std::ptrdiff_t vector_dim = sizeof(__m128) / sizeof(float);
 
         static __m128 two_v = _mm_set1_ps(2.0f);
-        static __m128 tensor_matrix_v[matrix_size] = {_mm_set1_ps(tensor_matrix_[0]),
+        __m128 tensor_matrix_v[matrix_size] = {_mm_set1_ps(tensor_matrix_[0]),
                                                       _mm_set1_ps(tensor_matrix_[1]),
                                                       _mm_set1_ps(tensor_matrix_[2]),
                                                       _mm_set1_ps(tensor_matrix_[3]),
@@ -128,16 +124,18 @@ private:
                                               tensor_matrix_, amplitudes_);
     }
 
-    template<typename OutputArrayType>
-    void realize_calculate_d(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
+    template<template <class> class OutputArrayType>
+    void realize_calculate_impl(const InputArrayType &rec_coords_, OutputArrayType<double> &amplitudes_) {
+        static_assert(std::is_same<double, value_type>::value,
+                "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
         std::ptrdiff_t n_rec = rec_coords_.get_y_dim();
         std::ptrdiff_t sources_count = sources_coords_.get_y_dim();
         constexpr std::ptrdiff_t matrix_size = 6;
         constexpr std::ptrdiff_t vector_dim = sizeof(__m128d) / sizeof(double);
 
-        static __m128d two_v = _mm_set1_pd(2.0);
-        static __m128d one_v = _mm_set1_pd(1.0);
-        static __m128d tensor_matrix_v[matrix_size] = {_mm_set1_pd(tensor_matrix_[0]),
+        static const __m128d two_v = _mm_set1_pd(2.0);
+        static const __m128d one_v = _mm_set1_pd(1.0);
+        __m128d tensor_matrix_v[matrix_size] = {_mm_set1_pd(tensor_matrix_[0]),
                                                        _mm_set1_pd(tensor_matrix_[1]),
                                                        _mm_set1_pd(tensor_matrix_[2]),
                                                        _mm_set1_pd(tensor_matrix_[3]),
