@@ -3,22 +3,24 @@
 
 #include "py_common.h"
 
-#include "TimeArrivalBase.h"
-
 #include <memory>
 #include <vector>
 
-class TimeArrivalTimesTableArray final : public TimeArrivalBase {
+#include "TimeArrivalTimesTable.h"
+
+class TimeArrivalTimesTableArray final : public TimeArrivalTimesTable {
 public:
     TimeArrivalTimesTableArray() = default;
 
-    TimeArrivalTimesTableArray(py_array_d t_table);
+    explicit TimeArrivalTimesTableArray(py_array_d t_table);
 
     std::unique_ptr<float[]>
-    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn);
+    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) override;
 
     py::ssize_t
-    get_n_points() const;
+    get_n_points() const override;
+
+    ~TimeArrivalTimesTableArray() noexcept override = default;
 
 private:
     py_array_d t_table_;

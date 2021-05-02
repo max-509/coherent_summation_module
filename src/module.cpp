@@ -2,8 +2,7 @@
 
 #include "CoherentSummation.h"
 #include "CoherentSummationANN.h"
-#include "CoherentSummationTableArray.h"
-#include "CoherentSummationTableFile.h"
+#include "CoherentSummationTable.h"
 
 #include <string>
 #include <cstddef>
@@ -77,31 +76,23 @@ PYBIND11_MODULE(CoherentSummationModule, coh_sum_module) {
                  "gather"_a, "dt"_a,"receivers_coords"_a,
                  "receivers_block_size"_a=20, "samples_block_size"_a=1000);
 
-    py::class_<CoherentSummationTableFile, CoherentSummation>(coh_sum_module, "CoherentSummationTableFile")
-            .def(py::init<const std::string&, std::size_t>(), py::call_guard<py::gil_scoped_release>())
-
-            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, double, std::ptrdiff_t, std::ptrdiff_t, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableFile::emission_tomography_method),
-                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
-                 "gather"_a, "receivers_coords"_a, "sources_coords"_a, "dt"_a,
-                 "i_r0"_a, "i_rn"_a,
-                 "tensor_matrix"_a,"receivers_block_size"_a=20, "samples_block_size"_a=1000)
-
-            .def("emission_tomography", overload_cast_<py_array_d, std::ptrdiff_t, std::ptrdiff_t, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableFile::emission_tomography_method),
-                 py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
-                 "gather"_a, "i_r0"_a, "i_rn"_a, "dt"_a,
-                 "receivers_block_size"_a=20, "samples_block_size"_a=1000);
-
-    py::class_<CoherentSummationTableArray, CoherentSummation>(coh_sum_module, "CoherentSummationTableArray")
+    py::class_<CoherentSummationTable, CoherentSummation>(coh_sum_module, "CoherentSummationTable")
             .def(py::init<py_array_d>(), py::call_guard<py::gil_scoped_release>())
 
-            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, double, std::ptrdiff_t, std::ptrdiff_t, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableArray::emission_tomography_method),
+            .def(py::init<const std::string&, py::ssize_t>(), py::call_guard<py::gil_scoped_release>())
+
+            .def("emission_tomography", overload_cast_<py_array_d, py_array_d, py_array_d, double, std::ptrdiff_t, std::ptrdiff_t, py_array_d, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTable::emission_tomography_method),
                  py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
                  "gather"_a, "receivers_coords"_a, "sources_coords"_a, "dt"_a,
                  "i_r0"_a, "i_rn"_a,
                  "tensor_matrix"_a,"receivers_block_size"_a=20, "samples_block_size"_a=1000)
 
-            .def("emission_tomography", overload_cast_<py_array_d, std::ptrdiff_t, std::ptrdiff_t, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTableArray::emission_tomography_method),
+            .def("emission_tomography", overload_cast_<py_array_d, std::ptrdiff_t, std::ptrdiff_t, double, std::ptrdiff_t, std::ptrdiff_t>()(&CoherentSummationTable::emission_tomography_method),
                  py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
                  "gather"_a, "i_r0"_a, "i_rn"_a, "dt"_a,
                  "receivers_block_size"_a=20, "samples_block_size"_a=1000);
+
+    coh_sum_module.def("createCoherentSummationTableFile", CoherentSummationTable::createCoherentSummationTableFile);
+
+    coh_sum_module.def("createCoherentSummationTableArray", CoherentSummationTable::createCoherentSummationTableArray);
 }

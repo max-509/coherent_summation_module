@@ -1,23 +1,25 @@
-#ifndef COHERENT_SUMMATION_TABLE_FILE_H
-#define COHERENT_SUMMATION_TABLE_FILE_H
+#ifndef COHERENT_SUMMATION_TABLE_H
+#define COHERENT_SUMMATION_TABLE_H
 
 #include "py_common.h"
 
-#include <memory>
-#include <vector>
-#include <tuple>
-#include <string>
-#include <cstddef>
-
 #include "CoherentSummation.h"
-#include "TimeArrivalTimesTableFile.h"
 
+class TimeArrivalTimesTable;
 
-class CoherentSummationTableFile final : public CoherentSummation {
+struct TimeArrivalTimesTableDeleter {
+    void operator()(TimeArrivalTimesTable *p);
+};
+
+class CoherentSummationTable final : public CoherentSummation {
 public:
-    CoherentSummationTableFile(const std::string &times_table_filename, std::size_t n_points);
 
-    ~CoherentSummationTableFile() noexcept override;
+    explicit CoherentSummationTable(py_array_d t_table);
+
+    CoherentSummationTable(const std::string &times_table_filename, py::ssize_t n_points);
+
+    CoherentSummationTable(CoherentSummationTable &&) noexcept = default;
+    CoherentSummationTable &operator=(CoherentSummationTable &&) noexcept = default;
 
     py_array_d
     emission_tomography_method(py_array_d gather,
@@ -37,9 +39,18 @@ public:
                                double dt,
                                std::ptrdiff_t receivers_block_size = 20,
                                std::ptrdiff_t samples_block_size = 1000);
+
+    static CoherentSummationTable
+    createCoherentSummationTableArray(py_array_d table);
+
+    static CoherentSummationTable
+    createCoherentSummationTableFile(const std::string &times_table_filename, py::ssize_t n_points);
+
+    ~CoherentSummationTable() noexcept override;
+
 private:
-    TimeArrivalTimesTableFile time_arrival_nn_;
+    std::unique_ptr<TimeArrivalTimesTable, TimeArrivalTimesTableDeleter> time_arrival_nn_;
 };
 
 
-#endif //COHERENT_SUMMATION_TABLE_FILE_H
+#endif //COHERENT_SUMMATION_TABLE_H

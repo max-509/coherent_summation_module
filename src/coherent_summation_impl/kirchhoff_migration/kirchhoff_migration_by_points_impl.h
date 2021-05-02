@@ -131,14 +131,12 @@ inline void process_receivers_on_points(const Array2D<T1> &gather,
     alignas(sizeof(vector_arrival_time_t)) T2_without_cv i_samples[vector_dim_arrival_times];
 //    alignas(sizeof(vector_data_t)) T1_without_cv res_tmp_arr[vector_dim_data];
 
-    const auto rev_dt_v = simd_functions.set1(static_cast<T2>(rev_dt));
-    const auto n_samples_v = simd_functions.set1(static_cast<T2>(n_samples));
+    const auto rev_dt_v = simd_functions.set1(static_cast<T2_without_cv>(rev_dt));
+    const auto n_samples_v = simd_functions.set1(static_cast<T2_without_cv>(n_samples));
 
     auto point_processer = [&gather,
             &times_to_source,
             &times_to_receivers,
-            vector_dim_data,
-            vector_dim_arrival_times,
             n_receivers,
             n_receivers_without_remainder,
             &i_samples,
@@ -146,6 +144,11 @@ inline void process_receivers_on_points(const Array2D<T1> &gather,
             rev_dt_v,
             n_samples,
             n_samples_v] (const std::ptrdiff_t i_p) -> T1 {
+
+        #ifdef _MSC_VER //Bug in compiler, doesn't want default capturing constexpr val
+        constexpr std::ptrdiff_t vector_dim_arrival_times = sizeof(vector_arrival_time_t) / sizeof(T2);
+        constexpr std::ptrdiff_t vector_dim_data = sizeof(vector_data_t) / sizeof(T1);
+        #endif //_MSC_VER
 
         const auto t_to_s = times_to_source[i_p];
         const auto t_to_s_v = simd_functions.set1(t_to_s);

@@ -3,28 +3,28 @@
 
 #include "py_common.h"
 
-#include "TimeArrivalBase.h"
-
 #include <memory>
 #include <string>
 
-class TimeArrivalTimesTableFile final : public TimeArrivalBase {
+#include "TimeArrivalTimesTable.h"
+
+class TimeArrivalTimesTableFile final : public TimeArrivalTimesTable {
 public:
     TimeArrivalTimesTableFile() = default;
 
-    explicit TimeArrivalTimesTableFile(std::string table_filename, std::size_t n_points);
+    explicit TimeArrivalTimesTableFile(std::string table_filename, py::ssize_t n_points);
 
     std::unique_ptr<float[]>
-    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn);
+    get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) override;
 
-    std::size_t
-    get_n_points() const;
+    py::ssize_t
+    get_n_points() const override;
 
-    ~TimeArrivalTimesTableFile() noexcept override;
+    ~TimeArrivalTimesTableFile() noexcept override = default;
 
 private:
     const std::string table_filename_{};
-    std::size_t n_points_{};
+    py::ssize_t n_points_{};
 };
 
 

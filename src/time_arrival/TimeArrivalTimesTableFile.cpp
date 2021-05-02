@@ -10,12 +10,13 @@
 
 using namespace csv;
 
-TimeArrivalTimesTableFile::TimeArrivalTimesTableFile(std::string table_filename, std::size_t n_points) :
+TimeArrivalTimesTableFile::TimeArrivalTimesTableFile(std::string table_filename, py::ssize_t n_points) :
         table_filename_(std::move(table_filename)),
         n_points_(n_points) {
 }
 
-std::unique_ptr<float[]> TimeArrivalTimesTableFile::get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) {
+std::unique_ptr<float[]>
+TimeArrivalTimesTableFile::get_times_to_points(std::ptrdiff_t i_r0, std::ptrdiff_t i_rn) {
     CSVFormat format;
     format.delimiter(';').no_header().quote(false);
     CSVReader csv_reader(table_filename_.c_str(), format);
@@ -50,8 +51,7 @@ std::unique_ptr<float[]> TimeArrivalTimesTableFile::get_times_to_points(std::ptr
     return std::move(times_to_points);
 }
 
-std::size_t TimeArrivalTimesTableFile::get_n_points() const {
+py::ssize_t
+TimeArrivalTimesTableFile::get_n_points() const {
     return n_points_;
 }
-
-TimeArrivalTimesTableFile::~TimeArrivalTimesTableFile() noexcept = default;

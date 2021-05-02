@@ -83,12 +83,12 @@ void run_program(const CohSumType<double, double>& coh_sum,
 
 void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 2000;
-	std::size_t receivers_step = 40;
+	std::size_t NxR = 2400;
+	std::size_t receivers_step = 80;
 	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 7000;
+	std::size_t NxS = 8000;
 	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 7000;
+	std::size_t NzS = 8000;
 	std::size_t n_samples = 40000;
 	double velocity = 3500.0;
 	double s_x = 0.0;
