@@ -12,6 +12,7 @@ CoherentSummationANN::CoherentSummationANN(const std::string &path_NN, NN_Type n
                                            splitting_by_coord y_splitting) {
     generate_environment_grid(x_splitting, z_splitting, y_splitting);
 
+
     load_ann(path_NN, nn_type, input_ops, output_ops);
 }
 
@@ -19,7 +20,9 @@ CoherentSummationANN::CoherentSummationANN(const std::string &path_NN, NN_Type n
                                            std::vector<std::pair<std::string, int>> &input_ops,
                                            std::vector<std::pair<std::string, int>> &output_ops,
                                            py_array_d environment) {
+
     copy_environment(environment);
+
 
     load_ann(path_NN, nn_type, input_ops, output_ops);
 }
@@ -87,6 +90,7 @@ void CoherentSummationANN::copy_environment(py_array_d environment) {
                 raw_environment_(i_p, 1) = 0.0;
                 raw_environment_(i_p, 2) = raw_environment(i_p, 1);
             }
+
         } else if (environment.shape(1) == 3) {
             environment_ = py::array_t<double>(std::vector<py::ssize_t>{n_points, 3});
 

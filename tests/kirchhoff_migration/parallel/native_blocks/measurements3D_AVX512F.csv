@@ -1,0 +1,17 @@
+summation version;number of threads;number of points;number of receivers;number of samples;CPU CYCLES;INSTRUCTIONS;CACHE REFERENCES;CACHE MISSES;BRANCH INSTRUCTIONS;BRANCH MISSES;STALLED CYCLES FRONTEND;STALLED CYCLES BACKEND;PAGE FAULTS;L1D READ MISSES;L1D READ ACCESSES;L1D PREFETCH ACCESSES;time, s
+by points without blocks;1;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;280.16
+by points without blocks;2;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;171.205
+by points without blocks;3;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;130.099
+by points without blocks;4;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;90.8935
+by points without blocks;5;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;83.2998
+by points without blocks;6;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;78.0118
+by points without blocks;7;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;70.7941
+by points without blocks;8;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;56.4421
+by points without blocks;9;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;54.8705
+by points without blocks;10;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;51.2558
+by points without blocks;11;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;43.8423
+by points without blocks;12;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;43.804
+by points without blocks;13;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;37.6921
+by points without blocks;14;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;37.8186
+by points without blocks;15;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;36.8858
+by points without blocks;16;64000000;2500;40000;0;0;0;0;0;0;0;0;0;0;0;0;29.6639

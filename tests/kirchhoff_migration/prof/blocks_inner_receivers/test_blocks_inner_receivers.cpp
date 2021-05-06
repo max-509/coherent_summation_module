@@ -6,20 +6,20 @@
 
 void test() {
     double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 25;
-	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 25;
-	std::size_t receivers_step = 40;
-	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 360;
-	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 360;
-	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 360;
-	std::size_t n_samples = 20000;
-	double velocity = 3500.0;
-	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.002;
+    std::size_t NxR = 40;
+    double y0_r = 0, y1_r = 4000;
+    std::size_t NyR = 40;
+    std::size_t receivers_step = 20;
+    double x0_s = 0, x1_s = 4000;
+    std::size_t NxS = 500;
+    double y0_s = 0, y1_s = 4000;
+    std::size_t NyS = 500;
+    double z0_s = 0, z1_s = 2000;
+    std::size_t NzS = 500;
+    std::size_t n_samples = 20000;
+    double velocity = 3500.0;
+    double s_x = 0.0, s_y = 0.0;
+    double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
@@ -57,7 +57,7 @@ void test() {
     Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, receivers_step);
 
 	for (std::ptrdiff_t rec_bl = 0; rec_bl < NxR*NyR; rec_bl += receivers_step) {
-	    kirchhoffMigrationCHG3DBlocksReceiversInnerLoop(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data, 230);
+	    kirchhoffMigrationCHG3DBlocksReceiversInnerLoop(gather, times_to_source, times_to_receivers, z_dim, y_dim, x_dim, dt, result_data, 500);
 	}
 	std::cerr << result_data[0] << std::endl;
 

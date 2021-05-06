@@ -89,8 +89,8 @@ void kirchhoffMigrationCHG3DBlocksReceiversInnerLoop(const Array2D<T1> &gather,
                         const std::ptrdiff_t i_zy_layer = (i_z*y_dim + i_y)*x_dim;
                         const std::ptrdiff_t i_p_next = i_zy_layer + x_dim + i_b_x;
 
-                        _mm_prefetch(times_to_source.data() + i_p_next, _MM_HINT_T0);
-                        _mm_prefetch(times_to_receivers.get(i_p_next, 0), _MM_HINT_T0);
+//                        _mm_prefetch(times_to_source.data() + i_p_next, _MM_HINT_T0);
+//                        _mm_prefetch(times_to_receivers.get(i_p_next, 0), _MM_HINT_T0);
 
                         for (std::ptrdiff_t i_x = i_b_x; i_x < x_block_upper_border; ++i_x) {
 

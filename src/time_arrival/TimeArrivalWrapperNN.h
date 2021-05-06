@@ -55,6 +55,8 @@ private:
 
 private:
 
+    static constexpr std::size_t MAX_GPU_SIZE = 1024*1024*1024;
+
     std::unique_ptr<float[]>
     get_times_to_points(const Array2D<double> &receivers_coords,
                         std::ptrdiff_t block_size,

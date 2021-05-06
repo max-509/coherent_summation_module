@@ -24,7 +24,8 @@ using CohSumType = std::function<void (const Array2D<T1> &,
                                 const Array2D<T2> &,
                                 std::ptrdiff_t, std::ptrdiff_t, std::ptrdiff_t,
                                 double,
-                                T1 *)>;
+                                T1 *,
+                                std::ptrdiff_t)>;
 
 void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<double> &data_gen,
                  std::ofstream &measurements_file,
@@ -71,10 +72,10 @@ void run_program(CohSumType<double, double> coh_sum, test_data_generator3D<doubl
 	    std::pair<double, std::vector<uint64_t>> res;
 	    if (is_trans) {
 	        Array2D<double> times_to_receivers(user_datas.first.get(), upper_border_receivers_block - rec_bl, z_dim*y_dim*x_dim);
-	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data, 120));
 	    } else {
 	        Array2D<double> times_to_receivers(user_datas.first.get(), z_dim*y_dim*x_dim, upper_border_receivers_block - rec_bl);
-	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data));
+	        res = perf_wrapper(std::bind(coh_sum, std::ref(gather), std::ref(times_to_source), std::ref(times_to_receivers), z_dim, y_dim, x_dim, dt, result_data, 120));
 	    }
 
 	    for (std::size_t i = 0; i < events_counts.size(); ++i) {

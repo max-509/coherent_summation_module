@@ -122,74 +122,66 @@ inline void process_receivers_on_points(const Array2D<T1> &gather,
     constexpr std::ptrdiff_t vector_dim_arrival_times = sizeof(vector_arrival_time_t) / sizeof(T2);
     constexpr std::ptrdiff_t vector_dim_data = sizeof(vector_data_t) / sizeof(T1);
 
-    const std::ptrdiff_t i_p = (i_p0 + vector_dim_data - 1) & ~(vector_dim_data - 1);
+    std::ptrdiff_t i_p = (i_p0 + vector_dim_data - 1) & (~(vector_dim_data - 1));
 
     const std::ptrdiff_t n_receivers_without_remainder = n_receivers - (n_receivers % vector_dim_arrival_times);
     const std::ptrdiff_t n_points_without_remainder = i_pn - (i_pn % vector_dim_data);
 
+    alignas(sizeof(vector_arrival_time_t)) T2_without_cv i_samples[vector_dim_arrival_times];
+//    alignas(sizeof(vector_data_t)) T1_without_cv res_tmp_arr[vector_dim_data];
+
     const auto rev_dt_v = simd_functions.set1(static_cast<T2_without_cv>(rev_dt));
     const auto n_samples_v = simd_functions.set1(static_cast<T2_without_cv>(n_samples));
 
-    #pragma omp parallel
-    {
-        alignas(sizeof(vector_arrival_time_t)) T2_without_cv i_samples[vector_dim_arrival_times];
-//    alignas(sizeof(vector_data_t)) T1_without_cv res_tmp_arr[vector_dim_data];
+    auto point_processer = [&gather,
+            &times_to_source,
+            &times_to_receivers,
+            n_receivers,
+            n_receivers_without_remainder,
+            &i_samples,
+            rev_dt,
+            rev_dt_v,
+            n_samples,
+            n_samples_v] (const std::ptrdiff_t i_p) -> T1 {
 
-        auto point_processer = [&gather,
-                &times_to_source,
-                &times_to_receivers,
-                n_receivers,
-                n_receivers_without_remainder,
-                &i_samples,
-                rev_dt,
-                rev_dt_v,
-                n_samples,
-                n_samples_v](const std::ptrdiff_t i_p) -> T1 {
+        #ifdef _MSC_VER //Bug in compiler, doesn't want default capturing constexpr val
+        constexpr std::ptrdiff_t vector_dim_arrival_times = sizeof(vector_arrival_time_t) / sizeof(T2);
+        constexpr std::ptrdiff_t vector_dim_data = sizeof(vector_data_t) / sizeof(T1);
+        #endif //_MSC_VER
 
-            #ifdef _MSC_VER //Bug in compiler, doesn't want default capturing constexpr val
-            constexpr std::ptrdiff_t vector_dim_arrival_times = sizeof(vector_arrival_time_t) / sizeof(T2);
-            constexpr std::ptrdiff_t vector_dim_data = sizeof(vector_data_t) / sizeof(T1);
-            #endif //_MSC_VER
+        const auto t_to_s = times_to_source[i_p];
+        const auto t_to_s_v = simd_functions.set1(t_to_s);
+        auto res_sum = T1(0.0);
 
-            const auto t_to_s = times_to_source[i_p];
-            const auto t_to_s_v = simd_functions.set1(t_to_s);
-            auto res_sum = T1(0.0);
+        for (auto i_r = 0; i_r < n_receivers_without_remainder; i_r += vector_dim_arrival_times) {
+            const auto t_to_r_v = simd_functions.loadu(times_to_receivers.get(i_p, i_r));
 
-            for (auto i_r = 0; i_r < n_receivers_without_remainder; i_r += vector_dim_arrival_times) {
-                const auto t_to_r_v = simd_functions.loadu(times_to_receivers.get(i_p, i_r));
+            auto v_i_sample_f = simd_functions.mul(rev_dt_v, simd_functions.add(t_to_r_v, t_to_s_v));
 
-                auto v_i_sample_f = simd_functions.mul(rev_dt_v, simd_functions.add(t_to_r_v, t_to_s_v));
+            simd_functions.storeu(i_samples, v_i_sample_f);
+            auto i_sample_mask = simd_functions.movemask(simd_functions.cmpgt(n_samples_v, v_i_sample_f));
 
-                simd_functions.storeu(i_samples, v_i_sample_f);
-                auto i_sample_mask = simd_functions.movemask(simd_functions.cmpgt(n_samples_v, v_i_sample_f));
-
-                res_sum += ForSumIfMaskInnerReceivers<vector_dim_arrival_times - 1>::sum_if_mask(gather, i_samples,
-                                                                                                 i_sample_mask, i_r);
-            }
-
-            res_sum += process_remainder_receivers(gather, t_to_s, times_to_receivers, i_p,
-                                                   n_receivers_without_remainder,
-                                                   n_receivers, n_samples, rev_dt);
-
-            return res_sum;
-        };
-
-        #pragma omp for schedule(static)
-        for (auto i = i_p0; i < i_p; ++i) {
-            result_data[i] += point_processer(i);
+            res_sum += ForSumIfMaskInnerReceivers<vector_dim_arrival_times - 1>::sum_if_mask(gather, i_samples, i_sample_mask, i_r);
         }
 
-        #pragma omp for schedule(static)
-        for (auto i = i_p; i < n_points_without_remainder; i += vector_dim_data) {
+        res_sum += process_remainder_receivers(gather, t_to_s, times_to_receivers, i_p, n_receivers_without_remainder,
+                                               n_receivers, n_samples, rev_dt);
 
-            ForLoopResTmp<vector_dim_data - 1>::assign_res_tmp(point_processer, i, result_data);
+        return res_sum;
+    };
 
-        }
+    for (auto i = i_p0; i < i_p; ++i) {
+        result_data[i] += point_processer(i);
+    }
 
-        #pragma omp for schedule(static)
-        for (auto i = n_points_without_remainder; i < i_pn; ++i) {
-            result_data[i] += point_processer(i);
-        }
+    for (auto i = i_p; i < n_points_without_remainder; i += vector_dim_data) {
+
+        ForLoopResTmp<vector_dim_data - 1>::assign_res_tmp(point_processer, i, result_data);
+
+    }
+
+    for (auto i = n_points_without_remainder; i < i_pn; ++i) {
+        result_data[i] += point_processer(i);
     }
 
 #else //ENABLED_SIMD_EXTENSIONS

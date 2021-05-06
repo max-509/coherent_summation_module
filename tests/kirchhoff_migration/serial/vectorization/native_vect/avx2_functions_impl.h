@@ -8,7 +8,7 @@ struct SimdFunctions;
 
 class Avx2FunctionsImpl {
 
-    inline __m256 set1_impl(const float val1) {
+    inline __m256 set1_impl(const float val1) const {
         return _mm256_set1_ps(val1);
     }
 

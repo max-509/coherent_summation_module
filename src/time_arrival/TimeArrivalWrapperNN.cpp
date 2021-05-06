@@ -37,14 +37,16 @@ TimeArrivalWrapperNN::get_times_to_points(const Array2D<double> &receivers_coord
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }
 
-    auto block_size = n_points / 20;
+    constexpr double upper_border_block_size_const = (MAX_GPU_SIZE / 6.0) / (4 * 50);
+
+    auto block_size = static_cast<std::ptrdiff_t>(upper_border_block_size_const / n_receivers);
 
     for (; block_size > 0; block_size /= 2) {
         std::cout << "Try block size:  " << block_size << std::endl;
         try {
             return get_times_to_points(receivers_coords, block_size, std::move(times_to_points));
         } catch (const TimeArrivalNNException &nn_ex) {
-            std::cerr << "ANN error, try with less block size:" << nn_ex.what() << std::endl;
+            std::cerr << "ANN error, try with less block size: " << nn_ex.what() << std::endl;
         }
     }
 
@@ -61,7 +63,9 @@ TimeArrivalWrapperNN::get_times_to_point(const Array1D<double> &coord) noexcept(
         throw std::runtime_error(std::string("Error: cannot allocate memory with error: ") + bad_alloc_ex.what());
     }
 
-    auto block_size = n_points;
+    constexpr double upper_border_block_size_const = (MAX_GPU_SIZE / 6.0) / (4 * 50);
+
+    auto block_size = static_cast<std::ptrdiff_t>(upper_border_block_size_const);
 
     for (; block_size > 0; block_size /= 2) {
         try {
@@ -186,17 +190,23 @@ TimeArrivalWrapperNN::get_times_to_points(const Array2D<double> &receivers_coord
                     x_points_remainder[i_bp * n_receivers + i_r] = x;
                     z_points_remainder[i_bp * n_receivers + i_r] = z;
 
+                    #ifdef _WIN32
                     times_to_points[((n_points - (n_points % block_size)) + i_bp) * n_receivers + i_r] = p_time_arrival_nn_->process(x, z, receivers_coords(i_r, 0));
+                    #endif
                 }
             }
 
-//            std::cerr << "LAST BLOCK ANN" << std::endl;
-//
-//            auto times_to_receiver_by_z = p_time_arrival_nn_->process(x_points_remainder, z_points_remainder, x_coords_remainder);
-//            std::cerr << "AUTO processing last block" << std::endl;
-//            std::copy(times_to_receiver_by_z.cbegin(),
-//                      times_to_receiver_by_z.cend(),
-//                      times_to_points.get() + (n_points - (n_points % block_size)) * n_receivers);
+            #ifndef _WIN32
+
+            std::cerr << "LAST BLOCK ANN" << std::endl;
+
+            auto times_to_receiver_by_z = p_time_arrival_nn_->process(x_points_remainder, z_points_remainder, x_coords_remainder);
+            std::cerr << "AUTO processing last block" << std::endl;
+            std::copy(times_to_receiver_by_z.cbegin(),
+                      times_to_receiver_by_z.cend(),
+                      times_to_points.get() + (n_points - (n_points % block_size)) * n_receivers);
+
+            #endif
         }
     } else if (n_coords == 2) {
         //TODO: Для 3D

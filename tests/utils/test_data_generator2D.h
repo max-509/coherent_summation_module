@@ -95,7 +95,7 @@ public:
 
 	    if (gather_.empty() || n_receivers != n_receivers_) {
             n_receivers_ = n_receivers;
-            gather_ = std::vector<double>(n_receivers_*n_samples_);
+            gather_.resize(n_receivers_*n_samples_);
 
             srand(time(nullptr));
 

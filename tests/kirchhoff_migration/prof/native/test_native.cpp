@@ -6,20 +6,20 @@
 
 void test() {
     double x0_r = 0, x1_r = 4000;
-	std::size_t NxR = 25;
-	double y0_r = 0, y1_r = 4000;
-	std::size_t NyR = 25;
-	std::size_t receivers_step = 40;
-	double x0_s = 0, x1_s = 4000;
-	std::size_t NxS = 360;
-	double y0_s = 0, y1_s = 4000;
-	std::size_t NyS = 360;
-	double z0_s = 0, z1_s = 2000;
-	std::size_t NzS = 360;
-	std::size_t n_samples = 20000;
-	double velocity = 3500.0;
-	double s_x = 0.0, s_y = 0.0;
-	double dt = 0.002;
+    std::size_t NxR = 40;
+    double y0_r = 0, y1_r = 4000;
+    std::size_t NyR = 40;
+    std::size_t receivers_step = 20;
+    double x0_s = 0, x1_s = 4000;
+    std::size_t NxS = 460;
+    double y0_s = 0, y1_s = 4000;
+    std::size_t NyS = 460;
+    double z0_s = 0, z1_s = 2000;
+    std::size_t NzS = 460;
+    std::size_t n_samples = 20000;
+    double velocity = 3500.0;
+    double s_x = 0.0, s_y = 0.0;
+    double dt = 0.002;
 
 	test_data_generator3D<double> data_gen(x0_s, x1_s, NxS,
 								        y0_s, y1_s, NyS,
