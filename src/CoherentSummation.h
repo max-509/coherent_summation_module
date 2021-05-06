@@ -39,7 +39,8 @@ public:
     kirchhoff_migration_method(py_array_d gather,
                               py_array_f times_to_source,
                               py_array_f times_to_receivers,
-                              double dt);
+                              double dt,
+                              std::ptrdiff_t p_block_size = 0);
 };
 
 

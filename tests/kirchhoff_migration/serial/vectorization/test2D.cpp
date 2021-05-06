@@ -2,6 +2,7 @@
 #include "kirchhoff_migration_manual_vectorization.h"
 #include "kirchhoff_migration_native_vect.h"
 #include "kirchhoff_migration_native_auto_vect.h"
+#include "kirchhoff_migration_native_blocks.h"
 #include "perf_wrapper.h"
 #include "test_data_generator2D.h"
 
@@ -140,17 +141,37 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 	        false);
 	measurements_file << std::endl;
 
-//	measurements_file << "native auto;";
-//	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
-//	measurements_file << NxR << ";";
-//	measurements_file << data_gen.get_n_samples() << ";";
-//	run_program(kirchhoffMigrationCHG2DNativeAutoVect<double, double>,
-//	        data_gen,
-//	        measurements_file,
-//	        x0_r, x1_r, NxR,
-//	        receivers_step,
-//	        false);
-//	measurements_file << std::endl;
+	measurements_file << "native blocks;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(std::bind(kirchhoffMigrationCHG2DNativeBlocks<double, double>,
+	        std::placeholders::_1,
+	        std::placeholders::_2,
+	        std::placeholders::_3,
+	        std::placeholders::_4,
+	        std::placeholders::_5,
+	        std::placeholders::_6,
+	        std::placeholders::_7,
+	        600),
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
+
+	measurements_file << "native auto;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(kirchhoffMigrationCHG2DNativeAutoVect<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
 
 }
 

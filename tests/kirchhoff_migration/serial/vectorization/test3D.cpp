@@ -2,6 +2,7 @@
 #include "kirchhoff_migration_manual_vectorization.h"
 #include "kirchhoff_migration_native_vect.h"
 #include "kirchhoff_migration_native_auto_vect.h"
+#include "kirchhoff_migration_native_blocks.h"
 #include "perf_wrapper.h"
 #include "test_data_generator3D.h"
 
@@ -120,37 +121,59 @@ void test_n_sou_greater_n_smpls(std::ofstream &measurements_file) {
 								        n_samples,
 								        velocity);
 
-	measurements_file << "auto vect;";
-	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << NxR*NyR << ";";
-	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DAutoVectorization<double, double>,
-	        data_gen,
-	        measurements_file,
-	        x0_r, x1_r, NxR,
-	        y0_r, y1_r, NyR,
-	        receivers_step,
-	        true);
-	measurements_file << std::endl;
-
-	measurements_file << "manual vect;";
-	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
-	measurements_file << NxR*NyR << ";";
-	measurements_file << data_gen.get_n_samples() << ";";
-	run_program(kirchhoffMigrationCHG3DManualVectorization<double, double>,
-	        data_gen,
-	        measurements_file,
-	        x0_r, x1_r, NxR,
-	        y0_r, y1_r, NyR,
-	        receivers_step,
-	        true);
-	measurements_file << std::endl;
+//	measurements_file << "auto vect;";
+//	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+//	measurements_file << NxR*NyR << ";";
+//	measurements_file << data_gen.get_n_samples() << ";";
+//	run_program(kirchhoffMigrationCHG3DAutoVectorization<double, double>,
+//	        data_gen,
+//	        measurements_file,
+//	        x0_r, x1_r, NxR,
+//	        y0_r, y1_r, NyR,
+//	        receivers_step,
+//	        true);
+//	measurements_file << std::endl;
+//
+//	measurements_file << "manual vect;";
+//	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+//	measurements_file << NxR*NyR << ";";
+//	measurements_file << data_gen.get_n_samples() << ";";
+//	run_program(kirchhoffMigrationCHG3DManualVectorization<double, double>,
+//	        data_gen,
+//	        measurements_file,
+//	        x0_r, x1_r, NxR,
+//	        y0_r, y1_r, NyR,
+//	        receivers_step,
+//	        true);
+//	measurements_file << std::endl;
 
 	measurements_file << "native vect;";
 	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
 	measurements_file << NxR*NyR << ";";
 	measurements_file << data_gen.get_n_samples() << ";";
 	run_program(kirchhoffMigrationCHG3DNativeVect<double, double>,
+	        data_gen,
+	        measurements_file,
+	        x0_r, x1_r, NxR,
+	        y0_r, y1_r, NyR,
+	        receivers_step,
+	        false);
+	measurements_file << std::endl;
+
+	measurements_file << "native blocks;";
+	measurements_file << data_gen.get_x_dim()*data_gen.get_y_dim()*data_gen.get_z_dim() << ";";
+	measurements_file << NxR*NyR << ";";
+	measurements_file << data_gen.get_n_samples() << ";";
+	run_program(std::bind(kirchhoffMigrationCHG3DNativeBlocks<double, double>,
+	        std::placeholders::_1,
+	        std::placeholders::_2,
+	        std::placeholders::_3,
+	        std::placeholders::_4,
+	        std::placeholders::_5,
+	        std::placeholders::_6,
+	        std::placeholders::_7,
+	        std::placeholders::_8,
+	        120),
 	        data_gen,
 	        measurements_file,
 	        x0_r, x1_r, NxR,

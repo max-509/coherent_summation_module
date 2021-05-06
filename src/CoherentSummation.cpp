@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <tuple>
+#include <cmath>
 #include <omp.h>
 
 py_array_d
@@ -116,7 +117,7 @@ CoherentSummation::emission_tomography_method(py_array_d gather,
 
     if (receivers_coords_info.ndim == 1 || receivers_coords_info.shape[1] < 2) {
         receivers_coords_vector.resize(n_receivers * 3);
-        #pragma omp parallel for
+#pragma omp parallel for
         for (auto i_r = 0; i_r < n_receivers; ++i_r) {
             receivers_coords_vector[i_r * 3 + 0] = receivers_coords_data[i_r];
             receivers_coords_vector[i_r * 3 + 1] = 0.0;
@@ -125,7 +126,7 @@ CoherentSummation::emission_tomography_method(py_array_d gather,
         receivers_coords_p = receivers_coords_vector.data();
     } else if (receivers_coords_info.ndim == 2) {
         receivers_coords_vector.resize(n_receivers * 3);
-        #pragma omp parallel for
+#pragma omp parallel for
         for (auto i_r = 0; i_r < n_receivers; ++i_r) {
             receivers_coords_vector[i_r * 3 + 0] = receivers_coords_data[i_r * 2 + 0];
             receivers_coords_vector[i_r * 3 + 1] = receivers_coords_data[i_r * 2 + 1];
@@ -138,7 +139,7 @@ CoherentSummation::emission_tomography_method(py_array_d gather,
 
     if (sources_coords_info.ndim == 2) {
         sources_coords_vector.resize(n_points * 3);
-        #pragma omp parallel for
+#pragma omp parallel for
         for (auto i_p = 0; i_p < n_points; ++i_p) {
             sources_coords_vector[i_p * 3 + 0] = sources_coords_data[i_p * 2 + 0];
             sources_coords_vector[i_p * 3 + 1] = 0.0;
@@ -171,9 +172,14 @@ CoherentSummation::emission_tomography_method(py_array_d gather,
 
 py_array_d
 CoherentSummation::kirchhoff_migration_method(py_array_d gather,
-                                                         py_array_f times_to_source,
-                                                         py_array_f times_to_receivers,
-                                                         double dt) {
+                                              py_array_f times_to_source,
+                                              py_array_f times_to_receivers,
+                                              double dt,
+                                              std::ptrdiff_t p_block_size) {
+    if (p_block_size <= 0) {
+        p_block_size = 80;
+    }
+
     auto gather_info = gather.request();
     auto times_to_source_info = times_to_source.request();
     auto times_to_receivers_info = times_to_receivers.request();
@@ -190,6 +196,10 @@ CoherentSummation::kirchhoff_migration_method(py_array_d gather,
 
     auto n_receivers = gather_info.shape[0], n_samples = gather_info.shape[1];
     auto n_points = times_to_receivers_info.shape[0];
+
+    auto n_points_cbrt_decimal = static_cast<std::ptrdiff_t>(std::cbrt(n_points));
+    auto n_points_cbrt_decimal_remainder =
+            n_points - (n_points_cbrt_decimal * n_points_cbrt_decimal * n_points_cbrt_decimal);
 
     if (n_points != times_to_source_info.shape[0]) {
         throw std::runtime_error("Error: Number of points in source times table and receivers times table don't equal");
@@ -212,7 +222,10 @@ CoherentSummation::kirchhoff_migration_method(py_array_d gather,
     Array2D<float> times_to_receivers2D(times_to_receivers_data, n_points, n_receivers);
 
     std::cout << "Start coherent summation:" << std::endl;
-    kirchhoffMigrationCHGByPoints(gather2D, times_to_source1D, times_to_receivers2D, dt, result_data);
+    kirchhoffMigrationCHG3D(gather2D, times_to_source1D, times_to_receivers2D, n_points_cbrt_decimal,
+                            n_points_cbrt_decimal, n_points_cbrt_decimal + n_points_cbrt_decimal_remainder, dt,
+                            result_data,
+                            p_block_size);
     std::cout << "End coherent summation:" << std::endl;
 
     return result;

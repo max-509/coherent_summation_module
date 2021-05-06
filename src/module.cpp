@@ -34,7 +34,9 @@ PYBIND11_MODULE(CoherentSummationModule, coh_sum_module) {
                     "receivers_block_size"_a=20, "samples_block_size"_a=1000)
 
             .def("kirchhoff_migration", &CoherentSummation::kirchhoff_migration_method,
-                    py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move);
+                    py::call_guard<py::gil_scoped_release>(), py::return_value_policy::move,
+                     "gather"_a, "times_to_source"_a, "times_to_receivers"_a,
+                     "dt"_a, "p_block_size"_a=0);
 
 
 

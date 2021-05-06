@@ -1,4 +1,4 @@
-project(kirchhoff_migration_vectorization_tests)
+project(kirchhoff_migration_parallel_native_blocks_tests)
 
 include(FindOpenMP)
 
@@ -16,17 +16,8 @@ foreach(V_EXT ${VECT_INSTRUCTIONS})
     target_link_libraries(${TARGET_2D} PRIVATE test_data_generator_lib)
     target_link_libraries(${TARGET_3D} PRIVATE test_data_generator_lib)
 
-    target_include_directories(${TARGET_2D} PRIVATE auto_vect)
-    target_include_directories(${TARGET_2D} PRIVATE manual_vect)
-    target_include_directories(${TARGET_2D} PRIVATE native_vect)
-    target_include_directories(${TARGET_2D} PRIVATE native_auto)
-    target_include_directories(${TARGET_2D} PRIVATE native_blocks)
-
-    target_include_directories(${TARGET_3D} PRIVATE auto_vect)
-    target_include_directories(${TARGET_3D} PRIVATE manual_vect)
-    target_include_directories(${TARGET_3D} PRIVATE native_vect)
-    target_include_directories(${TARGET_3D} PRIVATE native_auto)
-    target_include_directories(${TARGET_3D} PRIVATE native_blocks)
+    target_include_directories(${TARGET_2D} PRIVATE src)
+    target_include_directories(${TARGET_3D} PRIVATE src)
 
     target_compile_options(${TARGET_2D}
             PRIVATE $<IF:$<STREQUAL:${V_EXT},AVX512>,-mavx512f -ftree-vectorize,
@@ -46,4 +37,14 @@ foreach(V_EXT ${VECT_INSTRUCTIONS})
                         >
                     >
             )
+
+    file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "#!/bin/bash \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "for i in $(seq 1 16); do \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "\texport OMP_NUM_THREADS=$i \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "\tmake clean \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "\tmake \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "\t./${TARGET_2D} \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "\t./${TARGET_3D} \n")
+    file(APPEND ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}_run_script_${V_EXT}.sh "done \n")
+
 endforeach(V_EXT)

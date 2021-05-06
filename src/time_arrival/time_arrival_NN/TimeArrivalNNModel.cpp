@@ -9,14 +9,14 @@ TimeArrivalNNModel::TimeArrivalNNModel(const std::string &model_path,
                                        char const *const *tags,
                                        int ntags,
                                        std::vector<std::pair<std::string, int>> &input_ops,
-                                       std::vector<std::pair<std::string, int>> &output_ops) noexcept(false) :
+                                       std::vector<std::pair<std::string, int>> &output_ops) noexcept(false):
         tags_str_(*tags),
         tags_(tags_str_.c_str()),
         ntags_(ntags),
         model_path_(model_path) {
     sess_opts_ = std::shared_ptr<TF_SessionOptions>(TF_NewSessionOptions(), TF_DeleteSessionOptions);
     uint8_t config[] = {0x32, 0x2, 0x20, 0x1}; //Параметры для возможности увеличения памяти GPU
-    TF_SetConfig(sess_opts_.get(), static_cast<void*>(config), 4, status_.get());
+    TF_SetConfig(sess_opts_.get(), static_cast<void *>(config), 4, status_.get());
     if (TF_GetCode(status_.get()) != TF_OK) {
         throw TimeArrivalNNException(std::string("ERROR: Unable to set options: ") + TF_Message(status_.get()));
     }
@@ -31,7 +31,8 @@ TimeArrivalNNModel::TimeArrivalNNModel(const std::string &model_path,
                                                      status_.get()));
 
     if (TF_GetCode(status_.get()) != TF_OK) {
-        throw TimeArrivalNNException(std::string("ERROR: Unable to load session from model: ") + TF_Message(status_.get()));
+        throw TimeArrivalNNException(
+                std::string("ERROR: Unable to load session from model: ") + TF_Message(status_.get()));
     }
 
     for (const auto &in_op : input_ops) {
@@ -63,7 +64,11 @@ TimeArrivalNNModel::process(std::vector<float> &x_p, std::vector<float> &z_p, st
 
     TF_Tensor *const input_tensors[] = {x_p_tensor, z_p_tensor, x_r_tensor};
 
+    auto tensor_deleter = [](TF_Tensor *p) { TF_DeleteTensor(p); };
+
     TF_Tensor *time_tensor = TF_AllocateTensor(TF_FLOAT, time_dims, 1, N * sizeof(float));
+
+    std::unique_ptr<TF_Tensor, decltype(tensor_deleter)> time_tensor_p(time_tensor, tensor_deleter);
 
     TF_SessionRun(session_.get(), nullptr,
                   inputs_.data(), input_tensors, inputs_.size(),
@@ -78,7 +83,7 @@ TimeArrivalNNModel::process(std::vector<float> &x_p, std::vector<float> &z_p, st
 
     std::vector<float> times_vec{times, times + N};
 
-    TF_DeleteTensor(time_tensor);
+//    TF_DeleteTensor(time_tensor);
 
     return times_vec;
 }
@@ -86,15 +91,18 @@ TimeArrivalNNModel::process(std::vector<float> &x_p, std::vector<float> &z_p, st
 float TimeArrivalNNModel::process(float x_p, float z_p, float x_r) noexcept(false) {
     static const auto empty_deallocator = [](void *data, std::size_t len, void *arg) {};
     static int64_t const coord_dims[] = {1, 1};
-    static int64_t const time_dims[] = { 1};
+    static int64_t const time_dims[] = {1};
     TF_Tensor *x_p_tensor = TF_NewTensor(TF_FLOAT, coord_dims, 2, &x_p, sizeof(float), empty_deallocator, nullptr);
     TF_Tensor *z_p_tensor = TF_NewTensor(TF_FLOAT, coord_dims, 2, &z_p, sizeof(float), empty_deallocator, nullptr);
     TF_Tensor *x_r_tensor = TF_NewTensor(TF_FLOAT, coord_dims, 2, &x_r, sizeof(float), empty_deallocator, nullptr);
 
     TF_Tensor *const input_tensors[] = {x_p_tensor, z_p_tensor, x_r_tensor};
 
+    auto tensor_deleter = [](TF_Tensor *p) { TF_DeleteTensor(p); };
+
     TF_Tensor *time_tensor = TF_AllocateTensor(TF_FLOAT, time_dims, 1, sizeof(float));
 
+    std::unique_ptr<TF_Tensor, decltype(tensor_deleter)> time_tensor_p(time_tensor, tensor_deleter);
 
     TF_SessionRun(session_.get(), nullptr,
                   inputs_.data(), input_tensors, inputs_.size(),
@@ -107,7 +115,7 @@ float TimeArrivalNNModel::process(float x_p, float z_p, float x_r) noexcept(fals
 
     float t = *static_cast<float *>(TF_TensorData(time_tensor));
 
-    TF_DeleteTensor(time_tensor);
+//    TF_DeleteTensor(time_tensor);
 
     return t;
 }

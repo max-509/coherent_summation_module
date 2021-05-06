@@ -39,9 +39,9 @@ private:
 
 	    #ifdef _MSC_VER
 	    #pragma omp parallel for schedule(static) collapse(2) private(coord_vect, G_P)
-        #else
+        #else //_MSC_VER
 	    #pragma omp parallel for simd schedule(static) collapse(2) private(coord_vect, G_P)
-	    #endif
+	    #endif //_MSC_VER
         for (size_type i = size_type(0); i < sources_count; ++i) {
             for (size_type r_ind = ind_first_rec; r_ind < n_rec; ++r_ind) {
                 for (size_type crd = size_type(0); crd < size_type(3); ++crd) {
