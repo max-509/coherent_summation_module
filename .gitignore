@@ -9,7 +9,7 @@
 *.bin
 *.npy
 dist
-*egg-info/*
+*.egg-info/
 tables
 *vtune/
 # Default ignored files
