@@ -15,6 +15,7 @@ tables
 # Default ignored files
 /shelf/
 /workspace.xml
+__pycache__
 # Datasource local storage ignored files
 /../../../../:\prog\coherent_summation_module\.idea/dataSources/
 /dataSources.local.xml
