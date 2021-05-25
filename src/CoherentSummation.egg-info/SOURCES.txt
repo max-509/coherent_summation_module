@@ -1,0 +1,9 @@
+setup.py
+CoherentSummation.egg-info/PKG-INFO
+CoherentSummation.egg-info/SOURCES.txt
+CoherentSummation.egg-info/dependency_links.txt
+CoherentSummation.egg-info/not-zip-safe
+CoherentSummation.egg-info/requires.txt
+CoherentSummation.egg-info/top_level.txt
+coherent_summation_interface/__init__.py
+coherent_summation_interface/microseismic_monitoring.py

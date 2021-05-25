@@ -96,13 +96,19 @@ class CMakeBuild(build_ext):
 # The information here can also be placed in setup.cfg - better separation of
 # logic and declaration, and simpler if you include description/version in a file.
 setup(
-    name="CoherentSummationModule",
+    name="CoherentSummation",
     version="1.0",
     author="Vershinin Maxim",
     author_email="m.vershinin@g.nsu.ru",
     description="Module for seismic data processing",
     long_description="",
-    ext_modules=[CMakeExtension("CoherentSummationModule")],
+    install_requires=[
+        'numpy',
+        'pybind11',
+        'tensorflow',
+    ],
+    packages=['coherent_summation_interface'],
+    ext_modules=[CMakeExtension("CoherentSummationModule", 'coherent_summation_module')],
     cmdclass={"build_ext": CMakeBuild},
     zip_safe=False,
 )

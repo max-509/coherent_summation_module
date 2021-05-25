@@ -21,7 +21,6 @@ target_include_directories(${REVERSE_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/emmisio
 set(OPTIMAL_SERIAL_TARGET ${PROJECT_NAME}_optimal_serial)
 set(OPTIMAL_SERIAL_SRC optimal_serial/test_optimal_serial.cpp)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfma -mavx2")
 add_executable(${OPTIMAL_SERIAL_TARGET} ${OPTIMAL_SERIAL_SRC})
 target_include_directories(${OPTIMAL_SERIAL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/emmision_tomography/serial/vectorized_test/with_vectorization)
 # target_compile_options(${OPTIMAL_SERIAL_TARGET} PRIVATE "-mfma" PRIVATE ${REPLACED_FLAGS})
@@ -29,8 +28,6 @@ target_include_directories(${OPTIMAL_SERIAL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/
 set(OPTIMAL_PARALLEL_TARGET ${PROJECT_NAME}_optimal_parallel)
 set(OPTIMAL_PARALLEL_SRC optimal_parallel/test_optimal_parallel.cpp)
 
-set(ENV{OMP_NUM_THREADS} 16)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mfma -mavx2")
 add_executable(${OPTIMAL_PARALLEL_TARGET} ${OPTIMAL_PARALLEL_SRC})
 target_include_directories(${OPTIMAL_PARALLEL_TARGET} PRIVATE ${CMAKE_SOURCE_DIR}/emmision_tomography/parallel/by_sources_samples_test/with_vectorization)
 # target_compile_options(${OPTIMAL_PARALLEL_TARGET} PRIVATE "-mfma" PRIVATE ${REPLACED_FLAGS})
