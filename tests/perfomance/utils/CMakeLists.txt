@@ -10,4 +10,4 @@ set(SOURCES test_data_generator.cpp)
 set(HEADERS test_data_generator.h test_data_generator2D.h test_data_generator3D.h prof.h perf_wrapper.h)
 
 add_library(${TARGET} SHARED ${SOURCES} ${HEADERS})
-target_include_directories(${TARGET} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${TARGET} PUBLIC .)
