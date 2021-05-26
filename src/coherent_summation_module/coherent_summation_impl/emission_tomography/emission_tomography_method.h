@@ -11,13 +11,14 @@
 #include <type_traits>
 
 template<typename T>
-std::pair<T, T> find_minmax_t_to_source(const Array2D<T> &sources_receivers_times, std::ptrdiff_t i_s);
+inline std::pair<T, T> find_minmax_t_to_source(const Array2D<T> &sources_receivers_times, std::ptrdiff_t i_s);
 
-#ifdef __AVX512F__ //Selection of SIMD instructions
+//Selection of SIMD instructions
+#ifdef __AVX512F__ // AVX512 SIMD
 #include "amplitudes_calculator_m512.h"
 
 template<>
-std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 8;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -55,7 +56,7 @@ std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources
 }
 
 template<>
-std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 16;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -95,12 +96,12 @@ std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_re
 template <typename T>
 using AmplitudesComputerType = AmplitudesCalculatorM512<T>;
 
-#elif __AVX2__
+#elif __AVX2__ // AVX2 SIMD
 
 #include "amplitudes_calculator_m256.h"
 
 template<>
-std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 4;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -138,7 +139,7 @@ std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources
 }
 
 template<>
-std::pair<float, float> find_minmax_t_to_sourcefind_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 8;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -178,11 +179,11 @@ std::pair<float, float> find_minmax_t_to_sourcefind_minmax_t_to_source(const Arr
 template<typename T>
 using AmplitudesComputerType = AmplitudesCalculatorM256<T>;
 
-#elif __SSE2__
+#elif __SSE2__ // SSE2 SIMD
 #include "amplitudes_calculator_m128.h"
 
 template<>
-std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 2;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -219,7 +220,7 @@ std::pair<double, double> find_minmax_t_to_source(const Array2D<double> &sources
 }
 
 template<>
-std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
+inline std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_receivers_times, std::ptrdiff_t i_s) {
     constexpr std::ptrdiff_t vector_dim = 4;
     std::ptrdiff_t n_receivers = sources_receivers_times.get_x_dim();
 
@@ -259,7 +260,7 @@ std::pair<float, float> find_minmax_t_to_source(const Array2D<float> &sources_re
 template <typename T>
 using AmplitudesComputerType = AmplitudesCalculatorM128<T>;
 
-#else
+#else // Without SIMD 
 
 #include "amplitudes_calculator_non_vectors.h"
 

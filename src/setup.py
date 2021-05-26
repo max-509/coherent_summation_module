@@ -105,7 +105,6 @@ setup(
     install_requires=[
         'numpy',
         'pybind11',
-        'tensorflow',
     ],
     packages=['coherent_summation_interface'],
     ext_modules=[CMakeExtension("CoherentSummationModule", 'coherent_summation_module')],
