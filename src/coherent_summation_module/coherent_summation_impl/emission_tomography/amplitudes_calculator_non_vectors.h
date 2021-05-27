@@ -6,30 +6,25 @@
 
 #include <type_traits>
 
-template <typename InputArrayType,
-        typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
-class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>> {
+template<typename T,
+        typename std::enable_if<std::is_floating_point<T>::value, bool>::type = true>
+class AmplitudesCalculatorNonVectors : public AmplitudesCalculatorBase<T, AmplitudesCalculatorNonVectors<T>> {
 public:
 
-    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
-    using size_type = typename InputArrayType::size_type;
+    using value_type = T;
+    using size_type = std::ptrdiff_t;
 
-	AmplitudesCalculatorNonVectors(const InputArrayType &sources_coords,
-						 	  	  const value_type *tensor_matrix) :
-		sources_coords_(sources_coords),
-		tensor_matrix_(tensor_matrix)
-	{ }
+    AmplitudesCalculatorNonVectors(const Array2D<value_type> &sources_coords,
+                                   const Array1D<value_type> &tensor_matrix) :
+            AmplitudesCalculatorBase(sources_coords, tensor_matrix) {}
 
-	friend AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorNonVectors<InputArrayType>>;
+    friend AmplitudesCalculatorBase<T, AmplitudesCalculatorNonVectors<T>>;
 
 private:
-	const InputArrayType &sources_coords_;
-	const value_type *tensor_matrix_;
 
-	template <typename OutputArrayType>
-	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
-		this->non_vector_calculate_amplitudes(0, sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
-	}
+    void realize_calculate(const Array2D<value_type> &rec_coords_, Array2D<value_type> &amplitudes_) {
+        this->non_vector_calculate_amplitudes(0, sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
+    }
 };
 
 #endif //_AMPLITUDES_CALCULATOR_NON_VECTORS_H

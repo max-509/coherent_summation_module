@@ -94,38 +94,37 @@ CoherentSummation::emission_tomography_method(py_array<T1> gather,
         throw std::runtime_error("Error: Travel times table's shape must be equal 2");
     }
 
-    auto n_receivers = gather_info.shape[0], n_samples = gather_info.shape[1];
-    auto n_points = sources_receivers_times_info.shape[0];
+    auto n_receivers = gather_info.shape[0];
 
     if (n_receivers != sources_receivers_times_info.shape[1]) {
         throw std::runtime_error("Error: Number of receivers in seismogram and times table don't equal");
     }
 
-    auto *gather_data = static_cast<T1 *>(gather_info.ptr);
-    auto *sources_receivers_times_data = static_cast<T2 *>(sources_receivers_times_info.ptr);
+    auto gather2D = cohSumUtils::py_buffer_to_array2D<T1>(gather_info);
+    auto sources_receivers_times2D = cohSumUtils::py_buffer_to_array2D<T2>(sources_receivers_times_info);
 
-    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
-    Array2D<T2> sources_receivers_times2D(sources_receivers_times_data, n_points, n_receivers);
+//    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
+//    Array2D<T2> sources_receivers_times2D(sources_receivers_times_data, n_points, n_receivers);
 
     py::gil_scoped_release release;
     std::cout << "Start coherent summation:" << std::endl;
-    auto result_arr = emissionTomographyMethod(gather2D,
-                                               sources_receivers_times2D,
-                                               dt,
-                                               receivers_block_size,
-                                               samples_block_size);
+    auto result2D = emissionTomographyMethod(gather2D,
+                                             sources_receivers_times2D,
+                                             dt,
+                                             receivers_block_size,
+                                             samples_block_size);
     std::cout << "End coherent summation:" << std::endl;
     py::gil_scoped_acquire acquire;
 
-    T1 *result_p = result_arr.get();
+    T1 *result_p = result2D.get();
 
     py::capsule free_when_done(result_p, [](void *f) {
         auto *foo = reinterpret_cast<T1 *>(f);
         delete[] foo;
     });
 
-    py_array<T1> result({(py::ssize_t) result_arr.get_y_dim(), (py::ssize_t) result_arr.get_x_dim()},
-                        {result_arr.get_x_dim() * sizeof(T1), sizeof(T1)},
+    py_array<T1> result({(py::ssize_t) result2D.get_y_dim(), (py::ssize_t) result2D.get_x_dim()},
+                        {result2D.get_y_stride() * sizeof(T1), result2D.get_x_stride() * sizeof(T1)},
                         result_p,
                         free_when_done);
 
@@ -159,7 +158,7 @@ CoherentSummation::emission_tomography_method(py_array<T1> gather,
                                  "shape must be equal 6 and must be had form: M11, M22, M33, M23, M13, M12");
     }
 
-    auto n_receivers = gather_info.shape[0], n_samples = gather_info.shape[1];
+    auto n_receivers = gather_info.shape[0];
     auto n_points = sources_receivers_times_info.shape[0];
 
     if (n_receivers != sources_receivers_times_info.shape[1]) {
@@ -175,11 +174,8 @@ CoherentSummation::emission_tomography_method(py_array<T1> gather,
         throw std::runtime_error("Error: Number of coords in sources must be 2 or 3");
     }
 
-    auto *gather_data = static_cast<T1 *>(gather_info.ptr);
     auto *receivers_coords_data = static_cast<T1 *>(receivers_coords_info.ptr);
     auto *sources_coords_data = static_cast<T1 *>(sources_coords_info.ptr);
-    auto *sources_receivers_times_data = static_cast<T2 *>(sources_receivers_times_info.ptr);
-    auto *tensor_matrix_data = static_cast<T1 *>(tensor_matrix_info.ptr);
 //    auto *result_data = static_cast<double *>(result_info.ptr);
 
     T1 *receivers_coords_p, *sources_coords_p;
@@ -225,10 +221,16 @@ CoherentSummation::emission_tomography_method(py_array<T1> gather,
         sources_coords_p = sources_coords_data;
     }
 
-    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
+    auto gather2D = cohSumUtils::py_buffer_to_array2D<T1>(gather_info);
     Array2D<T1> receivers_coords2D(receivers_coords_p, n_receivers, 3);
     Array2D<T1> sources_coords2D(sources_coords_p, n_points, 3);
-    Array2D<T2> sources_receivers_times2D(sources_receivers_times_data, n_points, n_receivers);
+    auto sources_receivers_times2D = cohSumUtils::py_buffer_to_array2D<T2>(sources_receivers_times_info);
+    auto tensor_matrix1D = cohSumUtils::py_buffer_to_array1D<T1>(tensor_matrix_info);
+
+//    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
+//    Array2D<T1> receivers_coords2D(receivers_coords_p, n_receivers, 3);
+//    Array2D<T1> sources_coords2D(sources_coords_p, n_points, 3);
+//    Array2D<T2> sources_receivers_times2D(sources_receivers_times_data, n_points, n_receivers);
 
     std::cout << "Start coherent summation:" << std::endl;
     auto result_arr = emissionTomographyMethod(gather2D,
@@ -236,7 +238,7 @@ CoherentSummation::emission_tomography_method(py_array<T1> gather,
                                                sources_coords2D,
                                                sources_receivers_times2D,
                                                dt,
-                                               tensor_matrix_data,
+                                               tensor_matrix1D,
                                                receivers_block_size,
                                                samples_block_size);
     std::cout << "End coherent summation:" << std::endl;
@@ -283,7 +285,7 @@ CoherentSummation::kirchhoff_migration_method(py_array<T1> gather,
         throw std::runtime_error("Error: Times to receivers table shape must be equal 2");
     }
 
-    auto n_receivers = gather_info.shape[0], n_samples = gather_info.shape[1];
+    auto n_receivers = gather_info.shape[0];
     auto n_points = times_to_receivers_info.shape[0];
 
     auto n_points_cbrt_decimal = static_cast<std::ptrdiff_t>(std::cbrt(n_points));
@@ -306,14 +308,16 @@ CoherentSummation::kirchhoff_migration_method(py_array<T1> gather,
 
     py::buffer_info result_info = result.request();
 
-    auto *gather_data = static_cast<T1 *>(gather_info.ptr);
     auto *times_to_source_data = static_cast<T2 *>(times_to_source_info.ptr);
-    auto *times_to_receivers_data = static_cast<T2 *>(times_to_receivers_info.ptr);
     auto *result_data = static_cast<T1 *>(result_info.ptr);
 
-    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
+    auto gather2D = cohSumUtils::py_buffer_to_array2D<T1>(gather_info);
     Array1D<T2> times_to_source1D(times_to_source_data, n_points);
-    Array2D<T2> times_to_receivers2D(times_to_receivers_data, n_points, n_receivers);
+    auto times_to_receivers2D = cohSumUtils::py_buffer_to_array2D<T2>(times_to_receivers_info);
+
+//    Array2D<T1> gather2D(gather_data, n_receivers, n_samples);
+//    Array1D<T2> times_to_source1D(times_to_source_data, n_points);
+//    Array2D<T2> times_to_receivers2D(times_to_receivers_data, n_points, n_receivers);
 
     py::gil_scoped_release release;
 

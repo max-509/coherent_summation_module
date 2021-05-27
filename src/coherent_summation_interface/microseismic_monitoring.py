@@ -8,7 +8,6 @@ from CoherentSummationModule import CoherentSummation as CohSum
 
 
 def set_logger(name, filename, level=logging.INFO):
-
     handler = logging.FileHandler(filename)
 
     logger = logging.getLogger(name)
@@ -44,13 +43,15 @@ def maxmin_diff(arr):
         max_val = max(x, max_val)
     return max_val - min_val
 
+
 def emission_tomography_wrapper(coh_sum, gather_for_processing, table_times, dt, filename):
     summation_logger.info('Start summation "{}" gather'.format(filename))
     start_time = time.time()
 
     result = coh_sum.emission_tomography(gather_for_processing, table_times, dt)
 
-    summation_logger.info('End summation "{}" gather with time duration {} s'.format(filename, (time.time() - start_time)))
+    summation_logger.info(
+        'End summation "{}" gather with time duration {} s'.format(filename, (time.time() - start_time)))
 
     return result
 
@@ -64,18 +65,21 @@ def read_gather_wrapper(filename, gather_reader, gather_remainder_idx, n_recs, o
         gather_for_processing, gather_remainder = gather, gather[:, -gather_remainder_idx:]
     else:
         gather_for_processing, gather_remainder = np.concatenate((old_gather_remainder, gather),
-                                                                axis=-1), gather[:, -gather_remainder_idx:]
+                                                                 axis=-1), gather[:, -gather_remainder_idx:]
 
     gather_logger.info('End read gather "{}" with time duration {} s'.format(filename, (time.time() - start_time)))
     return gather_for_processing, gather_remainder
 
-def result_processing_wrapper(result, idx, result_processing_function):
-    result_logger.info('Start {}-result processing'.format(idx))
+
+def result_processing_wrapper(result, idx, result_processing_function, filename):
+    result_logger.info('Start result processing of gather "{}"'.format(filename))
     start_time = time.time()
 
     result_processing_function(result, idx)
 
-    result_logger.info('End {}-result processing with time duration {} s'.format(idx, (time.time() - start_time)))
+    result_logger.info('End result processing of gather "{}" with time duration {} s'.format(filename,
+                                                                                             (time.time() - start_time))
+                       )
     return
 
 
@@ -111,10 +115,10 @@ def emission_tomography_on_files(file_names, table_times, dt,
 
     # Processing first gather file
     gather_for_processing, remainder_gather = read_gather_wrapper(file_names[0],
-                                                           read_gather_function,
-                                                           gather_remainder_sample,
-                                                           n_recs,
-                                                           remainder_gather)
+                                                                  read_gather_function,
+                                                                  gather_remainder_sample,
+                                                                  n_recs,
+                                                                  remainder_gather)
 
     coh_sum = CohSum()
 
@@ -143,7 +147,11 @@ def emission_tomography_on_files(file_names, table_times, dt,
             # Processing current result
             old_result = result
             print(np.max(old_result))
-            result_future = executor.submit(result_processing_wrapper, old_result, i, result_processing_function)
+            result_future = executor.submit(result_processing_wrapper,
+                                            old_result,
+                                            i,
+                                            result_processing_function,
+                                            filename)
 
             # Get current gather for coherent summation
             gather_for_processing, remainder_gather = future_gather.result()
@@ -158,7 +166,11 @@ def emission_tomography_on_files(file_names, table_times, dt,
         # Save result in file, example
         old_result = result
         print(np.max(old_result))
-        result_future = executor.submit(result_processing_wrapper, old_result, n_files - 1, result_processing_function)
+        result_future = executor.submit(result_processing_wrapper,
+                                        old_result,
+                                        n_files - 1,
+                                        result_processing_function,
+                                        filename)
 
         result_future.result()
 

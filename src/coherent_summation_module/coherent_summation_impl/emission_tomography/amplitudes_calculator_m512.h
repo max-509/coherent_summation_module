@@ -12,50 +12,61 @@
 #include <memory>
 #include <type_traits>
 
-template <typename InputArrayType,
-        typename std::enable_if<std::is_floating_point<typename InputArrayType::value_type>::value, bool>::type = true>
-class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM512<InputArrayType>> {
+template<typename T,
+        typename std::enable_if<std::is_floating_point<T>::value, bool>::type = true>
+class AmplitudesCalculatorM512 : public AmplitudesCalculatorBase<T, AmplitudesCalculatorM512<T>> {
 public:
-    using value_type = typename std::remove_const<typename InputArrayType::value_type>::type;
-    using size_type = typename InputArrayType::size_type;
 
-	AmplitudesCalculatorM512(const InputArrayType &sources_coords,
-						 	  const value_type * tensor_matrix) :
-		sources_coords_(sources_coords),
-		tensor_matrix_(tensor_matrix)
-	{ }
+    using value_type = T;
+    using size_type = std::ptrdiff_t;
 
-	friend AmplitudesCalculatorBase<InputArrayType, AmplitudesCalculatorM512<InputArrayType>>;
+    AmplitudesCalculatorM512(const Array2D<value_type> &sources_coords,
+                             const Array1D<value_type> &tensor_matrix) :
+            AmplitudesCalculatorBase(sources_coords, tensor_matrix) {}
+
+    friend AmplitudesCalculatorBase<T, AmplitudesCalculatorM512<T>>;
 
 private:
-	const InputArrayType &sources_coords_;
-	const value_type *tensor_matrix_;
     __m512d d_epsilon_v = _mm512_set1_pd(std::numeric_limits<double>::epsilon());
     __m512 f_epsilon_v = _mm512_set1_ps(std::numeric_limits<float>::epsilon());
 
-    template <typename OutputArrayType>
-	void realize_calculate(const InputArrayType &rec_coords_, OutputArrayType &amplitudes_) {
-	    realize_calculate_impl(rec_coords_, amplitudes_);
+    void realize_calculate(const Array2D<value_type> &rec_coords_, Array2D<value_type> &amplitudes_) {
+        realize_calculate_impl(rec_coords_, amplitudes_);
     }
 
-    template<template <class> class OutputArrayType>
-    void realize_calculate_impl(const InputArrayType &rec_coords_, OutputArrayType<float> &amplitudes_) {
+    void realize_calculate_impl(const Array2D<float> &rec_coords_, Array2D<float> &amplitudes_) {
         static_assert(std::is_same<float, value_type>::value,
-                "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
-        size_type n_rec = rec_coords_.get_y_dim();
-        size_type sources_count = sources_coords_.get_y_dim();
+                      "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
+        auto n_rec = rec_coords_.get_y_dim();
+        auto sources_count = this->sources_coords_.get_y_dim();
+        auto rec_coords_y_stride = rec_coords_.get_y_stride();
         constexpr size_type matrix_size = 6;
         constexpr size_type vector_dim = sizeof(__m512) / sizeof(float);
 
         static const __m512 two_v = _mm512_set1_ps(2.0f);
-        __m512 tensor_matrix_v[matrix_size] = {_mm512_set1_ps(tensor_matrix_[0]),
-                                                      _mm512_set1_ps(tensor_matrix_[1]),
-                                                      _mm512_set1_ps(tensor_matrix_[2]),
-                                                      _mm512_set1_ps(tensor_matrix_[3]),
-                                                      _mm512_set1_ps(tensor_matrix_[4]),
-                                                      _mm512_set1_ps(tensor_matrix_[5])
+        __m512 tensor_matrix_v[matrix_size] = {_mm512_set1_ps(this->tensor_matrix_[0]),
+                                               _mm512_set1_ps(this->tensor_matrix_[1]),
+                                               _mm512_set1_ps(this->tensor_matrix_[2]),
+                                               _mm512_set1_ps(this->tensor_matrix_[3]),
+                                               _mm512_set1_ps(this->tensor_matrix_[4]),
+                                               _mm512_set1_ps(this->tensor_matrix_[5])
         };
-        static __m512i vindex = _mm512_set_epi32(45, 42, 39, 36, 33, 30, 27, 24, 21, 18, 15, 12, 9, 6, 3, 0);
+        __m512i vindex = _mm512_set_epi32(rec_coords_y_stride * 15,
+                                          rec_coords_y_stride * 14,
+                                          rec_coords_y_stride * 13,
+                                          rec_coords_y_stride * 12,
+                                          rec_coords_y_stride * 11,
+                                          rec_coords_y_stride * 10,
+                                          rec_coords_y_stride * 9,
+                                          rec_coords_y_stride * 8,
+                                          rec_coords_y_stride * 7,
+                                          rec_coords_y_stride * 6,
+                                          rec_coords_y_stride * 5,
+                                          rec_coords_y_stride * 4,
+                                          rec_coords_y_stride * 3,
+                                          rec_coords_y_stride * 2,
+                                          rec_coords_y_stride * 1,
+                                          rec_coords_y_stride * 0);
 
         __m512 coord_vec[3];
 
@@ -67,8 +78,9 @@ private:
         for (size_type i = 0; i < sources_count; ++i) {
             for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
                 for (size_type crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm512_sub_ps(_mm512_i32gather_ps(vindex, &rec_coords_(r_ind, crd), 4),
-                                                   _mm512_set1_ps(sources_coords_(i, crd)));
+                    coord_vec[crd] = _mm512_sub_ps(
+                            _mm512_i32gather_ps(vindex, rec_coords_.get(r_ind, crd), sizeof(float)),
+                            _mm512_set1_ps(sources_coords_(i, crd)));
                     // coord_vec[crd] = _mm512_sub_ps(_mm512_set_ps(rec_coords_(r_ind+15, crd), rec_coords_(r_ind+14, crd), rec_coords_(r_ind+13, crd), rec_coords_(r_ind+12, crd),
                     //                                            rec_coords_(r_ind+11, crd), rec_coords_(r_ind+10, crd), rec_coords_(r_ind+9, crd), rec_coords_(r_ind+8, crd),
                     //                                            rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
@@ -110,33 +122,41 @@ private:
                                                           _mm512_mul_ps(coord_vec[0], coord_vec[1])),
                                             ampl_vect);
 
-                _mm512_storeu_ps(&amplitudes_(i, r_ind),
+                _mm512_storeu_ps(amplitudes_.get(i, r_ind),
                                  _mm512_div_ps(ampl_vect, _mm512_add_ps(_mm512_abs_ps(ampl_vect), f_epsilon_v)));
             }
         }
 
-        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
-                                        amplitudes_);
+        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
+                                              this->tensor_matrix_,
+                                              amplitudes_);
     }
 
-    template<template <class> class OutputArrayType>
-    void realize_calculate_impl(const InputArrayType &rec_coords_, OutputArrayType<double> &amplitudes_) {
+    void realize_calculate_impl(const Array2D<double> &rec_coords_, Array2D<double> &amplitudes_) {
         static_assert(std::is_same<double, value_type>::value,
-                "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
-        size_type n_rec = rec_coords_.get_y_dim();
-        size_type sources_count = sources_coords_.get_y_dim();
+                      "Error: In amplitudes calculator SIMD implementation types input and output arrays must be equal");
+        auto n_rec = rec_coords_.get_y_dim();
+        auto sources_count = this->sources_coords_.get_y_dim();
+        auto rec_coords_y_stride = rec_coords_.get_y_stride();
         constexpr size_type matrix_size = 6;
         constexpr size_type vector_dim = sizeof(__m512d) / sizeof(double);
 
         static const __m512d two_v = _mm512_set1_pd(2.0);
-        __m512d tensor_matrix_v[matrix_size] = {_mm512_set1_pd(tensor_matrix_[0]),
-                                                       _mm512_set1_pd(tensor_matrix_[1]),
-                                                       _mm512_set1_pd(tensor_matrix_[2]),
-                                                       _mm512_set1_pd(tensor_matrix_[3]),
-                                                       _mm512_set1_pd(tensor_matrix_[4]),
-                                                       _mm512_set1_pd(tensor_matrix_[5])
+        __m512d tensor_matrix_v[matrix_size] = {_mm512_set1_pd(this->tensor_matrix_[0]),
+                                                _mm512_set1_pd(this->tensor_matrix_[1]),
+                                                _mm512_set1_pd(this->tensor_matrix_[2]),
+                                                _mm512_set1_pd(this->tensor_matrix_[3]),
+                                                _mm512_set1_pd(this->tensor_matrix_[4]),
+                                                _mm512_set1_pd(this->tensor_matrix_[5])
         };
-        static const __m512i vindex = _mm512_set_epi64(21, 18, 15, 12, 9, 6, 3, 0);
+        __m512i vindex = _mm512_set_epi64(rec_coords_y_stride * 7,
+                                          rec_coords_y_stride * 6,
+                                          rec_coords_y_stride * 5,
+                                          rec_coords_y_stride * 4,
+                                          rec_coords_y_stride * 3,
+                                          rec_coords_y_stride * 2,
+                                          rec_coords_y_stride * 1,
+                                          rec_coords_y_stride * 0);
 
         __m512d coord_vec[3];
 
@@ -148,8 +168,9 @@ private:
         for (size_type i = 0; i < sources_count; ++i) {
             for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
                 for (size_type crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm512_sub_pd(_mm512_i64gather_pd(vindex, &rec_coords_(r_ind, crd), 8),
-                                                   _mm512_set1_pd(sources_coords_(i, crd)));
+                    coord_vec[crd] = _mm512_sub_pd(
+                            _mm512_i64gather_pd(vindex, rec_coords_.get(r_ind, crd), sizeof(double)),
+                            _mm512_set1_pd(this->sources_coords_(i, crd)));
                     // coord_vec[crd] = _mm512_sub_pd(_mm512_set_pd(rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
                     //                                            rec_coords_(r_ind+3, crd), rec_coords_(r_ind+2, crd), rec_coords_(r_ind+1, crd), rec_coords_(r_ind+0, crd)), _mm512_set1_pd(sources_coords_(i, crd)));
                 }
@@ -189,21 +210,26 @@ private:
                                                           _mm512_mul_pd(coord_vec[0], coord_vec[1])),
                                             ampl_vect);
 
-                _mm512_storeu_pd(&amplitudes_(i, r_ind),
+                _mm512_storeu_pd(amplitudes_.get(i, r_ind),
                                  _mm512_div_pd(ampl_vect, _mm512_add_pd(_mm512_abs_pd(ampl_vect), d_epsilon_v)));
             }
         }
-        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), sources_coords_, rec_coords_, tensor_matrix_,
-                                        amplitudes_);
+        this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
+                                              this->tensor_matrix_,
+                                              amplitudes_);
     }
 
-	inline __m512 vect_calc_norm(__m512 x, __m512 y, __m512 z) {
-	    return _mm512_add_ps(_mm512_sqrt_ps(_mm512_add_ps(_mm512_add_ps(_mm512_mul_ps(x, x), _mm512_mul_ps(y, y)), _mm512_mul_ps(z, z))), f_epsilon_v);
-	}
+    inline __m512 vect_calc_norm(__m512 x, __m512 y, __m512 z) {
+        return _mm512_add_ps(_mm512_sqrt_ps(
+                _mm512_add_ps(_mm512_add_ps(_mm512_mul_ps(x, x), _mm512_mul_ps(y, y)), _mm512_mul_ps(z, z))),
+                             f_epsilon_v);
+    }
 
-	inline __m512d vect_calc_norm(__m512d x, __m512d y, __m512d z) {
-	    return _mm512_add_pd(_mm512_sqrt_pd(_mm512_add_pd(_mm512_add_pd(_mm512_mul_pd(x, x), _mm512_mul_pd(y, y)), _mm512_mul_pd(z, z))), d_epsilon_v);
-	}
+    inline __m512d vect_calc_norm(__m512d x, __m512d y, __m512d z) {
+        return _mm512_add_pd(_mm512_sqrt_pd(
+                _mm512_add_pd(_mm512_add_pd(_mm512_mul_pd(x, x), _mm512_mul_pd(y, y)), _mm512_mul_pd(z, z))),
+                             d_epsilon_v);
+    }
 
 };
 

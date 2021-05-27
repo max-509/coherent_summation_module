@@ -2,6 +2,7 @@
 #define SSE4_FUNCTIONS_IMPLS_H
 
 #include <immintrin.h>
+#include <cstddef>
 
 template <class SimdImplementation>
 struct SimdFunctions;
@@ -22,6 +23,43 @@ class Sse4FunctionsImpl {
 
     inline __m128d loadu_impl(const double *val_p) const {
         return _mm_loadu_pd(val_p);
+    }
+
+    template<template <class> class ArrayView>
+    inline __m128d get_vector_impl(const ArrayView<double> &array_view,
+                                   std::ptrdiff_t y_idx,
+                                   std::ptrdiff_t x_idx,
+                                   __m128i) const {
+        return _mm_set_pd(array_view(y_idx, x_idx + 1),
+                          array_view(y_idx, x_idx));
+    }
+
+    template<template <class> class ArrayView>
+    inline __m128 get_vector_impl(const ArrayView<float> &array_view,
+                                  std::ptrdiff_t y_idx,
+                                  std::ptrdiff_t x_idx,
+                                  __m128i) const {
+        return _mm_set_ps(array_view(y_idx, x_idx + 3),
+                          array_view(y_idx, x_idx + 2),
+                          array_view(y_idx, x_idx + 1),
+                          array_view(y_idx, x_idx));
+    }
+
+    template<class VectorType>
+    inline __m128i get_vindex_impl(std::ptrdiff_t stride) const;
+
+    template<>
+    inline __m128i get_vindex_impl<__m128>(std::ptrdiff_t stride) const {
+        return _mm_set_epi32(stride * 3,
+                             stride * 2,
+                             stride * 1,
+                             0);
+    }
+
+    template<>
+    inline __m128i get_vindex_impl<__m128d>(std::ptrdiff_t stride) const {
+        return _mm_set_epi64x(stride * 1,
+                             0);
     }
 
     inline __m128 add_impl(const __m128 v1, const __m128 v2) const {

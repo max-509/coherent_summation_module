@@ -187,14 +187,13 @@ py_array_d CoherentSummationANN::emission_tomography_method(py_array_d gather,
     auto *receivers_coords_data = static_cast<double *>(receivers_coords_info.ptr);
 
     auto n_receivers = receivers_coords_info.shape[0];
-    Array2D<double> receivers_coords2D{};
+    Array2D<double> receivers_coords2D;
 
-    if (receivers_coords_info.ndim == 1 || receivers_coords_info.shape[1] < 2) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 1));
-    } else if (receivers_coords_info.shape[1] == 2) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 2));
-    } else if (receivers_coords_info.shape[1] == 3) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 3));
+    if (receivers_coords_info.ndim == 1) {
+        receivers_coords2D = Array2D<double>(receivers_coords_data, n_receivers, 1,
+                                             receivers_coords.strides()[0] / sizeof(double), 1);
+    } else {
+        receivers_coords2D = cohSumUtils::py_buffer_to_array2D<double>(receivers_coords.request());
     }
 
     std::cout << "Start times table calculating" << std::endl;
@@ -235,14 +234,13 @@ py_array_d CoherentSummationANN::emission_tomography_method(py_array_d gather,
     auto *receivers_coords_data = static_cast<double *>(receivers_coords_info.ptr);
 
     auto n_receivers = receivers_coords_info.shape[0];
-    Array2D<double> receivers_coords2D{};
+    Array2D<double> receivers_coords2D;
 
-    if (receivers_coords_info.ndim == 1 || receivers_coords_info.shape[1] < 2) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 1));
-    } else if (receivers_coords_info.shape[1] == 2) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 2));
-    } else if (receivers_coords_info.shape[1] == 3) {
-        receivers_coords2D = std::move(Array2D<double>(receivers_coords_data, n_receivers, 3));
+    if (receivers_coords_info.ndim == 1) {
+        receivers_coords2D = Array2D<double>(receivers_coords_data, n_receivers, 1,
+                                             receivers_coords.strides()[0] / sizeof(double), 1);
+    } else {
+        receivers_coords2D = cohSumUtils::py_buffer_to_array2D<double>(receivers_coords.request());
     }
 
     std::cout << "Start times table calculating" << std::endl;

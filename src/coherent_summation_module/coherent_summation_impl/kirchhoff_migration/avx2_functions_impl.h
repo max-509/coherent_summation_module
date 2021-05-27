@@ -3,7 +3,7 @@
 
 #include <immintrin.h>
 
-template <class SimdImplementation>
+template<class SimdImplementation>
 struct SimdFunctions;
 
 class Avx2FunctionsImpl {
@@ -22,6 +22,49 @@ class Avx2FunctionsImpl {
 
     inline __m256d loadu_impl(const double *val_p) const {
         return _mm256_loadu_pd(val_p);
+    }
+
+    template<template<class> class ArrayView, typename IdxType>
+    inline __m256d get_vector_impl(const ArrayView<double> &array_view,
+                                   IdxType y_idx,
+                                   IdxType x_idx,
+                                   __m256i vindex) const {
+        return _mm256_i64gather_pd(array_view.get(y_idx, x_idx),
+                                   vindex,
+                                   sizeof(double));
+    }
+
+    template<template<class> class ArrayView, typename IdxType>
+    inline __m256 get_vector_impl(const ArrayView<float> &array_view,
+                                  IdxType y_idx,
+                                  IdxType x_idx,
+                                  __m256i vindex) const {
+        return _mm256_i32gather_ps(array_view.get(y_idx, x_idx),
+                                   vindex,
+                                   sizeof(float));
+    }
+
+    template<class VectorType>
+    inline __m256i get_vindex_impl(std::ptrdiff_t stride) const;
+
+    template<>
+    inline __m256i get_vindex_impl<__m256>(std::ptrdiff_t stride) const {
+        return _mm256_set_epi32(stride * 7,
+                                stride * 6,
+                                stride * 5,
+                                stride * 4,
+                                stride * 3,
+                                stride * 2,
+                                stride * 1,
+                                0);
+    }
+
+    template<>
+    inline __m256i get_vindex_impl<__m256d>(std::ptrdiff_t stride) const {
+        return _mm256_set_epi64x(stride * 3,
+                                 stride * 2,
+                                 stride * 1,
+                                 0);
     }
 
     inline __m256 add_impl(const __m256 v1, const __m256 v2) const {

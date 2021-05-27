@@ -7,9 +7,6 @@
 #include <string>
 #include <cstddef>
 
-// TODO: Сделать Array2D и Array1D аналогично numpy-массивам, 
-// так как numpy использует view над указателями
-
 #define DEF_EMISSION_TOMOGRAPHY_WITHOUT_TENSOR(Type1, Type2)                                            \
     def(                                                                                                \
         "emission_tomography",                                                                          \
