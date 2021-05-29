@@ -47,26 +47,6 @@ class Avx2FunctionsImpl {
     template<class VectorType>
     inline __m256i get_vindex_impl(std::ptrdiff_t stride) const;
 
-    template<>
-    inline __m256i get_vindex_impl<__m256>(std::ptrdiff_t stride) const {
-        return _mm256_set_epi32(stride * 7,
-                                stride * 6,
-                                stride * 5,
-                                stride * 4,
-                                stride * 3,
-                                stride * 2,
-                                stride * 1,
-                                0);
-    }
-
-    template<>
-    inline __m256i get_vindex_impl<__m256d>(std::ptrdiff_t stride) const {
-        return _mm256_set_epi64x(stride * 3,
-                                 stride * 2,
-                                 stride * 1,
-                                 0);
-    }
-
     inline __m256 add_impl(const __m256 v1, const __m256 v2) const {
         return _mm256_add_ps(v1, v2);
     }
@@ -109,5 +89,25 @@ class Avx2FunctionsImpl {
 
     friend SimdFunctions<Avx2FunctionsImpl>;
 };
+
+template<>
+inline __m256i Avx2FunctionsImpl::get_vindex_impl<__m256>(std::ptrdiff_t stride) const {
+    return _mm256_set_epi32(stride * 7,
+                            stride * 6,
+                            stride * 5,
+                            stride * 4,
+                            stride * 3,
+                            stride * 2,
+                            stride * 1,
+                            0);
+}
+
+template<>
+inline __m256i Avx2FunctionsImpl::get_vindex_impl<__m256d>(std::ptrdiff_t stride) const {
+    return _mm256_set_epi64x(stride * 3,
+                             stride * 2,
+                             stride * 1,
+                             0);
+}
 
 #endif //AVX2_FUNCTIONS_IMPLS_H

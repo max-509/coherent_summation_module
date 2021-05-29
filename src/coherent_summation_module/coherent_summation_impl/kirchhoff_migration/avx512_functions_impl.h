@@ -47,38 +47,6 @@ class Avx512FunctionsImpl {
     template<class VectorType>
     inline __m256i get_vindex_impl(std::ptrdiff_t stride) const;
 
-    template<>
-    inline __m512i get_vindex_impl<__m512>(std::ptrdiff_t stride) const {
-        return _mm512_set_epi32(stride * 15,
-                                stride * 14,
-                                stride * 13,
-                                stride * 12,
-                                stride * 11,
-                                stride * 10,
-                                stride * 9,
-                                stride * 8,
-                                stride * 7,
-                                stride * 6,
-                                stride * 5,
-                                stride * 4,
-                                stride * 3,
-                                stride * 2,
-                                stride * 1,
-                                0);
-    }
-
-    template<>
-    inline __m512i get_vindex_impl<__m512d>(std::ptrdiff_t stride) const {
-        return _mm512_set_epi64(stride * 7,
-                                stride * 6,
-                                stride * 5,
-                                stride * 4,
-                                stride * 3,
-                                stride * 2,
-                                stride * 1,
-                                0);
-    }
-
     inline __m512 add_impl(const __m512 v1, const __m512 v2) const {
         return _mm512_add_ps(v1, v2);
     }
@@ -121,6 +89,38 @@ class Avx512FunctionsImpl {
 
     friend SimdFunctions<Avx512FunctionsImpl>;
 };
+
+template<>
+inline __m512i Avx512FunctionsImpl::get_vindex_impl<__m512>(std::ptrdiff_t stride) const {
+    return _mm512_set_epi32(stride * 15,
+                            stride * 14,
+                            stride * 13,
+                            stride * 12,
+                            stride * 11,
+                            stride * 10,
+                            stride * 9,
+                            stride * 8,
+                            stride * 7,
+                            stride * 6,
+                            stride * 5,
+                            stride * 4,
+                            stride * 3,
+                            stride * 2,
+                            stride * 1,
+                            0);
+}
+
+template<>
+inline __m512i Avx512FunctionsImpl::get_vindex_impl<__m512d>(std::ptrdiff_t stride) const {
+    return _mm512_set_epi64(stride * 7,
+                            stride * 6,
+                            stride * 5,
+                            stride * 4,
+                            stride * 3,
+                            stride * 2,
+                            stride * 1,
+                            0);
+}
 
 #endif //AVX512_FUNCTIONS_IMPLS_H
 

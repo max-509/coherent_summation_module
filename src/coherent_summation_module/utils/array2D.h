@@ -63,8 +63,8 @@ private:
     pointer_type _p_array = nullptr;
     size_type _y_dim = 0;
     size_type _x_dim = 0;
-    size_type _x_stride = 0;
     size_type _y_stride = 0;
+    size_type _x_stride = 0;
 };
 
 #endif //_ARRAY2D_H

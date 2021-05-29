@@ -3,6 +3,7 @@
 
 #include "amplitudes_calculator_base.h"
 #include "array2D.h"
+#include "array1D.h"
 
 #include <immintrin.h>
 #include <functional>
@@ -21,7 +22,7 @@ public:
 
     AmplitudesCalculatorM256(const Array2D<value_type> &sources_coords,
                              const Array1D<value_type> &tensor_matrix) :
-            AmplitudesCalculatorBase(sources_coords, tensor_matrix) {}
+            AmplitudesCalculatorBase<T, AmplitudesCalculatorM256>(sources_coords, tensor_matrix) {}
 
     friend AmplitudesCalculatorBase<T, AmplitudesCalculatorM256<T>>;
 
