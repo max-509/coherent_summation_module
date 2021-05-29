@@ -48,20 +48,6 @@ class Sse4FunctionsImpl {
     template<class VectorType>
     inline __m128i get_vindex_impl(std::ptrdiff_t stride) const;
 
-    template<>
-    inline __m128i get_vindex_impl<__m128>(std::ptrdiff_t stride) const {
-        return _mm_set_epi32(stride * 3,
-                             stride * 2,
-                             stride * 1,
-                             0);
-    }
-
-    template<>
-    inline __m128i get_vindex_impl<__m128d>(std::ptrdiff_t stride) const {
-        return _mm_set_epi64x(stride * 1,
-                             0);
-    }
-
     inline __m128 add_impl(const __m128 v1, const __m128 v2) const {
         return _mm_add_ps(v1, v2);
     }
@@ -104,5 +90,19 @@ class Sse4FunctionsImpl {
 
     friend SimdFunctions<Sse4FunctionsImpl>;
 };
+
+template<>
+inline __m128i Sse4FunctionsImpl::get_vindex_impl<__m128>(std::ptrdiff_t stride) const {
+    return _mm_set_epi32(stride * 3,
+                         stride * 2,
+                         stride * 1,
+                         0);
+}
+
+template<>
+inline __m128i Sse4FunctionsImpl::get_vindex_impl<__m128d>(std::ptrdiff_t stride) const {
+    return _mm_set_epi64x(stride * 1,
+                         0);
+}
 
 #endif //SSE4_FUNCTIONS_IMPLS_H

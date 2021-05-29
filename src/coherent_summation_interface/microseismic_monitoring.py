@@ -158,7 +158,7 @@ def emission_tomography_on_files(file_names, table_times, dt,
 
         # Last iteration
 
-        result = emission_tomography_wrapper(coh_sum, gather_for_processing, table_times, dt, filename)
+        result = emission_tomography_wrapper(coh_sum, gather_for_processing, table_times, dt, file_names[n_files - 1])
 
         if result_future is not None:
             result_future.result()

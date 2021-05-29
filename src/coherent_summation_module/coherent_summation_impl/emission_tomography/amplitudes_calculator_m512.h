@@ -22,7 +22,7 @@ public:
 
     AmplitudesCalculatorM512(const Array2D<value_type> &sources_coords,
                              const Array1D<value_type> &tensor_matrix) :
-            AmplitudesCalculatorBase(sources_coords, tensor_matrix) {}
+            AmplitudesCalculatorBase<T, AmplitudesCalculatorM512>(sources_coords, tensor_matrix) {}
 
     friend AmplitudesCalculatorBase<T, AmplitudesCalculatorM512<T>>;
 
