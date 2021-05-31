@@ -23,7 +23,7 @@ public:
 private:
 
     void realize_calculate(const Array2D<value_type> &rec_coords_, Array2D<value_type> &amplitudes_) {
-        this->non_vector_calculate_amplitudes(0, sources_coords_, rec_coords_, tensor_matrix_, amplitudes_);
+        this->non_vector_calculate_amplitudes(0, this->sources_coords_, rec_coords_, this->tensor_matrix_, amplitudes_);
     }
 };
 

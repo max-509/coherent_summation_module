@@ -52,68 +52,69 @@ private:
                                                _mm_set1_ps(this->tensor_matrix_[5])
         };
 
-        __m128 coord_vec[3];
+#pragma omp parallel
+        {
 
-#ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2)
-#else
-#pragma omp parallel for simd schedule(static) collapse(2)
-#endif
-        for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
-            for (std::ptrdiff_t r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
-                for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm_sub_ps(_mm_set_ps(rec_coords_(r_ind + 3, crd), rec_coords_(r_ind + 2, crd),
-                                                           rec_coords_(r_ind + 1, crd), rec_coords_(r_ind + 0, crd)),
-                                                _mm_set1_ps(this->sources_coords_(i, crd)));
+            __m128 coord_vec[3];
+
+            #pragma omp for schedule(static) collapse(2)
+            for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
+                for (std::ptrdiff_t r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
+                    for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
+                        coord_vec[crd] = _mm_sub_ps(_mm_set_ps(rec_coords_(r_ind + 3, crd), rec_coords_(r_ind + 2, crd),
+                                                               rec_coords_(r_ind + 1, crd), rec_coords_(r_ind + 0, crd)),
+                                                    _mm_set1_ps(this->sources_coords_(i, crd)));
+                    }
+
+                    __m128 rev_dist = _mm_rcp_ps(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
+
+                    coord_vec[2] = _mm_mul_ps(coord_vec[2], rev_dist);
+
+                    __m128 norm_coord_z = _mm_mul_ps(coord_vec[2], rev_dist);
+
+                    __m128 ampl_vect = _mm_mul_ps(tensor_matrix_v[2],
+                                                  _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[2], coord_vec[2])));
+
+                    coord_vec[1] = _mm_mul_ps(coord_vec[1], rev_dist);
+
+    #ifdef __FMA__
+                    ampl_vect = _mm_fmadd_ps(tensor_matrix_v[1], _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[1], coord_vec[1])), ampl_vect);
+                    coord_vec[0] = _mm_mul_ps(coord_vec[0], rev_dist);
+                    ampl_vect = _mm_fmadd_ps(tensor_matrix_v[0], _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[0])), ampl_vect);
+
+                    __m128 double_norm_coord_z = _mm_mul_ps(norm_coord_z, two_v);
+
+                    ampl_vect = _mm_fmadd_ps(tensor_matrix_v[3], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[1], coord_vec[2])), ampl_vect);
+                    ampl_vect = _mm_fmadd_ps(tensor_matrix_v[4], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[2])), ampl_vect);
+                    ampl_vect = _mm_fmadd_ps(tensor_matrix_v[5], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[1])), ampl_vect);
+    #else
+                    ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[1], _mm_mul_ps(norm_coord_z,
+                                                                                                _mm_mul_ps(coord_vec[1],
+                                                                                                           coord_vec[1]))));
+                    coord_vec[0] = _mm_mul_ps(coord_vec[0], rev_dist);
+                    ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[0], _mm_mul_ps(norm_coord_z,
+                                                                                                _mm_mul_ps(coord_vec[0],
+                                                                                                           coord_vec[0]))));
+
+                    __m128 double_norm_coord_z = _mm_mul_ps(norm_coord_z, two_v);
+
+                    ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[3], _mm_mul_ps(double_norm_coord_z,
+                                                                                                _mm_mul_ps(coord_vec[1],
+                                                                                                           coord_vec[2]))));
+                    ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[4], _mm_mul_ps(double_norm_coord_z,
+                                                                                                _mm_mul_ps(coord_vec[0],
+                                                                                                           coord_vec[2]))));
+                    ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[5], _mm_mul_ps(double_norm_coord_z,
+                                                                                                _mm_mul_ps(coord_vec[0],
+                                                                                                           coord_vec[1]))));
+    #endif
+
+                    _mm_storeu_ps(amplitudes_.get(i, r_ind),
+                                  _mm_div_ps(ampl_vect, _mm_add_ps(_mm_and_ps(ampl_vect, abs_mask_f), f_epsilon_v)));
                 }
-
-                __m128 rev_dist = _mm_rcp_ps(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
-
-                coord_vec[2] = _mm_mul_ps(coord_vec[2], rev_dist);
-
-                __m128 norm_coord_z = _mm_mul_ps(coord_vec[2], rev_dist);
-
-                __m128 ampl_vect = _mm_mul_ps(tensor_matrix_v[2],
-                                              _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[2], coord_vec[2])));
-
-                coord_vec[1] = _mm_mul_ps(coord_vec[1], rev_dist);
-
-#ifdef __FMA__
-                ampl_vect = _mm_fmadd_ps(tensor_matrix_v[1], _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[1], coord_vec[1])), ampl_vect);
-                coord_vec[0] = _mm_mul_ps(coord_vec[0], rev_dist);
-                ampl_vect = _mm_fmadd_ps(tensor_matrix_v[0], _mm_mul_ps(norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[0])), ampl_vect);
-
-                __m128 double_norm_coord_z = _mm_mul_ps(norm_coord_z, two_v);
-
-                ampl_vect = _mm_fmadd_ps(tensor_matrix_v[3], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[1], coord_vec[2])), ampl_vect);
-                ampl_vect = _mm_fmadd_ps(tensor_matrix_v[4], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[2])), ampl_vect);
-                ampl_vect = _mm_fmadd_ps(tensor_matrix_v[5], _mm_mul_ps(double_norm_coord_z, _mm_mul_ps(coord_vec[0], coord_vec[1])), ampl_vect);
-#else
-                ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[1], _mm_mul_ps(norm_coord_z,
-                                                                                            _mm_mul_ps(coord_vec[1],
-                                                                                                       coord_vec[1]))));
-                coord_vec[0] = _mm_mul_ps(coord_vec[0], rev_dist);
-                ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[0], _mm_mul_ps(norm_coord_z,
-                                                                                            _mm_mul_ps(coord_vec[0],
-                                                                                                       coord_vec[0]))));
-
-                __m128 double_norm_coord_z = _mm_mul_ps(norm_coord_z, two_v);
-
-                ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[3], _mm_mul_ps(double_norm_coord_z,
-                                                                                            _mm_mul_ps(coord_vec[1],
-                                                                                                       coord_vec[2]))));
-                ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[4], _mm_mul_ps(double_norm_coord_z,
-                                                                                            _mm_mul_ps(coord_vec[0],
-                                                                                                       coord_vec[2]))));
-                ampl_vect = _mm_add_ps(ampl_vect, _mm_mul_ps(tensor_matrix_v[5], _mm_mul_ps(double_norm_coord_z,
-                                                                                            _mm_mul_ps(coord_vec[0],
-                                                                                                       coord_vec[1]))));
-#endif
-
-                _mm_storeu_ps(amplitudes_.get(i, r_ind),
-                              _mm_div_ps(ampl_vect, _mm_add_ps(_mm_and_ps(ampl_vect, abs_mask_f), f_epsilon_v)));
-            }
+            } 
         }
+        
         this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
                                               this->tensor_matrix_, amplitudes_);
     }
@@ -136,67 +137,67 @@ private:
                                                 _mm_set1_pd(this->tensor_matrix_[5])
         };
 
-        __m128d coord_vec[3];
+#pragma omp parallel
+        {
+            __m128d coord_vec[3];
 
-#ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2) private(coord_vect)
-#else
-#pragma omp parallel for simd schedule(static) collapse(2) private(coord_vect)
-#endif
-        for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
-            for (std::ptrdiff_t r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
-                for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm_sub_pd(_mm_set_pd(rec_coords_(r_ind + 1, crd), rec_coords_(r_ind + 0, crd)),
-                                                _mm_set1_pd(this->sources_coords_(i, crd)));
+            #pragma omp for schedule(static) collapse(2)
+            for (std::ptrdiff_t i = 0; i < sources_count; ++i) {
+                for (std::ptrdiff_t r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
+                    for (std::ptrdiff_t crd = 0; crd < 3; ++crd) {
+                        coord_vec[crd] = _mm_sub_pd(_mm_set_pd(rec_coords_(r_ind + 1, crd), rec_coords_(r_ind + 0, crd)),
+                                                    _mm_set1_pd(this->sources_coords_(i, crd)));
+                    }
+
+                    __m128d rev_dist = _mm_div_pd(one_v, vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
+
+                    coord_vec[2] = _mm_mul_pd(coord_vec[2], rev_dist);
+
+                    __m128d norm_coord_z = _mm_mul_pd(coord_vec[2], rev_dist);
+
+                    __m128d ampl_vect = _mm_mul_pd(tensor_matrix_v[2],
+                                                   _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[2], coord_vec[2])));
+
+                    coord_vec[1] = _mm_mul_pd(coord_vec[1], rev_dist);
+
+    #ifdef __FMA__
+                    ampl_vect = _mm_fmadd_pd(tensor_matrix_v[1], _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[1], coord_vec[1])), ampl_vect);
+                    coord_vec[0] = _mm_mul_pd(coord_vec[0], rev_dist);
+                    ampl_vect = _mm_fmadd_pd(tensor_matrix_v[0], _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[0])), ampl_vect);
+
+                    __m128d double_norm_coord_z = _mm_mul_pd(norm_coord_z, two_v);
+
+                    ampl_vect = _mm_fmadd_pd(tensor_matrix_v[3], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[1], coord_vec[2])), ampl_vect);
+                    ampl_vect = _mm_fmadd_pd(tensor_matrix_v[4], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[2])), ampl_vect);
+                    ampl_vect = _mm_fmadd_pd(tensor_matrix_v[5], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[1])), ampl_vect);
+    #else
+                    ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[1], _mm_mul_pd(norm_coord_z,
+                                                                                                _mm_mul_pd(coord_vec[1],
+                                                                                                           coord_vec[1]))));
+                    coord_vec[0] = _mm_mul_pd(coord_vec[0], rev_dist);
+                    ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[0], _mm_mul_pd(norm_coord_z,
+                                                                                                _mm_mul_pd(coord_vec[0],
+                                                                                                           coord_vec[0]))));
+
+                    __m128d double_norm_coord_z = _mm_mul_pd(norm_coord_z, two_v);
+
+                    ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[3], _mm_mul_pd(double_norm_coord_z,
+                                                                                                _mm_mul_pd(coord_vec[1],
+                                                                                                           coord_vec[2]))));
+                    ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[4], _mm_mul_pd(double_norm_coord_z,
+                                                                                                _mm_mul_pd(coord_vec[0],
+                                                                                                           coord_vec[2]))));
+                    ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[5], _mm_mul_pd(double_norm_coord_z,
+                                                                                                _mm_mul_pd(coord_vec[0],
+                                                                                                           coord_vec[1]))));
+    #endif
+
+                    _mm_storeu_pd(amplitudes_.get(i, r_ind),
+                                  _mm_div_pd(ampl_vect, _mm_add_pd(_mm_and_pd(ampl_vect, abs_mask_d), d_epsilon_v)));
                 }
-
-                __m128d rev_dist = _mm_div_pd(one_v, vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
-
-                coord_vec[2] = _mm_mul_pd(coord_vec[2], rev_dist);
-
-                __m128d norm_coord_z = _mm_mul_pd(coord_vec[2], rev_dist);
-
-                __m128d ampl_vect = _mm_mul_pd(tensor_matrix_v[2],
-                                               _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[2], coord_vec[2])));
-
-                coord_vec[1] = _mm_mul_pd(coord_vec[1], rev_dist);
-
-#ifdef __FMA__
-                ampl_vect = _mm_fmadd_pd(tensor_matrix_v[1], _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[1], coord_vec[1])), ampl_vect);
-                coord_vec[0] = _mm_mul_pd(coord_vec[0], rev_dist);
-                ampl_vect = _mm_fmadd_pd(tensor_matrix_v[0], _mm_mul_pd(norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[0])), ampl_vect);
-
-                __m128d double_norm_coord_z = _mm_mul_pd(norm_coord_z, two_v);
-
-                ampl_vect = _mm_fmadd_pd(tensor_matrix_v[3], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[1], coord_vec[2])), ampl_vect);
-                ampl_vect = _mm_fmadd_pd(tensor_matrix_v[4], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[2])), ampl_vect);
-                ampl_vect = _mm_fmadd_pd(tensor_matrix_v[5], _mm_mul_pd(double_norm_coord_z, _mm_mul_pd(coord_vec[0], coord_vec[1])), ampl_vect);
-#else
-                ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[1], _mm_mul_pd(norm_coord_z,
-                                                                                            _mm_mul_pd(coord_vec[1],
-                                                                                                       coord_vec[1]))));
-                coord_vec[0] = _mm_mul_pd(coord_vec[0], rev_dist);
-                ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[0], _mm_mul_pd(norm_coord_z,
-                                                                                            _mm_mul_pd(coord_vec[0],
-                                                                                                       coord_vec[0]))));
-
-                __m128d double_norm_coord_z = _mm_mul_pd(norm_coord_z, two_v);
-
-                ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[3], _mm_mul_pd(double_norm_coord_z,
-                                                                                            _mm_mul_pd(coord_vec[1],
-                                                                                                       coord_vec[2]))));
-                ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[4], _mm_mul_pd(double_norm_coord_z,
-                                                                                            _mm_mul_pd(coord_vec[0],
-                                                                                                       coord_vec[2]))));
-                ampl_vect = _mm_add_pd(ampl_vect, _mm_mul_pd(tensor_matrix_v[5], _mm_mul_pd(double_norm_coord_z,
-                                                                                            _mm_mul_pd(coord_vec[0],
-                                                                                                       coord_vec[1]))));
-#endif
-
-                _mm_storeu_pd(amplitudes_.get(i, r_ind),
-                              _mm_div_pd(ampl_vect, _mm_add_pd(_mm_and_pd(ampl_vect, abs_mask_d), d_epsilon_v)));
             }
         }
+        
 
         this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
                                               this->tensor_matrix_, amplitudes_);

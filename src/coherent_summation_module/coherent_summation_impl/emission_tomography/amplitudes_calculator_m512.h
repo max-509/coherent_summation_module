@@ -68,64 +68,64 @@ private:
                                           rec_coords_y_stride * 1,
                                           rec_coords_y_stride * 0);
 
-        __m512 coord_vec[3];
+#pragma omp parallel
+        {
+            __m512 coord_vec[3];
 
-#ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2)
-#else
-#pragma omp parallel for simd schedule(static) collapse(2)
-#endif
-        for (size_type i = 0; i < sources_count; ++i) {
-            for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
-                for (size_type crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm512_sub_ps(
-                            _mm512_i32gather_ps(vindex, rec_coords_.get(r_ind, crd), sizeof(float)),
-                            _mm512_set1_ps(sources_coords_(i, crd)));
-                    // coord_vec[crd] = _mm512_sub_ps(_mm512_set_ps(rec_coords_(r_ind+15, crd), rec_coords_(r_ind+14, crd), rec_coords_(r_ind+13, crd), rec_coords_(r_ind+12, crd),
-                    //                                            rec_coords_(r_ind+11, crd), rec_coords_(r_ind+10, crd), rec_coords_(r_ind+9, crd), rec_coords_(r_ind+8, crd),
-                    //                                            rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
-                    //                                            rec_coords_(r_ind+3, crd), rec_coords_(r_ind+2, crd), rec_coords_(r_ind+1, crd), rec_coords_(r_ind+0, crd)), _mm512_set1_ps(sources_coords_(i, crd)));
+            #pragma omp for schedule(static) collapse(2)
+            for (size_type i = 0; i < sources_count; ++i) {
+                for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
+                    for (size_type crd = 0; crd < 3; ++crd) {
+                        coord_vec[crd] = _mm512_sub_ps(
+                                _mm512_i32gather_ps(vindex, rec_coords_.get(r_ind, crd), sizeof(float)),
+                                _mm512_set1_ps(this->sources_coords_(i, crd)));
+                        // coord_vec[crd] = _mm512_sub_ps(_mm512_set_ps(rec_coords_(r_ind+15, crd), rec_coords_(r_ind+14, crd), rec_coords_(r_ind+13, crd), rec_coords_(r_ind+12, crd),
+                        //                                            rec_coords_(r_ind+11, crd), rec_coords_(r_ind+10, crd), rec_coords_(r_ind+9, crd), rec_coords_(r_ind+8, crd),
+                        //                                            rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
+                        //                                            rec_coords_(r_ind+3, crd), rec_coords_(r_ind+2, crd), rec_coords_(r_ind+1, crd), rec_coords_(r_ind+0, crd)), _mm512_set1_ps(sources_coords_(i, crd)));
+                    }
+
+                    __m512 rev_dist = _mm512_rcp14_ps(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
+
+                    coord_vec[2] = _mm512_mul_ps(coord_vec[2], rev_dist);
+
+                    __m512 norm_coord_z = _mm512_mul_ps(coord_vec[2], rev_dist);
+
+                    __m512 ampl_vect = _mm512_mul_ps(tensor_matrix_v[2],
+                                                     _mm512_mul_ps(norm_coord_z,
+                                                                   _mm512_mul_ps(coord_vec[2], coord_vec[2])));
+
+                    coord_vec[1] = _mm512_mul_ps(coord_vec[1], rev_dist);
+
+                    ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[1],
+                                                _mm512_mul_ps(norm_coord_z, _mm512_mul_ps(coord_vec[1], coord_vec[1])),
+                                                ampl_vect);
+                    coord_vec[0] = _mm512_mul_ps(coord_vec[0], rev_dist);
+                    ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[0],
+                                                _mm512_mul_ps(norm_coord_z, _mm512_mul_ps(coord_vec[0], coord_vec[0])),
+                                                ampl_vect);
+
+                    __m512 double_norm_coord_z = _mm512_mul_ps(norm_coord_z, two_v);
+
+                    ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[3],
+                                                _mm512_mul_ps(double_norm_coord_z,
+                                                              _mm512_mul_ps(coord_vec[1], coord_vec[2])),
+                                                ampl_vect);
+                    ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[4],
+                                                _mm512_mul_ps(double_norm_coord_z,
+                                                              _mm512_mul_ps(coord_vec[0], coord_vec[2])),
+                                                ampl_vect);
+                    ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[5],
+                                                _mm512_mul_ps(double_norm_coord_z,
+                                                              _mm512_mul_ps(coord_vec[0], coord_vec[1])),
+                                                ampl_vect);
+
+                    _mm512_storeu_ps(amplitudes_.get(i, r_ind),
+                                     _mm512_div_ps(ampl_vect, _mm512_add_ps(_mm512_abs_ps(ampl_vect), f_epsilon_v)));
                 }
-
-                __m512 rev_dist = _mm512_rcp14_ps(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
-
-                coord_vec[2] = _mm512_mul_ps(coord_vec[2], rev_dist);
-
-                __m512 norm_coord_z = _mm512_mul_ps(coord_vec[2], rev_dist);
-
-                __m512 ampl_vect = _mm512_mul_ps(tensor_matrix_v[2],
-                                                 _mm512_mul_ps(norm_coord_z,
-                                                               _mm512_mul_ps(coord_vec[2], coord_vec[2])));
-
-                coord_vec[1] = _mm512_mul_ps(coord_vec[1], rev_dist);
-
-                ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[1],
-                                            _mm512_mul_ps(norm_coord_z, _mm512_mul_ps(coord_vec[1], coord_vec[1])),
-                                            ampl_vect);
-                coord_vec[0] = _mm512_mul_ps(coord_vec[0], rev_dist);
-                ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[0],
-                                            _mm512_mul_ps(norm_coord_z, _mm512_mul_ps(coord_vec[0], coord_vec[0])),
-                                            ampl_vect);
-
-                __m512 double_norm_coord_z = _mm512_mul_ps(norm_coord_z, two_v);
-
-                ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[3],
-                                            _mm512_mul_ps(double_norm_coord_z,
-                                                          _mm512_mul_ps(coord_vec[1], coord_vec[2])),
-                                            ampl_vect);
-                ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[4],
-                                            _mm512_mul_ps(double_norm_coord_z,
-                                                          _mm512_mul_ps(coord_vec[0], coord_vec[2])),
-                                            ampl_vect);
-                ampl_vect = _mm512_fmadd_ps(tensor_matrix_v[5],
-                                            _mm512_mul_ps(double_norm_coord_z,
-                                                          _mm512_mul_ps(coord_vec[0], coord_vec[1])),
-                                            ampl_vect);
-
-                _mm512_storeu_ps(amplitudes_.get(i, r_ind),
-                                 _mm512_div_ps(ampl_vect, _mm512_add_ps(_mm512_abs_ps(ampl_vect), f_epsilon_v)));
             }
         }
+        
 
         this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
                                               this->tensor_matrix_,
@@ -158,60 +158,59 @@ private:
                                           rec_coords_y_stride * 1,
                                           rec_coords_y_stride * 0);
 
-        __m512d coord_vec[3];
+#pragma omp parallel
+        {
+            __m512d coord_vec[3];
 
-#ifdef _MSC_VER
-#pragma omp parallel for schedule(static) collapse(2)
-#else
-#pragma omp parallel for simd schedule(static) collapse(2)
-#endif
-        for (size_type i = 0; i < sources_count; ++i) {
-            for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
-                for (size_type crd = 0; crd < 3; ++crd) {
-                    coord_vec[crd] = _mm512_sub_pd(
-                            _mm512_i64gather_pd(vindex, rec_coords_.get(r_ind, crd), sizeof(double)),
-                            _mm512_set1_pd(this->sources_coords_(i, crd)));
-                    // coord_vec[crd] = _mm512_sub_pd(_mm512_set_pd(rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
-                    //                                            rec_coords_(r_ind+3, crd), rec_coords_(r_ind+2, crd), rec_coords_(r_ind+1, crd), rec_coords_(r_ind+0, crd)), _mm512_set1_pd(sources_coords_(i, crd)));
+            #pragma omp for schedule(static) collapse(2)
+            for (size_type i = 0; i < sources_count; ++i) {
+                for (size_type r_ind = 0; r_ind < n_rec - (n_rec % vector_dim); r_ind += vector_dim) {
+                    for (size_type crd = 0; crd < 3; ++crd) {
+                        coord_vec[crd] = _mm512_sub_pd(
+                                _mm512_i64gather_pd(vindex, rec_coords_.get(r_ind, crd), sizeof(double)),
+                                _mm512_set1_pd(this->sources_coords_(i, crd)));
+                        // coord_vec[crd] = _mm512_sub_pd(_mm512_set_pd(rec_coords_(r_ind+7, crd), rec_coords_(r_ind+6, crd), rec_coords_(r_ind+5, crd), rec_coords_(r_ind+4, crd),
+                        //                                            rec_coords_(r_ind+3, crd), rec_coords_(r_ind+2, crd), rec_coords_(r_ind+1, crd), rec_coords_(r_ind+0, crd)), _mm512_set1_pd(sources_coords_(i, crd)));
+                    }
+
+                    __m512d rev_dist = _mm512_rcp14_pd(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
+
+                    coord_vec[2] = _mm512_mul_pd(coord_vec[2], rev_dist);
+
+                    __m512d norm_coord_z = _mm512_mul_pd(coord_vec[2], rev_dist);
+
+                    __m512d ampl_vect = _mm512_mul_pd(tensor_matrix_v[2],
+                                                      _mm512_mul_pd(norm_coord_z,
+                                                                    _mm512_mul_pd(coord_vec[2], coord_vec[2])));
+
+                    coord_vec[1] = _mm512_mul_pd(coord_vec[1], rev_dist);
+
+                    ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[1],
+                                                _mm512_mul_pd(norm_coord_z, _mm512_mul_pd(coord_vec[1], coord_vec[1])),
+                                                ampl_vect);
+                    coord_vec[0] = _mm512_mul_pd(coord_vec[0], rev_dist);
+                    ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[0],
+                                                _mm512_mul_pd(norm_coord_z, _mm512_mul_pd(coord_vec[0], coord_vec[0])),
+                                                ampl_vect);
+
+                    __m512d double_norm_coord_z = _mm512_mul_pd(norm_coord_z, two_v);
+
+                    ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[3],
+                                                _mm512_mul_pd(double_norm_coord_z,
+                                                              _mm512_mul_pd(coord_vec[1], coord_vec[2])),
+                                                ampl_vect);
+                    ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[4],
+                                                _mm512_mul_pd(double_norm_coord_z,
+                                                              _mm512_mul_pd(coord_vec[0], coord_vec[2])),
+                                                ampl_vect);
+                    ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[5],
+                                                _mm512_mul_pd(double_norm_coord_z,
+                                                              _mm512_mul_pd(coord_vec[0], coord_vec[1])),
+                                                ampl_vect);
+
+                    _mm512_storeu_pd(amplitudes_.get(i, r_ind),
+                                     _mm512_div_pd(ampl_vect, _mm512_add_pd(_mm512_abs_pd(ampl_vect), d_epsilon_v)));
                 }
-
-                __m512d rev_dist = _mm512_rcp14_pd(vect_calc_norm(coord_vec[0], coord_vec[1], coord_vec[2]));
-
-                coord_vec[2] = _mm512_mul_pd(coord_vec[2], rev_dist);
-
-                __m512d norm_coord_z = _mm512_mul_pd(coord_vec[2], rev_dist);
-
-                __m512d ampl_vect = _mm512_mul_pd(tensor_matrix_v[2],
-                                                  _mm512_mul_pd(norm_coord_z,
-                                                                _mm512_mul_pd(coord_vec[2], coord_vec[2])));
-
-                coord_vec[1] = _mm512_mul_pd(coord_vec[1], rev_dist);
-
-                ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[1],
-                                            _mm512_mul_pd(norm_coord_z, _mm512_mul_pd(coord_vec[1], coord_vec[1])),
-                                            ampl_vect);
-                coord_vec[0] = _mm512_mul_pd(coord_vec[0], rev_dist);
-                ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[0],
-                                            _mm512_mul_pd(norm_coord_z, _mm512_mul_pd(coord_vec[0], coord_vec[0])),
-                                            ampl_vect);
-
-                __m512d double_norm_coord_z = _mm512_mul_pd(norm_coord_z, two_v);
-
-                ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[3],
-                                            _mm512_mul_pd(double_norm_coord_z,
-                                                          _mm512_mul_pd(coord_vec[1], coord_vec[2])),
-                                            ampl_vect);
-                ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[4],
-                                            _mm512_mul_pd(double_norm_coord_z,
-                                                          _mm512_mul_pd(coord_vec[0], coord_vec[2])),
-                                            ampl_vect);
-                ampl_vect = _mm512_fmadd_pd(tensor_matrix_v[5],
-                                            _mm512_mul_pd(double_norm_coord_z,
-                                                          _mm512_mul_pd(coord_vec[0], coord_vec[1])),
-                                            ampl_vect);
-
-                _mm512_storeu_pd(amplitudes_.get(i, r_ind),
-                                 _mm512_div_pd(ampl_vect, _mm512_add_pd(_mm512_abs_pd(ampl_vect), d_epsilon_v)));
             }
         }
         this->non_vector_calculate_amplitudes(n_rec - (n_rec % vector_dim), this->sources_coords_, rec_coords_,
