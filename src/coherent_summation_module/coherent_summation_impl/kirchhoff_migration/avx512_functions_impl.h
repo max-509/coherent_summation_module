@@ -45,7 +45,7 @@ class Avx512FunctionsImpl {
     }
 
     template<class VectorType>
-    inline __m256i get_vindex_impl(std::ptrdiff_t stride) const;
+    inline __m512i get_vindex_impl(std::ptrdiff_t stride) const;
 
     inline __m512 add_impl(const __m512 v1, const __m512 v2) const {
         return _mm512_add_ps(v1, v2);

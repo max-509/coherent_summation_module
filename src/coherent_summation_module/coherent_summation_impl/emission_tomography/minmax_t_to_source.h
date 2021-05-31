@@ -146,7 +146,7 @@ find_minmax_t_to_source_stride(const Array2D<double> &sources_receivers_times, s
                                             x_stride * 0);
 
     auto min_elements_v = _mm512_i64gather_pd(vindex,
-                                              sources_receivers_times.get(i_s, 0).
+                                              sources_receivers_times.get(i_s, 0),
                                               sizeof(double));
     auto max_elements_v = min_elements_v;
     for (std::ptrdiff_t i_r = 0; i_r < n_receivers_multiple_vector_dim - vector_dim; i_r += vector_dim) {
